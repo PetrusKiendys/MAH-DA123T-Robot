@@ -2,7 +2,7 @@ package testpack;
 
 public class AbundantNumbers {
 
-// ADDED THIS COMMENT FROM THE WEB INTERFACE
+// REMOVED COMMENT THAT WAS ADDED FROM WEB INTERFACE
 
 	private void calcAbundantNumbers(int n) {
 			// i = the number being tried for abundance
