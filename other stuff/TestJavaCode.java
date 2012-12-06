@@ -2,7 +2,7 @@ package testpack;
 
 public class AbundantNumbers {
 
-// COMMENT (from Windows shell extension interface)
+// COMMENT (from web interface)
 
 	private void calcAbundantNumbers(int n) {
 			// i = the number being tried for abundance
