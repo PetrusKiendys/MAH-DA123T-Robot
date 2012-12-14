@@ -7,7 +7,7 @@ startup/libea_startup_thumb.a(framework.o)
 startup/libea_startup_thumb.a(consol.o)
                               startup/libea_startup_thumb.a(framework.o) (consolInit)
 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_udivsi3.o)
-                              main.o (__udivsi3)
+                              startup/libea_startup_thumb.a(consol.o) (__udivsi3)
 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_umodsi3.o)
                               startup/libea_startup_thumb.a(consol.o) (__umodsi3)
 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_dvmd_tls.o)
@@ -41,71 +41,72 @@ LOAD /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a
 LOAD /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/../../../../arm-elf/lib/interwork/libc.a
 END GROUP
 
-.text           0x00000000      0xb80
+.text           0x00000000      0xc30
  *startup.o(.text)
  .text          0x00000000      0x1bc startup/libea_startup_thumb.a(startup.o)
                 0x00000000                _startup
  *(.text)
- .text          0x000001bc       0xbc main.o
-                0x000001bc                main
- .text          0x00000278      0x280 startup/libea_startup_thumb.a(framework.o)
-                0x00000398                eaInit
-                0x000002e4                lowLevelInit
-                0x00000278                exceptionHandlerInit
- .text          0x000004f8      0x3fc startup/libea_startup_thumb.a(consol.o)
-                0x000005ec                consolSendCh
-                0x0000065c                consolSendNumber
-                0x000005cc                consolSendChar
-                0x00000774                simplePrintf
-                0x00000630                consolSendString
-                0x0000057c                consolInit
- .text          0x000008f4      0x114 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_udivsi3.o)
-                0x000008f4                __udivsi3
-                0x000008f4                __aeabi_uidiv
-                0x000009f0                __aeabi_uidivmod
- .text          0x00000a08       0xd0 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_umodsi3.o)
-                0x00000a08                __umodsi3
- .text          0x00000ad8        0x4 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_dvmd_tls.o)
-                0x00000ad8                __aeabi_ldiv0
-                0x00000ad8                __div0
-                0x00000ad8                __aeabi_idiv0
- .text          0x00000adc       0x9c /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/../../../../arm-elf/lib/interwork/libc.a(memcpy.o)
-                0x00000adc                memcpy
+ .text          0x000001bc      0x178 main.o
+                0x000001bc                initPins
+                0x000002a0                main
+                0x00000268                setMode2
+                0x00000234                setMode
+ .text          0x00000334      0x27c startup/libea_startup_thumb.a(framework.o)
+                0x00000450                eaInit
+                0x000003a0                lowLevelInit
+                0x00000334                exceptionHandlerInit
+ .text          0x000005b0      0x3fc startup/libea_startup_thumb.a(consol.o)
+                0x000006a4                consolSendCh
+                0x00000714                consolSendNumber
+                0x00000684                consolSendChar
+                0x0000082c                simplePrintf
+                0x000006e8                consolSendString
+                0x00000634                consolInit
+ .text          0x000009ac      0x114 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_udivsi3.o)
+                0x000009ac                __udivsi3
+                0x000009ac                __aeabi_uidiv
+                0x00000aa8                __aeabi_uidivmod
+ .text          0x00000ac0       0xd0 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_umodsi3.o)
+                0x00000ac0                __umodsi3
+ .text          0x00000b90        0x4 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_dvmd_tls.o)
+                0x00000b90                __aeabi_ldiv0
+                0x00000b90                __div0
+                0x00000b90                __aeabi_idiv0
+ .text          0x00000b94       0x9c /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/../../../../arm-elf/lib/interwork/libc.a(memcpy.o)
+                0x00000b94                memcpy
  *(.glue_7)
- .glue_7        0x00000b78        0x0 main.o
- .glue_7        0x00000b78        0x0 startup/libea_startup_thumb.a(startup.o)
- .glue_7        0x00000b78        0x0 startup/libea_startup_thumb.a(framework.o)
- .glue_7        0x00000b78        0x0 startup/libea_startup_thumb.a(consol.o)
- .glue_7        0x00000b78        0x0 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_udivsi3.o)
- .glue_7        0x00000b78        0x0 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_umodsi3.o)
- .glue_7        0x00000b78        0x0 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_dvmd_tls.o)
- .glue_7        0x00000b78        0x0 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/../../../../arm-elf/lib/interwork/libc.a(memcpy.o)
+ .glue_7        0x00000c30        0x0 main.o
+ .glue_7        0x00000c30        0x0 startup/libea_startup_thumb.a(startup.o)
+ .glue_7        0x00000c30        0x0 startup/libea_startup_thumb.a(framework.o)
+ .glue_7        0x00000c30        0x0 startup/libea_startup_thumb.a(consol.o)
+ .glue_7        0x00000c30        0x0 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_udivsi3.o)
+ .glue_7        0x00000c30        0x0 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_umodsi3.o)
+ .glue_7        0x00000c30        0x0 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_dvmd_tls.o)
+ .glue_7        0x00000c30        0x0 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/../../../../arm-elf/lib/interwork/libc.a(memcpy.o)
  *(.glue_7t)
- .glue_7t       0x00000b78        0x0 main.o
- .glue_7t       0x00000b78        0x0 startup/libea_startup_thumb.a(startup.o)
- .glue_7t       0x00000b78        0x0 startup/libea_startup_thumb.a(framework.o)
- .glue_7t       0x00000b78        0x0 startup/libea_startup_thumb.a(consol.o)
- .glue_7t       0x00000b78        0x0 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_udivsi3.o)
- .glue_7t       0x00000b78        0x0 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_umodsi3.o)
- .glue_7t       0x00000b78        0x0 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_dvmd_tls.o)
- .glue_7t       0x00000b78        0x8 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/../../../../arm-elf/lib/interwork/libc.a(memcpy.o)
-                0x00000b7c                ____udivsi3_change_to_arm
-                0x00000b78                ____udivsi3_from_thumb
-                0x00000b80                . = ALIGN (0x4)
+ .glue_7t       0x00000c30        0x0 main.o
+ .glue_7t       0x00000c30        0x0 startup/libea_startup_thumb.a(startup.o)
+ .glue_7t       0x00000c30        0x0 startup/libea_startup_thumb.a(framework.o)
+ .glue_7t       0x00000c30        0x0 startup/libea_startup_thumb.a(consol.o)
+ .glue_7t       0x00000c30        0x0 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_udivsi3.o)
+ .glue_7t       0x00000c30        0x0 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_umodsi3.o)
+ .glue_7t       0x00000c30        0x0 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_dvmd_tls.o)
+ .glue_7t       0x00000c30        0x0 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/../../../../arm-elf/lib/interwork/libc.a(memcpy.o)
+                0x00000c30                . = ALIGN (0x4)
 
-.rodata         0x00000b80       0xdc
+.rodata         0x00000c30       0xdc
  *(.rodata)
- .rodata        0x00000b80       0x10 startup/libea_startup_thumb.a(consol.o)
+ .rodata        0x00000c30       0x10 startup/libea_startup_thumb.a(consol.o)
  *(.rodata*)
  .rodata.str1.4
-                0x00000b90       0xb8 startup/libea_startup_thumb.a(framework.o)
+                0x00000c40       0xb8 startup/libea_startup_thumb.a(framework.o)
  .rodata.str1.4
-                0x00000c48       0x14 startup/libea_startup_thumb.a(consol.o)
-                0x00000c5c                . = ALIGN (0x4)
-                0x00000c5c                _etext = .
-                0x00000c5c                PROVIDE (etext, .)
+                0x00000cf8       0x14 startup/libea_startup_thumb.a(consol.o)
+                0x00000d0c                . = ALIGN (0x4)
+                0x00000d0c                _etext = .
+                0x00000d0c                PROVIDE (etext, .)
 
-.data           0x40000080        0x0 load address 0x00000c5c
+.data           0x40000080        0x0 load address 0x00000d0c
                 0x40000080                _data = .
  *(.data)
  .data          0x40000080        0x0 main.o
@@ -201,71 +202,71 @@ END GROUP
                 0x000000c0       0x20 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/../../../../arm-elf/lib/interwork/libc.a(memcpy.o)
 
 .debug_pubnames
-                0x00000000      0x11b
+                0x00000000      0x141
  *(.debug_pubnames)
  .debug_pubnames
-                0x00000000       0x1b main.o
+                0x00000000       0x41 main.o
  .debug_pubnames
-                0x0000001b       0x63 startup/libea_startup_thumb.a(framework.o)
+                0x00000041       0x63 startup/libea_startup_thumb.a(framework.o)
  .debug_pubnames
-                0x0000007e       0x80 startup/libea_startup_thumb.a(consol.o)
+                0x000000a4       0x80 startup/libea_startup_thumb.a(consol.o)
  .debug_pubnames
-                0x000000fe       0x1d /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/../../../../arm-elf/lib/interwork/libc.a(memcpy.o)
+                0x00000124       0x1d /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/../../../../arm-elf/lib/interwork/libc.a(memcpy.o)
 
-.debug_info     0x00000000      0x8bb
+.debug_info     0x00000000      0x8f6
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x00000000       0xfb main.o
- .debug_info    0x000000fb      0x1b2 startup/libea_startup_thumb.a(framework.o)
- .debug_info    0x000002ad      0x3cc startup/libea_startup_thumb.a(consol.o)
- .debug_info    0x00000679       0x68 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_udivsi3.o)
- .debug_info    0x000006e1       0x68 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_umodsi3.o)
- .debug_info    0x00000749       0x68 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_dvmd_tls.o)
- .debug_info    0x000007b1      0x10a /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/../../../../arm-elf/lib/interwork/libc.a(memcpy.o)
+ .debug_info    0x00000000      0x138 main.o
+ .debug_info    0x00000138      0x1b0 startup/libea_startup_thumb.a(framework.o)
+ .debug_info    0x000002e8      0x3cc startup/libea_startup_thumb.a(consol.o)
+ .debug_info    0x000006b4       0x68 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_udivsi3.o)
+ .debug_info    0x0000071c       0x68 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_umodsi3.o)
+ .debug_info    0x00000784       0x68 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_dvmd_tls.o)
+ .debug_info    0x000007ec      0x10a /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/../../../../arm-elf/lib/interwork/libc.a(memcpy.o)
 
-.debug_abbrev   0x00000000      0x497
+.debug_abbrev   0x00000000      0x4ac
  *(.debug_abbrev)
- .debug_abbrev  0x00000000       0xb1 main.o
- .debug_abbrev  0x000000b1       0xd0 startup/libea_startup_thumb.a(framework.o)
- .debug_abbrev  0x00000181      0x234 startup/libea_startup_thumb.a(consol.o)
- .debug_abbrev  0x000003b5       0x14 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_udivsi3.o)
- .debug_abbrev  0x000003c9       0x14 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_umodsi3.o)
- .debug_abbrev  0x000003dd       0x14 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_dvmd_tls.o)
- .debug_abbrev  0x000003f1       0xa6 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/../../../../arm-elf/lib/interwork/libc.a(memcpy.o)
+ .debug_abbrev  0x00000000       0xdb main.o
+ .debug_abbrev  0x000000db       0xbb startup/libea_startup_thumb.a(framework.o)
+ .debug_abbrev  0x00000196      0x234 startup/libea_startup_thumb.a(consol.o)
+ .debug_abbrev  0x000003ca       0x14 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_udivsi3.o)
+ .debug_abbrev  0x000003de       0x14 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_umodsi3.o)
+ .debug_abbrev  0x000003f2       0x14 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_dvmd_tls.o)
+ .debug_abbrev  0x00000406       0xa6 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/../../../../arm-elf/lib/interwork/libc.a(memcpy.o)
 
-.debug_line     0x00000000      0x441
+.debug_line     0x00000000      0x45f
  *(.debug_line)
- .debug_line    0x00000000       0x5b main.o
- .debug_line    0x0000005b       0xb1 startup/libea_startup_thumb.a(framework.o)
- .debug_line    0x0000010c      0x11e startup/libea_startup_thumb.a(consol.o)
- .debug_line    0x0000022a       0x84 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_udivsi3.o)
- .debug_line    0x000002ae       0x6e /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_umodsi3.o)
- .debug_line    0x0000031c       0x5d /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_dvmd_tls.o)
- .debug_line    0x00000379       0xc8 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/../../../../arm-elf/lib/interwork/libc.a(memcpy.o)
+ .debug_line    0x00000000       0x80 main.o
+ .debug_line    0x00000080       0xaa startup/libea_startup_thumb.a(framework.o)
+ .debug_line    0x0000012a      0x11e startup/libea_startup_thumb.a(consol.o)
+ .debug_line    0x00000248       0x84 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_udivsi3.o)
+ .debug_line    0x000002cc       0x6e /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_umodsi3.o)
+ .debug_line    0x0000033a       0x5d /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_dvmd_tls.o)
+ .debug_line    0x00000397       0xc8 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/../../../../arm-elf/lib/interwork/libc.a(memcpy.o)
 
-.debug_frame    0x00000000      0x23c
+.debug_frame    0x00000000      0x26c
  *(.debug_frame)
- .debug_frame   0x00000000       0x28 main.o
- .debug_frame   0x00000028       0xc8 startup/libea_startup_thumb.a(framework.o)
- .debug_frame   0x000000f0       0xcc startup/libea_startup_thumb.a(consol.o)
- .debug_frame   0x000001bc       0x2c /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_udivsi3.o)
- .debug_frame   0x000001e8       0x2c /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_umodsi3.o)
- .debug_frame   0x00000214       0x28 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/../../../../arm-elf/lib/interwork/libc.a(memcpy.o)
+ .debug_frame   0x00000000       0x60 main.o
+ .debug_frame   0x00000060       0xc0 startup/libea_startup_thumb.a(framework.o)
+ .debug_frame   0x00000120       0xcc startup/libea_startup_thumb.a(consol.o)
+ .debug_frame   0x000001ec       0x2c /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_udivsi3.o)
+ .debug_frame   0x00000218       0x2c /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_umodsi3.o)
+ .debug_frame   0x00000244       0x28 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/../../../../arm-elf/lib/interwork/libc.a(memcpy.o)
 
-.debug_str      0x00000000      0x36e
+.debug_str      0x00000000      0x383
  *(.debug_str)
- .debug_str     0x00000000       0xa0 main.o
-                                 0xb2 (size before relaxing)
- .debug_str     0x000000a0      0x10e startup/libea_startup_thumb.a(framework.o)
-                                0x12c (size before relaxing)
- .debug_str     0x000001ae      0x116 startup/libea_startup_thumb.a(consol.o)
-                                0x1a9 (size before relaxing)
- .debug_str     0x000002c4       0xaa /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/../../../../arm-elf/lib/interwork/libc.a(memcpy.o)
+ .debug_str     0x00000000       0xba main.o
+                                 0xc7 (size before relaxing)
+ .debug_str     0x000000ba      0x109 startup/libea_startup_thumb.a(framework.o)
+                                0x127 (size before relaxing)
+ .debug_str     0x000001c3      0x116 startup/libea_startup_thumb.a(consol.o)
+                                0x1a4 (size before relaxing)
+ .debug_str     0x000002d9       0xaa /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/../../../../arm-elf/lib/interwork/libc.a(memcpy.o)
                                  0xd6 (size before relaxing)
 
 .debug_loc      0x00000000      0x67f
  *(.debug_loc)
- .debug_loc     0x00000000       0x1f main.o
- .debug_loc     0x0000001f      0x174 startup/libea_startup_thumb.a(framework.o)
+ .debug_loc     0x00000000       0x3e main.o
+ .debug_loc     0x0000003e      0x155 startup/libea_startup_thumb.a(framework.o)
  .debug_loc     0x00000193      0x3f0 startup/libea_startup_thumb.a(consol.o)
  .debug_loc     0x00000583       0xfc /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/../../../../arm-elf/lib/interwork/libc.a(memcpy.o)
 
@@ -291,8 +292,6 @@ OUTPUT(pwm_duty.elf elf32-littlearm)
 Cross Reference Table
 
 Symbol                                            File
-____udivsi3_change_to_arm                         /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/../../../../arm-elf/lib/interwork/libc.a(memcpy.o)
-____udivsi3_from_thumb                            /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/../../../../arm-elf/lib/interwork/libc.a(memcpy.o)
 __aeabi_idiv0                                     /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_dvmd_tls.o)
 __aeabi_ldiv0                                     /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_dvmd_tls.o)
 __aeabi_uidiv                                     /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_udivsi3.o)
@@ -304,7 +303,6 @@ __div0                                            /cygdrive/c/program/gnuarm/bin
                                                   /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_udivsi3.o)
 __udivsi3                                         /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_udivsi3.o)
                                                   startup/libea_startup_thumb.a(consol.o)
-                                                  main.o
 __umodsi3                                         /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_umodsi3.o)
                                                   startup/libea_startup_thumb.a(consol.o)
 _data                                             startup/libea_startup_thumb.a(startup.o)
@@ -323,6 +321,7 @@ eaInit                                            startup/libea_startup_thumb.a(
 end                                               startup/libea_startup_thumb.a(framework.o)
 exceptionHandlerInit                              startup/libea_startup_thumb.a(framework.o)
                                                   startup/libea_startup_thumb.a(startup.o)
+initPins                                          main.o
 lowLevelInit                                      startup/libea_startup_thumb.a(framework.o)
                                                   startup/libea_startup_thumb.a(startup.o)
 main                                              main.o
@@ -331,4 +330,6 @@ memcpy                                            /cygdrive/c/program/gnuarm/bin
                                                   startup/libea_startup_thumb.a(consol.o)
 pHeapEnd                                          startup/libea_startup_thumb.a(framework.o)
 pHeapStart                                        startup/libea_startup_thumb.a(framework.o)
+setMode                                           main.o
+setMode2                                          main.o
 simplePrintf                                      startup/libea_startup_thumb.a(consol.o)
