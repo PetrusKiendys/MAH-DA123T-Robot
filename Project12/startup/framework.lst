@@ -1,4 +1,4 @@
-ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s 			page 1
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc5q8NaJ.s 			page 1
 
 
    1              		.file	"framework.c"
@@ -58,7 +58,7 @@ ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s 			page 1
   36:framework.c   **** 
   37:framework.c   **** /******************************************************************************
   38:framework.c   ****  * External functions
-ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s 			page 2
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc5q8NaJ.s 			page 2
 
 
   39:framework.c   ****  *****************************************************************************/
@@ -118,7 +118,7 @@ ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s 			page 1
   93:framework.c   **** /*****************************************************************************
   94:framework.c   ****  *
   95:framework.c   ****  * Description:
-ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s 			page 3
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc5q8NaJ.s 			page 3
 
 
   96:framework.c   ****  *    Default exception handler for invalid program fetch.
@@ -178,7 +178,7 @@ ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s 			page 1
  150:framework.c   ****     ;
  151:framework.c   **** }
  152:framework.c   **** 
-ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s 			page 4
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc5q8NaJ.s 			page 4
 
 
  153:framework.c   **** #if (IRQ_HANDLER == 0)
@@ -238,7 +238,7 @@ ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s 			page 1
  198:framework.c   **** #endif
  199:framework.c   **** 
  200:framework.c   ****   //set heap limits
-ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s 			page 5
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc5q8NaJ.s 			page 5
 
 
  201:framework.c   ****   pHeapStart = &end;
@@ -298,7 +298,7 @@ ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s 			page 1
  204:framework.c   **** 
  205:framework.c   **** /*****************************************************************************
  206:framework.c   ****  *
-ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s 			page 6
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc5q8NaJ.s 			page 6
 
 
  207:framework.c   ****  * Description:
@@ -358,7 +358,7 @@ ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s 			page 1
  110 00b4 001080E5 		str	r1, [r0, #0]
  111              		.loc 1 226 0
  112 00b8 40E080E5 		str	lr, [r0, #64]
-ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s 			page 7
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc5q8NaJ.s 			page 7
 
 
  227:framework.c   **** 
@@ -418,7 +418,7 @@ ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s 			page 1
  145              		.loc 1 248 0
  146 00fc CF3E02E5 		str	r3, [r2, #-3791]
  249:framework.c   ****   VICVectAddr13  = (unsigned int)0;      /* Set the vector address                             */
-ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s 			page 8
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc5q8NaJ.s 			page 8
 
 
  147              		.loc 1 249 0
@@ -478,7 +478,7 @@ ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s 			page 1
  271:framework.c   ****   //initialize the consol
  272:framework.c   ****   consolInit();
  180              		.loc 1 272 0
-ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s 			page 9
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc5q8NaJ.s 			page 9
 
 
  181 0130 FEFFFFEB 		bl	consolInit
@@ -538,7 +538,7 @@ ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s 			page 1
  218              		.align	2
  219              	.LC0:
  220 0000 49525120 		.ascii	"IRQ exception !!!\012Address: 0x\000"
-ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s 			page 10
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc5q8NaJ.s 			page 10
 
 
  220      65786365 
@@ -598,7 +598,7 @@ ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s 			page 1
  267              		@ Function supports interworking.
  268              		@ args = 0, pretend = 0, frame = 0
  269              		@ frame_needed = 0, uses_anonymous_args = 0
-ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s 			page 11
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc5q8NaJ.s 			page 11
 
 
  270 01bc 04E02DE5 		str	lr, [sp, #-4]!
@@ -658,7 +658,7 @@ ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s 			page 1
  320 0200 1000A0E3 		mov	r0, #16
  321              	.LVL4:
  322 0204 08E04EE2 		sub	lr, lr, #8
-ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s 			page 12
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc5q8NaJ.s 			page 12
 
 
  323              	.LVL5:
@@ -718,7 +718,7 @@ ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s 			page 1
  373              	.L35:
  374 0254 64000000 		.word	.LC3
  375              	.LFE4:
-ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s 			page 13
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc5q8NaJ.s 			page 13
 
 
  376              		.size	exceptionHandlerPabort, .-exceptionHandlerPabort
@@ -778,7 +778,7 @@ ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s 			page 1
  422              		.align	2
  423              		.type	exceptionHandlerUndef, %function
  424              	exceptionHandlerUndef:
-ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s 			page 14
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc5q8NaJ.s 			page 14
 
 
  425              	.LFB2:
@@ -838,7 +838,7 @@ ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s 			page 1
  479 001c 78000000 		.4byte	.LFE8-.LFB8
  480              		.align	2
  481              	.LEFDE0:
-ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s 			page 15
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc5q8NaJ.s 			page 15
 
 
  482              	.LSFDE2:
@@ -898,7 +898,7 @@ ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s 			page 1
  536 0079 0E       		.byte	0xe
  537 007a 04       		.uleb128 0x4
  538 007b 48       		.byte	0x4
-ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s 			page 16
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc5q8NaJ.s 			page 16
 
 
  539              		.4byte	.LCFI5-.LCFI4
@@ -958,7 +958,7 @@ ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s 			page 1
  593              		.4byte	.LCFI11-.LCFI10
  594 00c4 0E       		.byte	0xe
  595 00c5 08       		.uleb128 0x8
-ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s 			page 17
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc5q8NaJ.s 			page 17
 
 
  596 00c6 8E       		.byte	0x8e
@@ -1018,7 +1018,7 @@ ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s 			page 1
  650 0048 5D       		.byte	0x5d
  651 0049 8C010000 		.4byte	.LCFI2-.Ltext0
  652 004d 94010000 		.4byte	.LCFI3-.Ltext0
-ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s 			page 18
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc5q8NaJ.s 			page 18
 
 
  653 0051 0200     		.2byte	0x2
@@ -1078,7 +1078,7 @@ ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s 			page 1
  707 00db 7D       		.byte	0x7d
  708 00dc 08       		.sleb128 8
  709 00dd 00000000 		.4byte	0x0
-ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s 			page 19
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc5q8NaJ.s 			page 19
 
 
  710 00e1 00000000 		.4byte	0x0
@@ -1138,7 +1138,7 @@ ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s 			page 1
  764 016c 00000000 		.4byte	0x0
  765 0170 00000000 		.4byte	0x0
  766              	.LLST13:
-ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s 			page 20
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc5q8NaJ.s 			page 20
 
 
  767 0174 8C020000 		.4byte	.LFB2-.Ltext0
@@ -1173,10 +1173,10 @@ ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s 			page 1
  796 000c 00000000 		.4byte	.Ldebug_line0
  797 0010 C0020000 		.4byte	.Letext0
  798 0014 00000000 		.4byte	.Ltext0
- 799 0018 77000000 		.4byte	.LASF16
+ 799 0018 AF000000 		.4byte	.LASF16
  800 001c 01       		.byte	0x1
  801 001d 26000000 		.4byte	.LASF17
- 802 0021 C8000000 		.4byte	.LASF18
+ 802 0021 59000000 		.4byte	.LASF18
  803 0025 02       		.uleb128 0x2
  804 0026 01       		.byte	0x1
  805 0027 44000000 		.4byte	.LASF0
@@ -1198,10 +1198,10 @@ ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s 			page 1
  821 0049 00000000 		.4byte	.LLST1
  822 004d 04       		.uleb128 0x4
  823 004e 01       		.byte	0x1
-ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s 			page 21
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc5q8NaJ.s 			page 21
 
 
- 824 004f 59000000 		.4byte	.LASF2
+ 824 004f 91000000 		.4byte	.LASF2
  825 0053 01       		.byte	0x1
  826 0054 0E01     		.2byte	0x10e
  827 0056 01       		.byte	0x1
@@ -1210,7 +1210,7 @@ ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s 			page 1
  830 005f 1F000000 		.4byte	.LLST2
  831 0063 05       		.uleb128 0x5
  832 0064 96000000 		.4byte	0x96
- 833 0068 B4000000 		.4byte	.LASF5
+ 833 0068 EC000000 		.4byte	.LASF5
  834 006c 01       		.byte	0x1
  835 006d A5       		.byte	0xa5
  836 006e 01       		.byte	0x1
@@ -1218,13 +1218,13 @@ ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s 			page 1
  838 0073 BC010000 		.4byte	.LFE7
  839 0077 3E000000 		.4byte	.LLST3
  840 007b 06       		.uleb128 0x6
- 841 007c 0C010000 		.4byte	.LASF3
+ 841 007c 0E010000 		.4byte	.LASF3
  842 0080 01       		.byte	0x1
  843 0081 A6       		.byte	0xa6
  844 0082 96000000 		.4byte	0x96
  845 0086 69000000 		.4byte	.LLST4
  846 008a 07       		.uleb128 0x7
- 847 008b 97000000 		.4byte	.LASF4
+ 847 008b CF000000 		.4byte	.LASF4
  848 008f 01       		.byte	0x1
  849 0090 A7       		.byte	0xa7
  850 0091 96000000 		.4byte	0x96
@@ -1235,7 +1235,7 @@ ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s 			page 1
  855 009c 07       		.byte	0x7
  856 009d 05       		.uleb128 0x5
  857 009e D0000000 		.4byte	0xd0
- 858 00a2 83000000 		.4byte	.LASF6
+ 858 00a2 BB000000 		.4byte	.LASF6
  859 00a6 01       		.byte	0x1
  860 00a7 8F       		.byte	0x8f
  861 00a8 01       		.byte	0x1
@@ -1243,22 +1243,22 @@ ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s 			page 1
  863 00ad F0010000 		.4byte	.LFE6
  864 00b1 7C000000 		.4byte	.LLST5
  865 00b5 06       		.uleb128 0x6
- 866 00b6 0C010000 		.4byte	.LASF3
+ 866 00b6 0E010000 		.4byte	.LASF3
  867 00ba 01       		.byte	0x1
  868 00bb 90       		.byte	0x90
  869 00bc 96000000 		.4byte	0x96
  870 00c0 A7000000 		.4byte	.LLST6
  871 00c4 07       		.uleb128 0x7
- 872 00c5 97000000 		.4byte	.LASF4
+ 872 00c5 CF000000 		.4byte	.LASF4
  873 00c9 01       		.byte	0x1
  874 00ca 91       		.byte	0x91
  875 00cb 96000000 		.4byte	0x96
  876 00cf 00       		.byte	0x0
  877 00d0 05       		.uleb128 0x5
  878 00d1 03010000 		.4byte	0x103
- 879 00d5 60000000 		.4byte	.LASF7
+ 879 00d5 98000000 		.4byte	.LASF7
  880 00d9 01       		.byte	0x1
-ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s 			page 22
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc5q8NaJ.s 			page 22
 
 
  881 00da 7B       		.byte	0x7b
@@ -1267,40 +1267,40 @@ ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s 			page 1
  884 00e0 24020000 		.4byte	.LFE5
  885 00e4 BA000000 		.4byte	.LLST7
  886 00e8 06       		.uleb128 0x6
- 887 00e9 0C010000 		.4byte	.LASF3
+ 887 00e9 0E010000 		.4byte	.LASF3
  888 00ed 01       		.byte	0x1
  889 00ee 7C       		.byte	0x7c
  890 00ef 96000000 		.4byte	0x96
  891 00f3 E5000000 		.4byte	.LLST8
  892 00f7 07       		.uleb128 0x7
- 893 00f8 97000000 		.4byte	.LASF4
+ 893 00f8 CF000000 		.4byte	.LASF4
  894 00fc 01       		.byte	0x1
  895 00fd 7D       		.byte	0x7d
  896 00fe 96000000 		.4byte	0x96
  897 0102 00       		.byte	0x0
  898 0103 09       		.uleb128 0x9
  899 0104 35010000 		.4byte	0x135
- 900 0108 9D000000 		.4byte	.LASF8
+ 900 0108 D5000000 		.4byte	.LASF8
  901 010c 01       		.byte	0x1
  902 010d 67       		.byte	0x67
  903 010e 24020000 		.4byte	.LFB4
  904 0112 58020000 		.4byte	.LFE4
  905 0116 F8000000 		.4byte	.LLST9
  906 011a 06       		.uleb128 0x6
- 907 011b 0C010000 		.4byte	.LASF3
+ 907 011b 0E010000 		.4byte	.LASF3
  908 011f 01       		.byte	0x1
  909 0120 68       		.byte	0x68
  910 0121 96000000 		.4byte	0x96
  911 0125 23010000 		.4byte	.LLST10
  912 0129 07       		.uleb128 0x7
- 913 012a 97000000 		.4byte	.LASF4
+ 913 012a CF000000 		.4byte	.LASF4
  914 012e 01       		.byte	0x1
  915 012f 69       		.byte	0x69
  916 0130 96000000 		.4byte	0x96
  917 0134 00       		.byte	0x0
  918 0135 05       		.uleb128 0x5
  919 0136 68010000 		.4byte	0x168
- 920 013a 31010000 		.4byte	.LASF9
+ 920 013a 33010000 		.4byte	.LASF9
  921 013e 01       		.byte	0x1
  922 013f 53       		.byte	0x53
  923 0140 01       		.byte	0x1
@@ -1308,23 +1308,23 @@ ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s 			page 1
  925 0145 8C020000 		.4byte	.LFE3
  926 0149 36010000 		.4byte	.LLST11
  927 014d 06       		.uleb128 0x6
- 928 014e 0C010000 		.4byte	.LASF3
+ 928 014e 0E010000 		.4byte	.LASF3
  929 0152 01       		.byte	0x1
  930 0153 54       		.byte	0x54
  931 0154 96000000 		.4byte	0x96
  932 0158 61010000 		.4byte	.LLST12
  933 015c 07       		.uleb128 0x7
- 934 015d 97000000 		.4byte	.LASF4
+ 934 015d CF000000 		.4byte	.LASF4
  935 0161 01       		.byte	0x1
  936 0162 55       		.byte	0x55
  937 0163 96000000 		.4byte	0x96
-ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s 			page 23
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc5q8NaJ.s 			page 23
 
 
  938 0167 00       		.byte	0x0
  939 0168 05       		.uleb128 0x5
  940 0169 9B010000 		.4byte	0x19b
- 941 016d 1B010000 		.4byte	.LASF10
+ 941 016d 1D010000 		.4byte	.LASF10
  942 0171 01       		.byte	0x1
  943 0172 3F       		.byte	0x3f
  944 0173 01       		.byte	0x1
@@ -1332,13 +1332,13 @@ ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s 			page 1
  946 0178 C0020000 		.4byte	.LFE2
  947 017c 74010000 		.4byte	.LLST13
  948 0180 06       		.uleb128 0x6
- 949 0181 0C010000 		.4byte	.LASF3
+ 949 0181 0E010000 		.4byte	.LASF3
  950 0185 01       		.byte	0x1
  951 0186 40       		.byte	0x40
  952 0187 96000000 		.4byte	0x96
  953 018b 9F010000 		.4byte	.LLST14
  954 018f 07       		.uleb128 0x7
- 955 0190 97000000 		.4byte	.LASF4
+ 955 0190 CF000000 		.4byte	.LASF4
  956 0194 01       		.byte	0x1
  957 0195 41       		.byte	0x41
  958 0196 96000000 		.4byte	0x96
@@ -1360,7 +1360,7 @@ ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s 			page 1
  974 01b8 01       		.byte	0x1
  975 01b9 08       		.byte	0x8
  976 01ba 0A       		.uleb128 0xa
- 977 01bb FE000000 		.4byte	.LASF14
+ 977 01bb 00010000 		.4byte	.LASF14
  978 01bf 01       		.byte	0x1
  979 01c0 22       		.byte	0x22
  980 01c1 AD010000 		.4byte	0x1ad
@@ -1377,8 +1377,8 @@ ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s 			page 1
  991 01db 01       		.byte	0x1
  992 01dc 01       		.byte	0x1
  993 01dd 08       		.uleb128 0x8
- 994 01de 07010000 		.4byte	.LASF15
-ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s 			page 24
+ 994 01de 09010000 		.4byte	.LASF15
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc5q8NaJ.s 			page 24
 
 
  995 01e2 01       		.byte	0x1
@@ -1438,7 +1438,7 @@ ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s 			page 1
  1049 0032 0B       		.uleb128 0xb
  1050 0033 27       		.uleb128 0x27
  1051 0034 0C       		.uleb128 0xc
-ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s 			page 25
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc5q8NaJ.s 			page 25
 
 
  1052 0035 11       		.uleb128 0x11
@@ -1498,7 +1498,7 @@ ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s 			page 1
  1106 006b 0E       		.uleb128 0xe
  1107 006c 3A       		.uleb128 0x3a
  1108 006d 0B       		.uleb128 0xb
-ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s 			page 26
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc5q8NaJ.s 			page 26
 
 
  1109 006e 3B       		.uleb128 0x3b
@@ -1558,7 +1558,7 @@ ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s 			page 1
  1163 00a4 03       		.uleb128 0x3
  1164 00a5 0E       		.uleb128 0xe
  1165 00a6 3A       		.uleb128 0x3a
-ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s 			page 27
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc5q8NaJ.s 			page 27
 
 
  1166 00a7 0B       		.uleb128 0xb
@@ -1618,7 +1618,7 @@ ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s 			page 1
  1214      496E6974 
  1214      00
  1215 0038 4D000000 		.4byte	0x4d
-ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s 			page 28
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc5q8NaJ.s 			page 28
 
 
  1216 003c 6561496E 		.ascii	"eaInit\000"
@@ -1677,112 +1677,113 @@ ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s 			page 1
  1248      6E48616E 
  1248      646C6572 
  1248      496E6974 
- 1249              	.LASF2:
-ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s 			page 29
+ 1249              	.LASF18:
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc5q8NaJ.s 			page 29
 
 
- 1250 0059 6561496E 		.ascii	"eaInit\000"
- 1250      697400
- 1251              	.LASF7:
- 1252 0060 65786365 		.ascii	"exceptionHandlerDabort\000"
- 1252      7074696F 
- 1252      6E48616E 
- 1252      646C6572 
- 1252      4461626F 
- 1253              	.LASF16:
- 1254 0077 474E5520 		.ascii	"GNU C 4.1.1\000"
- 1254      4320342E 
- 1254      312E3100 
- 1255              	.LASF6:
- 1256 0083 65786365 		.ascii	"exceptionHandlerFiq\000"
- 1256      7074696F 
- 1256      6E48616E 
- 1256      646C6572 
- 1256      46697100 
- 1257              	.LASF4:
- 1258 0097 76616C75 		.ascii	"value\000"
- 1258      6500
- 1259              	.LASF8:
- 1260 009d 65786365 		.ascii	"exceptionHandlerPabort\000"
- 1260      7074696F 
- 1260      6E48616E 
- 1260      646C6572 
- 1260      5061626F 
- 1261              	.LASF5:
- 1262 00b4 65786365 		.ascii	"exceptionHandlerIrq\000"
- 1262      7074696F 
- 1262      6E48616E 
- 1262      646C6572 
- 1262      49727100 
- 1263              	.LASF18:
- 1264 00c8 2F637967 		.ascii	"/cygdrive/c/armprojects/buttonledas/Projekt12/start"
- 1264      64726976 
- 1264      652F632F 
- 1264      61726D70 
- 1264      726F6A65 
- 1265 00fb 757000   		.ascii	"up\000"
+ 1250 0059 2F637967 		.ascii	"/cygdrive/c/armprojects/buttonledas/Projekt12_1/sta"
+ 1250      64726976 
+ 1250      652F632F 
+ 1250      61726D70 
+ 1250      726F6A65 
+ 1251 008c 72747570 		.ascii	"rtup\000"
+ 1251      00
+ 1252              	.LASF2:
+ 1253 0091 6561496E 		.ascii	"eaInit\000"
+ 1253      697400
+ 1254              	.LASF7:
+ 1255 0098 65786365 		.ascii	"exceptionHandlerDabort\000"
+ 1255      7074696F 
+ 1255      6E48616E 
+ 1255      646C6572 
+ 1255      4461626F 
+ 1256              	.LASF16:
+ 1257 00af 474E5520 		.ascii	"GNU C 4.1.1\000"
+ 1257      4320342E 
+ 1257      312E3100 
+ 1258              	.LASF6:
+ 1259 00bb 65786365 		.ascii	"exceptionHandlerFiq\000"
+ 1259      7074696F 
+ 1259      6E48616E 
+ 1259      646C6572 
+ 1259      46697100 
+ 1260              	.LASF4:
+ 1261 00cf 76616C75 		.ascii	"value\000"
+ 1261      6500
+ 1262              	.LASF8:
+ 1263 00d5 65786365 		.ascii	"exceptionHandlerPabort\000"
+ 1263      7074696F 
+ 1263      6E48616E 
+ 1263      646C6572 
+ 1263      5061626F 
+ 1264              	.LASF5:
+ 1265 00ec 65786365 		.ascii	"exceptionHandlerIrq\000"
+ 1265      7074696F 
+ 1265      6E48616E 
+ 1265      646C6572 
+ 1265      49727100 
  1266              	.LASF14:
- 1267 00fe 70486561 		.ascii	"pHeapEnd\000"
+ 1267 0100 70486561 		.ascii	"pHeapEnd\000"
  1267      70456E64 
  1267      00
  1268              	.LASF15:
- 1269 0107 63686172 		.ascii	"char\000"
+ 1269 0109 63686172 		.ascii	"char\000"
  1269      00
  1270              	.LASF3:
- 1271 010c 70726F67 		.ascii	"programCounter\000"
+ 1271 010e 70726F67 		.ascii	"programCounter\000"
  1271      72616D43 
  1271      6F756E74 
  1271      657200
  1272              	.LASF10:
- 1273 011b 65786365 		.ascii	"exceptionHandlerUndef\000"
+ 1273 011d 65786365 		.ascii	"exceptionHandlerUndef\000"
  1273      7074696F 
  1273      6E48616E 
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc5q8NaJ.s 			page 30
+
+
  1273      646C6572 
-ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s 			page 30
-
-
  1273      556E6465 
  1274              	.LASF9:
- 1275 0131 65786365 		.ascii	"exceptionHandlerSwi\000"
+ 1275 0133 65786365 		.ascii	"exceptionHandlerSwi\000"
  1275      7074696F 
  1275      6E48616E 
  1275      646C6572 
  1275      53776900 
  1276              		.ident	"GCC: (GNU) 4.1.1"
-ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s 			page 31
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc5q8NaJ.s 			page 31
 
 
 DEFINED SYMBOLS
                             *ABS*:00000000 framework.c
-/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s:13     .text:00000000 exceptionHandlerInit
-/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s:22     .text:00000000 $a
-/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s:59     .text:00000050 $d
-/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s:224    .text:00000188 exceptionHandlerIrq
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc5q8NaJ.s:13     .text:00000000 exceptionHandlerInit
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc5q8NaJ.s:22     .text:00000000 $a
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc5q8NaJ.s:59     .text:00000050 $d
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc5q8NaJ.s:224    .text:00000188 exceptionHandlerIrq
                             *COM*:00000004 pHeapStart
                             *COM*:00000004 pHeapEnd
-/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s:424    .text:0000028c exceptionHandlerUndef
-/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s:384    .text:00000258 exceptionHandlerSwi
-/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s:344    .text:00000224 exceptionHandlerPabort
-/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s:304    .text:000001f0 exceptionHandlerDabort
-/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s:264    .text:000001bc exceptionHandlerFiq
-/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s:74     .text:00000078 lowLevelInit
-/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s:81     .text:00000078 $a
-/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s:164    .text:00000120 $d
-/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s:172    .text:0000012c eaInit
-/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s:178    .text:0000012c $a
-/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s:213    .text:00000180 $d
-/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s:230    .text:00000188 $a
-/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s:254    .text:000001b8 $d
-/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s:270    .text:000001bc $a
-/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s:294    .text:000001ec $d
-/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s:310    .text:000001f0 $a
-/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s:334    .text:00000220 $d
-/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s:350    .text:00000224 $a
-/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s:374    .text:00000254 $d
-/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s:390    .text:00000258 $a
-/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s:414    .text:00000288 $d
-/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s:430    .text:0000028c $a
-/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccE0POWa.s:454    .text:000002bc $d
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc5q8NaJ.s:424    .text:0000028c exceptionHandlerUndef
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc5q8NaJ.s:384    .text:00000258 exceptionHandlerSwi
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc5q8NaJ.s:344    .text:00000224 exceptionHandlerPabort
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc5q8NaJ.s:304    .text:000001f0 exceptionHandlerDabort
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc5q8NaJ.s:264    .text:000001bc exceptionHandlerFiq
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc5q8NaJ.s:74     .text:00000078 lowLevelInit
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc5q8NaJ.s:81     .text:00000078 $a
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc5q8NaJ.s:164    .text:00000120 $d
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc5q8NaJ.s:172    .text:0000012c eaInit
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc5q8NaJ.s:178    .text:0000012c $a
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc5q8NaJ.s:213    .text:00000180 $d
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc5q8NaJ.s:230    .text:00000188 $a
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc5q8NaJ.s:254    .text:000001b8 $d
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc5q8NaJ.s:270    .text:000001bc $a
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc5q8NaJ.s:294    .text:000001ec $d
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc5q8NaJ.s:310    .text:000001f0 $a
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc5q8NaJ.s:334    .text:00000220 $d
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc5q8NaJ.s:350    .text:00000224 $a
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc5q8NaJ.s:374    .text:00000254 $d
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc5q8NaJ.s:390    .text:00000258 $a
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc5q8NaJ.s:414    .text:00000288 $d
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc5q8NaJ.s:430    .text:0000028c $a
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc5q8NaJ.s:454    .text:000002bc $d
 
 UNDEFINED SYMBOLS
 end

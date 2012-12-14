@@ -1,4 +1,4 @@
-ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccXnujei.s 			page 1
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cccA3N6X.s 			page 1
 
 
    1              		.file	"LCD.c"
@@ -58,7 +58,7 @@ ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccXnujei.s 			page 1
   29              		.loc 1 22 0
   30 0014 010050E2 		wait:   SUBS R0, R0, #1
   23:LCD.c         **** 	asm("BNE wait");
-ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccXnujei.s 			page 2
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cccA3N6X.s 			page 2
 
 
   31              		.loc 1 23 0
@@ -118,7 +118,7 @@ ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccXnujei.s 			page 1
   69              		.loc 1 39 0
   70 0060 0E32A0E3 		mov	r3, #-536870912
   71 0064 0A3983E2 		add	r3, r3, #163840
-ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccXnujei.s 			page 3
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cccA3N6X.s 			page 3
 
 
   72 0068 143083E2 		add	r3, r3, #20
@@ -178,7 +178,7 @@ ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccXnujei.s 			page 1
  116              		@ args = 0, pretend = 0, frame = 4
  117              		@ frame_needed = 1, uses_anonymous_args = 0
  118 00d8 0DC0A0E1 		mov	ip, sp
-ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccXnujei.s 			page 4
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cccA3N6X.s 			page 4
 
 
  119              	.LCFI8:
@@ -238,7 +238,7 @@ ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccXnujei.s 			page 1
  167              	wait_BF:
  168              	.LFB5:
   56:LCD.c         **** 
-ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccXnujei.s 			page 5
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cccA3N6X.s 			page 5
 
 
   57:LCD.c         **** void wait_BF(void)
@@ -298,7 +298,7 @@ ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccXnujei.s 			page 1
  212 01d4 0A3983E2 		add	r3, r3, #163840
  213 01d8 103083E2 		add	r3, r3, #16
  214 01dc 003093E5 		ldr	r3, [r3, #0]
-ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccXnujei.s 			page 6
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cccA3N6X.s 			page 6
 
 
  215 01e0 023503E2 		and	r3, r3, #8388608
@@ -358,7 +358,7 @@ ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccXnujei.s 			page 1
   77:LCD.c         **** 	IODIR0 |= RW|backlight;
  260              		.loc 1 77 0
  261 024c 8E22A0E3 		mov	r2, #-536870904
-ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccXnujei.s 			page 7
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cccA3N6X.s 			page 7
 
 
  262 0250 0A2982E2 		add	r2, r2, #163840
@@ -418,7 +418,7 @@ ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccXnujei.s 			page 1
   86:LCD.c         **** 	send_instruction(0x0F);		//display on/off
  308              		.loc 1 86 0
  309 02e8 0F00A0E3 		mov	r0, #15
-ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccXnujei.s 			page 8
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cccA3N6X.s 			page 8
 
 
  310 02ec FEFFFFEB 		bl	send_instruction
@@ -478,7 +478,7 @@ ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccXnujei.s 			page 1
  358 0023 44       		.byte	0x4
  359              		.4byte	.LCFI1-.LCFI0
  360 0024 8E       		.byte	0x8e
-ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccXnujei.s 			page 9
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cccA3N6X.s 			page 9
 
 
  361 0025 02       		.uleb128 0x2
@@ -538,7 +538,7 @@ ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccXnujei.s 			page 1
  415 0069 04       		.uleb128 0x4
  416 006a 44       		.byte	0x4
  417              		.4byte	.LCFI10-.LCFI9
-ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccXnujei.s 			page 10
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cccA3N6X.s 			page 10
 
 
  418 006b 0C       		.byte	0xc
@@ -598,7 +598,7 @@ ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccXnujei.s 			page 1
  472              	.LEFDE8:
  473              		.text
  474              	.Letext0:
-ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccXnujei.s 			page 11
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cccA3N6X.s 			page 11
 
 
  475              		.section	.debug_loc,"",%progbits
@@ -658,7 +658,7 @@ ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccXnujei.s 			page 1
  529 0088 5D       		.byte	0x5d
  530 0089 64010000 		.4byte	.LCFI12-.Ltext0
  531 008d 6C010000 		.4byte	.LCFI14-.Ltext0
-ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccXnujei.s 			page 12
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cccA3N6X.s 			page 12
 
 
  532 0091 0100     		.2byte	0x1
@@ -687,7 +687,7 @@ ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccXnujei.s 			page 1
  555 00ca 00000000 		.4byte	0x0
  556 00ce 00000000 		.4byte	0x0
  557              		.section	.debug_info
- 558 0000 3C010000 		.4byte	0x13c
+ 558 0000 3E010000 		.4byte	0x13e
  559 0004 0200     		.2byte	0x2
  560 0006 00000000 		.4byte	.Ldebug_abbrev0
  561 000a 04       		.byte	0x4
@@ -701,263 +701,264 @@ ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccXnujei.s 			page 1
  567 0024 01       		.byte	0x1
  568 0025 4C43442E 		.ascii	"LCD.c\000"
  568      6300
- 569 002b 2F637967 		.ascii	"/cygdrive/c/armprojects/buttonledas/Projekt12/LCD\000"
+ 569 002b 2F637967 		.ascii	"/cygdrive/c/armprojects/buttonledas/Projekt12_1/LCD"
  569      64726976 
  569      652F632F 
  569      61726D70 
  569      726F6A65 
- 570 005d 02       		.uleb128 0x2
- 571 005e 8A000000 		.4byte	0x8a
- 572 0062 01       		.byte	0x1
- 573 0063 64656C61 		.ascii	"delay\000"
- 573      7900
- 574 0069 01       		.byte	0x1
- 575 006a 15       		.byte	0x15
- 576 006b 01       		.byte	0x1
- 577 006c 00000000 		.4byte	.LFB2
- 578 0070 28000000 		.4byte	.LFE2
- 579 0074 00000000 		.4byte	.LLST0
- 580 0078 03       		.uleb128 0x3
-ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccXnujei.s 			page 13
+ 570 005e 00       		.ascii	"\000"
+ 571 005f 02       		.uleb128 0x2
+ 572 0060 8C000000 		.4byte	0x8c
+ 573 0064 01       		.byte	0x1
+ 574 0065 64656C61 		.ascii	"delay\000"
+ 574      7900
+ 575 006b 01       		.byte	0x1
+ 576 006c 15       		.byte	0x15
+ 577 006d 01       		.byte	0x1
+ 578 006e 00000000 		.4byte	.LFB2
+ 579 0072 28000000 		.4byte	.LFE2
+ 580 0076 00000000 		.4byte	.LLST0
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cccA3N6X.s 			page 13
 
 
- 581 0079 70756C73 		.ascii	"pulses\000"
- 581      657300
- 582 0080 01       		.byte	0x1
- 583 0081 14       		.byte	0x14
- 584 0082 8A000000 		.4byte	0x8a
- 585 0086 02       		.byte	0x2
- 586 0087 91       		.byte	0x91
- 587 0088 6C       		.sleb128 -20
- 588 0089 00       		.byte	0x0
- 589 008a 04       		.uleb128 0x4
- 590 008b 6C6F6E67 		.ascii	"long int\000"
- 590      20696E74 
- 590      00
- 591 0094 04       		.byte	0x4
- 592 0095 05       		.byte	0x5
- 593 0096 02       		.uleb128 0x2
- 594 0097 D3000000 		.4byte	0xd3
- 595 009b 01       		.byte	0x1
- 596 009c 73656E64 		.ascii	"send_instruction\000"
- 596      5F696E73 
- 596      74727563 
- 596      74696F6E 
- 596      00
- 597 00ad 01       		.byte	0x1
- 598 00ae 23       		.byte	0x23
- 599 00af 01       		.byte	0x1
- 600 00b0 28000000 		.4byte	.LFB3
- 601 00b4 D8000000 		.4byte	.LFE3
- 602 00b8 2A000000 		.4byte	.LLST1
- 603 00bc 03       		.uleb128 0x3
- 604 00bd 696E7374 		.ascii	"instruction\000"
- 604      72756374 
- 604      696F6E00 
- 605 00c9 01       		.byte	0x1
- 606 00ca 22       		.byte	0x22
- 607 00cb 8A000000 		.4byte	0x8a
- 608 00cf 02       		.byte	0x2
- 609 00d0 91       		.byte	0x91
- 610 00d1 6C       		.sleb128 -20
- 611 00d2 00       		.byte	0x0
- 612 00d3 02       		.uleb128 0x2
- 613 00d4 0C010000 		.4byte	0x10c
- 614 00d8 01       		.byte	0x1
- 615 00d9 73656E64 		.ascii	"send_character\000"
- 615      5F636861 
- 615      72616374 
- 615      657200
- 616 00e8 01       		.byte	0x1
- 617 00e9 31       		.byte	0x31
- 618 00ea 01       		.byte	0x1
- 619 00eb D8000000 		.4byte	.LFB4
- 620 00ef 60010000 		.4byte	.LFE4
- 621 00f3 54000000 		.4byte	.LLST2
- 622 00f7 03       		.uleb128 0x3
- 623 00f8 63686172 		.ascii	"character\000"
- 623      61637465 
- 623      7200
-ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccXnujei.s 			page 14
+ 581 007a 03       		.uleb128 0x3
+ 582 007b 70756C73 		.ascii	"pulses\000"
+ 582      657300
+ 583 0082 01       		.byte	0x1
+ 584 0083 14       		.byte	0x14
+ 585 0084 8C000000 		.4byte	0x8c
+ 586 0088 02       		.byte	0x2
+ 587 0089 91       		.byte	0x91
+ 588 008a 6C       		.sleb128 -20
+ 589 008b 00       		.byte	0x0
+ 590 008c 04       		.uleb128 0x4
+ 591 008d 6C6F6E67 		.ascii	"long int\000"
+ 591      20696E74 
+ 591      00
+ 592 0096 04       		.byte	0x4
+ 593 0097 05       		.byte	0x5
+ 594 0098 02       		.uleb128 0x2
+ 595 0099 D5000000 		.4byte	0xd5
+ 596 009d 01       		.byte	0x1
+ 597 009e 73656E64 		.ascii	"send_instruction\000"
+ 597      5F696E73 
+ 597      74727563 
+ 597      74696F6E 
+ 597      00
+ 598 00af 01       		.byte	0x1
+ 599 00b0 23       		.byte	0x23
+ 600 00b1 01       		.byte	0x1
+ 601 00b2 28000000 		.4byte	.LFB3
+ 602 00b6 D8000000 		.4byte	.LFE3
+ 603 00ba 2A000000 		.4byte	.LLST1
+ 604 00be 03       		.uleb128 0x3
+ 605 00bf 696E7374 		.ascii	"instruction\000"
+ 605      72756374 
+ 605      696F6E00 
+ 606 00cb 01       		.byte	0x1
+ 607 00cc 22       		.byte	0x22
+ 608 00cd 8C000000 		.4byte	0x8c
+ 609 00d1 02       		.byte	0x2
+ 610 00d2 91       		.byte	0x91
+ 611 00d3 6C       		.sleb128 -20
+ 612 00d4 00       		.byte	0x0
+ 613 00d5 02       		.uleb128 0x2
+ 614 00d6 0E010000 		.4byte	0x10e
+ 615 00da 01       		.byte	0x1
+ 616 00db 73656E64 		.ascii	"send_character\000"
+ 616      5F636861 
+ 616      72616374 
+ 616      657200
+ 617 00ea 01       		.byte	0x1
+ 618 00eb 31       		.byte	0x31
+ 619 00ec 01       		.byte	0x1
+ 620 00ed D8000000 		.4byte	.LFB4
+ 621 00f1 60010000 		.4byte	.LFE4
+ 622 00f5 54000000 		.4byte	.LLST2
+ 623 00f9 03       		.uleb128 0x3
+ 624 00fa 63686172 		.ascii	"character\000"
+ 624      61637465 
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cccA3N6X.s 			page 14
 
 
- 624 0102 01       		.byte	0x1
- 625 0103 30       		.byte	0x30
- 626 0104 8A000000 		.4byte	0x8a
- 627 0108 02       		.byte	0x2
- 628 0109 91       		.byte	0x91
- 629 010a 6C       		.sleb128 -20
- 630 010b 00       		.byte	0x0
- 631 010c 05       		.uleb128 0x5
- 632 010d 01       		.byte	0x1
- 633 010e 77616974 		.ascii	"wait_BF\000"
- 633      5F424600 
- 634 0116 01       		.byte	0x1
- 635 0117 3A       		.byte	0x3a
- 636 0118 01       		.byte	0x1
- 637 0119 60010000 		.4byte	.LFB5
- 638 011d 40020000 		.4byte	.LFE5
- 639 0121 7E000000 		.4byte	.LLST3
- 640 0125 05       		.uleb128 0x5
- 641 0126 01       		.byte	0x1
- 642 0127 696E6974 		.ascii	"init_LCD\000"
- 642      5F4C4344 
- 642      00
- 643 0130 01       		.byte	0x1
- 644 0131 4C       		.byte	0x4c
- 645 0132 01       		.byte	0x1
- 646 0133 40020000 		.4byte	.LFB6
- 647 0137 28030000 		.4byte	.LFE6
- 648 013b A8000000 		.4byte	.LLST4
- 649 013f 00       		.byte	0x0
- 650              		.section	.debug_abbrev
- 651 0000 01       		.uleb128 0x1
- 652 0001 11       		.uleb128 0x11
- 653 0002 01       		.byte	0x1
- 654 0003 10       		.uleb128 0x10
- 655 0004 06       		.uleb128 0x6
- 656 0005 12       		.uleb128 0x12
- 657 0006 01       		.uleb128 0x1
- 658 0007 11       		.uleb128 0x11
- 659 0008 01       		.uleb128 0x1
- 660 0009 25       		.uleb128 0x25
- 661 000a 08       		.uleb128 0x8
- 662 000b 13       		.uleb128 0x13
- 663 000c 0B       		.uleb128 0xb
- 664 000d 03       		.uleb128 0x3
- 665 000e 08       		.uleb128 0x8
- 666 000f 1B       		.uleb128 0x1b
- 667 0010 08       		.uleb128 0x8
- 668 0011 00       		.byte	0x0
- 669 0012 00       		.byte	0x0
- 670 0013 02       		.uleb128 0x2
- 671 0014 2E       		.uleb128 0x2e
- 672 0015 01       		.byte	0x1
- 673 0016 01       		.uleb128 0x1
- 674 0017 13       		.uleb128 0x13
- 675 0018 3F       		.uleb128 0x3f
- 676 0019 0C       		.uleb128 0xc
- 677 001a 03       		.uleb128 0x3
-ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccXnujei.s 			page 15
+ 624      7200
+ 625 0104 01       		.byte	0x1
+ 626 0105 30       		.byte	0x30
+ 627 0106 8C000000 		.4byte	0x8c
+ 628 010a 02       		.byte	0x2
+ 629 010b 91       		.byte	0x91
+ 630 010c 6C       		.sleb128 -20
+ 631 010d 00       		.byte	0x0
+ 632 010e 05       		.uleb128 0x5
+ 633 010f 01       		.byte	0x1
+ 634 0110 77616974 		.ascii	"wait_BF\000"
+ 634      5F424600 
+ 635 0118 01       		.byte	0x1
+ 636 0119 3A       		.byte	0x3a
+ 637 011a 01       		.byte	0x1
+ 638 011b 60010000 		.4byte	.LFB5
+ 639 011f 40020000 		.4byte	.LFE5
+ 640 0123 7E000000 		.4byte	.LLST3
+ 641 0127 05       		.uleb128 0x5
+ 642 0128 01       		.byte	0x1
+ 643 0129 696E6974 		.ascii	"init_LCD\000"
+ 643      5F4C4344 
+ 643      00
+ 644 0132 01       		.byte	0x1
+ 645 0133 4C       		.byte	0x4c
+ 646 0134 01       		.byte	0x1
+ 647 0135 40020000 		.4byte	.LFB6
+ 648 0139 28030000 		.4byte	.LFE6
+ 649 013d A8000000 		.4byte	.LLST4
+ 650 0141 00       		.byte	0x0
+ 651              		.section	.debug_abbrev
+ 652 0000 01       		.uleb128 0x1
+ 653 0001 11       		.uleb128 0x11
+ 654 0002 01       		.byte	0x1
+ 655 0003 10       		.uleb128 0x10
+ 656 0004 06       		.uleb128 0x6
+ 657 0005 12       		.uleb128 0x12
+ 658 0006 01       		.uleb128 0x1
+ 659 0007 11       		.uleb128 0x11
+ 660 0008 01       		.uleb128 0x1
+ 661 0009 25       		.uleb128 0x25
+ 662 000a 08       		.uleb128 0x8
+ 663 000b 13       		.uleb128 0x13
+ 664 000c 0B       		.uleb128 0xb
+ 665 000d 03       		.uleb128 0x3
+ 666 000e 08       		.uleb128 0x8
+ 667 000f 1B       		.uleb128 0x1b
+ 668 0010 08       		.uleb128 0x8
+ 669 0011 00       		.byte	0x0
+ 670 0012 00       		.byte	0x0
+ 671 0013 02       		.uleb128 0x2
+ 672 0014 2E       		.uleb128 0x2e
+ 673 0015 01       		.byte	0x1
+ 674 0016 01       		.uleb128 0x1
+ 675 0017 13       		.uleb128 0x13
+ 676 0018 3F       		.uleb128 0x3f
+ 677 0019 0C       		.uleb128 0xc
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cccA3N6X.s 			page 15
 
 
- 678 001b 08       		.uleb128 0x8
- 679 001c 3A       		.uleb128 0x3a
- 680 001d 0B       		.uleb128 0xb
- 681 001e 3B       		.uleb128 0x3b
- 682 001f 0B       		.uleb128 0xb
- 683 0020 27       		.uleb128 0x27
- 684 0021 0C       		.uleb128 0xc
- 685 0022 11       		.uleb128 0x11
- 686 0023 01       		.uleb128 0x1
- 687 0024 12       		.uleb128 0x12
- 688 0025 01       		.uleb128 0x1
- 689 0026 40       		.uleb128 0x40
- 690 0027 06       		.uleb128 0x6
- 691 0028 00       		.byte	0x0
- 692 0029 00       		.byte	0x0
- 693 002a 03       		.uleb128 0x3
- 694 002b 05       		.uleb128 0x5
- 695 002c 00       		.byte	0x0
- 696 002d 03       		.uleb128 0x3
- 697 002e 08       		.uleb128 0x8
- 698 002f 3A       		.uleb128 0x3a
- 699 0030 0B       		.uleb128 0xb
- 700 0031 3B       		.uleb128 0x3b
- 701 0032 0B       		.uleb128 0xb
- 702 0033 49       		.uleb128 0x49
- 703 0034 13       		.uleb128 0x13
- 704 0035 02       		.uleb128 0x2
- 705 0036 0A       		.uleb128 0xa
- 706 0037 00       		.byte	0x0
- 707 0038 00       		.byte	0x0
- 708 0039 04       		.uleb128 0x4
- 709 003a 24       		.uleb128 0x24
- 710 003b 00       		.byte	0x0
- 711 003c 03       		.uleb128 0x3
- 712 003d 08       		.uleb128 0x8
- 713 003e 0B       		.uleb128 0xb
- 714 003f 0B       		.uleb128 0xb
- 715 0040 3E       		.uleb128 0x3e
- 716 0041 0B       		.uleb128 0xb
- 717 0042 00       		.byte	0x0
- 718 0043 00       		.byte	0x0
- 719 0044 05       		.uleb128 0x5
- 720 0045 2E       		.uleb128 0x2e
- 721 0046 00       		.byte	0x0
- 722 0047 3F       		.uleb128 0x3f
- 723 0048 0C       		.uleb128 0xc
- 724 0049 03       		.uleb128 0x3
- 725 004a 08       		.uleb128 0x8
- 726 004b 3A       		.uleb128 0x3a
- 727 004c 0B       		.uleb128 0xb
- 728 004d 3B       		.uleb128 0x3b
- 729 004e 0B       		.uleb128 0xb
- 730 004f 27       		.uleb128 0x27
- 731 0050 0C       		.uleb128 0xc
- 732 0051 11       		.uleb128 0x11
- 733 0052 01       		.uleb128 0x1
- 734 0053 12       		.uleb128 0x12
-ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccXnujei.s 			page 16
+ 678 001a 03       		.uleb128 0x3
+ 679 001b 08       		.uleb128 0x8
+ 680 001c 3A       		.uleb128 0x3a
+ 681 001d 0B       		.uleb128 0xb
+ 682 001e 3B       		.uleb128 0x3b
+ 683 001f 0B       		.uleb128 0xb
+ 684 0020 27       		.uleb128 0x27
+ 685 0021 0C       		.uleb128 0xc
+ 686 0022 11       		.uleb128 0x11
+ 687 0023 01       		.uleb128 0x1
+ 688 0024 12       		.uleb128 0x12
+ 689 0025 01       		.uleb128 0x1
+ 690 0026 40       		.uleb128 0x40
+ 691 0027 06       		.uleb128 0x6
+ 692 0028 00       		.byte	0x0
+ 693 0029 00       		.byte	0x0
+ 694 002a 03       		.uleb128 0x3
+ 695 002b 05       		.uleb128 0x5
+ 696 002c 00       		.byte	0x0
+ 697 002d 03       		.uleb128 0x3
+ 698 002e 08       		.uleb128 0x8
+ 699 002f 3A       		.uleb128 0x3a
+ 700 0030 0B       		.uleb128 0xb
+ 701 0031 3B       		.uleb128 0x3b
+ 702 0032 0B       		.uleb128 0xb
+ 703 0033 49       		.uleb128 0x49
+ 704 0034 13       		.uleb128 0x13
+ 705 0035 02       		.uleb128 0x2
+ 706 0036 0A       		.uleb128 0xa
+ 707 0037 00       		.byte	0x0
+ 708 0038 00       		.byte	0x0
+ 709 0039 04       		.uleb128 0x4
+ 710 003a 24       		.uleb128 0x24
+ 711 003b 00       		.byte	0x0
+ 712 003c 03       		.uleb128 0x3
+ 713 003d 08       		.uleb128 0x8
+ 714 003e 0B       		.uleb128 0xb
+ 715 003f 0B       		.uleb128 0xb
+ 716 0040 3E       		.uleb128 0x3e
+ 717 0041 0B       		.uleb128 0xb
+ 718 0042 00       		.byte	0x0
+ 719 0043 00       		.byte	0x0
+ 720 0044 05       		.uleb128 0x5
+ 721 0045 2E       		.uleb128 0x2e
+ 722 0046 00       		.byte	0x0
+ 723 0047 3F       		.uleb128 0x3f
+ 724 0048 0C       		.uleb128 0xc
+ 725 0049 03       		.uleb128 0x3
+ 726 004a 08       		.uleb128 0x8
+ 727 004b 3A       		.uleb128 0x3a
+ 728 004c 0B       		.uleb128 0xb
+ 729 004d 3B       		.uleb128 0x3b
+ 730 004e 0B       		.uleb128 0xb
+ 731 004f 27       		.uleb128 0x27
+ 732 0050 0C       		.uleb128 0xc
+ 733 0051 11       		.uleb128 0x11
+ 734 0052 01       		.uleb128 0x1
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cccA3N6X.s 			page 16
 
 
- 735 0054 01       		.uleb128 0x1
- 736 0055 40       		.uleb128 0x40
- 737 0056 06       		.uleb128 0x6
- 738 0057 00       		.byte	0x0
- 739 0058 00       		.byte	0x0
- 740 0059 00       		.byte	0x0
- 741              		.section	.debug_pubnames,"",%progbits
- 742 0000 59000000 		.4byte	0x59
- 743 0004 0200     		.2byte	0x2
- 744 0006 00000000 		.4byte	.Ldebug_info0
- 745 000a 40010000 		.4byte	0x140
- 746 000e 5D000000 		.4byte	0x5d
- 747 0012 64656C61 		.ascii	"delay\000"
- 747      7900
- 748 0018 96000000 		.4byte	0x96
- 749 001c 73656E64 		.ascii	"send_instruction\000"
- 749      5F696E73 
- 749      74727563 
- 749      74696F6E 
- 749      00
- 750 002d D3000000 		.4byte	0xd3
- 751 0031 73656E64 		.ascii	"send_character\000"
- 751      5F636861 
- 751      72616374 
- 751      657200
- 752 0040 0C010000 		.4byte	0x10c
- 753 0044 77616974 		.ascii	"wait_BF\000"
- 753      5F424600 
- 754 004c 25010000 		.4byte	0x125
- 755 0050 696E6974 		.ascii	"init_LCD\000"
- 755      5F4C4344 
- 755      00
- 756 0059 00000000 		.4byte	0x0
- 757              		.section	.debug_aranges,"",%progbits
- 758 0000 1C000000 		.4byte	0x1c
- 759 0004 0200     		.2byte	0x2
- 760 0006 00000000 		.4byte	.Ldebug_info0
- 761 000a 04       		.byte	0x4
- 762 000b 00       		.byte	0x0
- 763 000c 0000     		.2byte	0x0
- 764 000e 0000     		.2byte	0x0
- 765 0010 00000000 		.4byte	.Ltext0
- 766 0014 28030000 		.4byte	.Letext0-.Ltext0
- 767 0018 00000000 		.4byte	0x0
- 768 001c 00000000 		.4byte	0x0
- 769              		.ident	"GCC: (GNU) 4.1.1"
-ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccXnujei.s 			page 17
+ 735 0053 12       		.uleb128 0x12
+ 736 0054 01       		.uleb128 0x1
+ 737 0055 40       		.uleb128 0x40
+ 738 0056 06       		.uleb128 0x6
+ 739 0057 00       		.byte	0x0
+ 740 0058 00       		.byte	0x0
+ 741 0059 00       		.byte	0x0
+ 742              		.section	.debug_pubnames,"",%progbits
+ 743 0000 59000000 		.4byte	0x59
+ 744 0004 0200     		.2byte	0x2
+ 745 0006 00000000 		.4byte	.Ldebug_info0
+ 746 000a 42010000 		.4byte	0x142
+ 747 000e 5F000000 		.4byte	0x5f
+ 748 0012 64656C61 		.ascii	"delay\000"
+ 748      7900
+ 749 0018 98000000 		.4byte	0x98
+ 750 001c 73656E64 		.ascii	"send_instruction\000"
+ 750      5F696E73 
+ 750      74727563 
+ 750      74696F6E 
+ 750      00
+ 751 002d D5000000 		.4byte	0xd5
+ 752 0031 73656E64 		.ascii	"send_character\000"
+ 752      5F636861 
+ 752      72616374 
+ 752      657200
+ 753 0040 0E010000 		.4byte	0x10e
+ 754 0044 77616974 		.ascii	"wait_BF\000"
+ 754      5F424600 
+ 755 004c 27010000 		.4byte	0x127
+ 756 0050 696E6974 		.ascii	"init_LCD\000"
+ 756      5F4C4344 
+ 756      00
+ 757 0059 00000000 		.4byte	0x0
+ 758              		.section	.debug_aranges,"",%progbits
+ 759 0000 1C000000 		.4byte	0x1c
+ 760 0004 0200     		.2byte	0x2
+ 761 0006 00000000 		.4byte	.Ldebug_info0
+ 762 000a 04       		.byte	0x4
+ 763 000b 00       		.byte	0x0
+ 764 000c 0000     		.2byte	0x0
+ 765 000e 0000     		.2byte	0x0
+ 766 0010 00000000 		.4byte	.Ltext0
+ 767 0014 28030000 		.4byte	.Letext0-.Ltext0
+ 768 0018 00000000 		.4byte	0x0
+ 769 001c 00000000 		.4byte	0x0
+ 770              		.ident	"GCC: (GNU) 4.1.1"
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cccA3N6X.s 			page 17
 
 
 DEFINED SYMBOLS
                             *ABS*:00000000 LCD.c
-/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccXnujei.s:13     .text:00000000 delay
-/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccXnujei.s:20     .text:00000000 $a
-/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccXnujei.s:30     .text:00000014 wait
-/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccXnujei.s:42     .text:00000028 send_instruction
-/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccXnujei.s:112    .text:000000d8 send_character
-/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccXnujei.s:167    .text:00000160 wait_BF
-/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccXnujei.s:248    .text:00000240 init_LCD
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cccA3N6X.s:13     .text:00000000 delay
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cccA3N6X.s:20     .text:00000000 $a
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cccA3N6X.s:30     .text:00000014 wait
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cccA3N6X.s:42     .text:00000028 send_instruction
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cccA3N6X.s:112    .text:000000d8 send_character
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cccA3N6X.s:167    .text:00000160 wait_BF
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cccA3N6X.s:248    .text:00000240 init_LCD
 
 NO UNDEFINED SYMBOLS
