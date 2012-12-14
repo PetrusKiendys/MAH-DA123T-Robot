@@ -19,6 +19,8 @@
 #include "startup/consol.h"
 #include "startup/config.h"
 #include "startup/framework.h"
+#include "motor/motor.c"
+#include "startup/printf_P.h"
 
 #include "LCD/LCD.h"  //  Funktionsprototyper för LCD-rutinerna
 
@@ -27,36 +29,50 @@ extern long const delaylong;
 
 extern tCntSem mutexLCD;
 
+/*****************************************************************************
+ * Function prototypes
+ ****************************************************************************/
+void initLCD(void);
 
+/****************************************************************************/
 
 void
 procEx1(void* arg)
 {
   tU8 error;
 
-  for(;;)
-  {
-// Exempelkod för att visa hur flera processer kan dela på LCD
+	for (;;) {	// QUESTION: why use for-loop?
 
-   osSemTake(&mutexLCD, 0, &error);
+		osSemTake(&mutexLCD, 0, &error);
 
+		initLCD();
+	//	runPwm();
+		delay(delayshort);
+			send_instruction(1);	//cleara displayn
+			delay(delaylong);
+			send_instruction(2);  //cursorn till första positionen
+			delay(delaylong);
+		    send_character('E');
+		    delay(delayshort);
+		    send_character('x');
+
+		    osSleep(300);
+
+
+printf("\n\nBEFORE GIVE\n\n");
+		osSemGive(&mutexLCD, &error);
+	printf("\n\nAFTER GIVE\n\n");
+		osSleep(1000);
+	}
+
+}
+
+// TODO: rename this function
+void initLCD(void) {
 	delay(delayshort);
 	send_instruction(1);	//cleara displayen
 	delay(delaylong);
-	send_instruction(2);  //cursorn till första positionen
-	delay(delaylong);
-    send_character('E');
-    delay(delayshort);
-    send_character('x');
-    delay(delayshort);
-
-    send_character('1');
-
-    osSleep(300);		// för att infon säkert skall hinna synas
-
-    osSemGive(&mutexLCD, &error);
+	send_instruction(2);  	//cursorn till första positionen
 
 
-    osSleep(1000);
-  }
 }
