@@ -1,0 +1,2892 @@
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s 			page 1
+
+
+   1              		.code	16
+   2              		.file	"proc1.c"
+   3              		.section	.debug_abbrev,"",%progbits
+   4              	.Ldebug_abbrev0:
+   5              		.section	.debug_info,"",%progbits
+   6              	.Ldebug_info0:
+   7              		.section	.debug_line,"",%progbits
+   8              	.Ldebug_line0:
+   9 0000 FB000000 		.text
+   9      02007400 
+   9      00000201 
+   9      FB0E0D00 
+   9      01010101 
+  10              	.Ltext0:
+  11              		.align	2
+  12              		.code 16
+  13              		.thumb_func
+  14              		.type	initPwm, %function
+  15              	initPwm:
+  16              	.LFB2:
+  17              		.file 1 "motor/motor.c"
+   1:motor/motor.c **** /******************************************************************************
+   2:motor/motor.c ****  *
+   3:motor/motor.c ****  * Copyright:
+   4:motor/motor.c ****  *    (C) 2005 Embedded Artists AB
+   5:motor/motor.c ****  *
+   6:motor/motor.c ****  * File:
+   7:motor/motor.c ****  *    main.c
+   8:motor/motor.c ****  *
+   9:motor/motor.c ****  * Description:
+  10:motor/motor.c ****  *    Sample application that demonstrates how to generate a PWM signal
+  11:motor/motor.c ****  *    with a fixed frequency and varying duty cycle.
+  12:motor/motor.c ****  *    This feature can for example be used to generate an analogue signal
+  13:motor/motor.c ****  *    if the PWM signal is low pass filtered.
+  14:motor/motor.c ****  *
+  15:motor/motor.c ****  *****************************************************************************/
+  16:motor/motor.c **** 
+  17:motor/motor.c **** /******************************************************************************
+  18:motor/motor.c ****  * Includes
+  19:motor/motor.c ****  *****************************************************************************/
+  20:motor/motor.c **** #include "../general.h"
+  21:motor/motor.c **** #include <lpc2xxx.h>
+  22:motor/motor.c **** #include "../startup/config.h"
+  23:motor/motor.c **** 
+  24:motor/motor.c **** /******************************************************************************
+  25:motor/motor.c ****  * Defines and typedefs
+  26:motor/motor.c ****  *****************************************************************************/
+  27:motor/motor.c **** #define CRYSTAL_FREQUENCY FOSC
+  28:motor/motor.c **** #define PLL_FACTOR        PLL_MUL
+  29:motor/motor.c **** #define VPBDIV_FACTOR     PBSD
+  30:motor/motor.c **** 
+  31:motor/motor.c **** #define P07 (1 << 7)
+  32:motor/motor.c **** #define	P15	(1 << 15)
+  33:motor/motor.c **** #define	P25	(1 << 25)
+  34:motor/motor.c **** #define P21 (1 << 21)
+  35:motor/motor.c **** #define	P23 (1 << 23)
+  36:motor/motor.c **** #define	P31 (1 << 31)
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s 			page 2
+
+
+  37:motor/motor.c **** 
+  38:motor/motor.c **** #define TASK		2	// task 1 - use circulary loop
+  39:motor/motor.c **** 						// task 2 - use constant PWM signal
+  40:motor/motor.c **** #define MODE_IN1	1	// mode 1 - Forward, Fast Current-Decay Mode
+  41:motor/motor.c **** 						// mode 2 - Forward, Slow Current-Decay Mode
+  42:motor/motor.c **** 						// mode 3 - Reverse, Fast Current-Decay Mode
+  43:motor/motor.c **** 						// mode 4 - Reverse, Slow Current-Decay Mode
+  44:motor/motor.c **** 						// mode 5 - Brake, Fast Current-Decay Mode
+  45:motor/motor.c **** 						// mode 6 - Brake, No Current Control
+  46:motor/motor.c **** 						// REMARK: only use "fast" modes
+  47:motor/motor.c **** #define MODE_IN2	3		// see above description..
+  48:motor/motor.c **** 
+  49:motor/motor.c **** 
+  50:motor/motor.c **** /*****************************************************************************
+  51:motor/motor.c ****  * Public function prototypes
+  52:motor/motor.c ****  ****************************************************************************/
+  53:motor/motor.c **** int runPwm(void);
+  54:motor/motor.c **** 
+  55:motor/motor.c **** /*****************************************************************************
+  56:motor/motor.c ****  * Local function prototypes
+  57:motor/motor.c ****  ****************************************************************************/
+  58:motor/motor.c **** static void initPwm(tU32 initialFreqValue);
+  59:motor/motor.c **** static void setPwmDutyPercent1(tU32 dutyValue1);
+  60:motor/motor.c **** static void setPwmDutyPercent2(tU32 dutyValue2);
+  61:motor/motor.c **** static void setPwmDuty1(tU32 dutyValue1);
+  62:motor/motor.c **** static void setPwmDuty2(tU32 dutyValue2);
+  63:motor/motor.c **** static void delayMs(tU16 delayInMs);
+  64:motor/motor.c **** void setModeIn1();
+  65:motor/motor.c **** void setModeIn2();
+  66:motor/motor.c **** 
+  67:motor/motor.c **** /*****************************************************************************
+  68:motor/motor.c ****  * Implementation of local functions
+  69:motor/motor.c ****  ****************************************************************************/
+  70:motor/motor.c **** 
+  71:motor/motor.c **** /*****************************************************************************
+  72:motor/motor.c ****  *
+  73:motor/motor.c ****  * Description:
+  74:motor/motor.c ****  *    Initialize the PWM unit to generate a variable duty cycle signal on
+  75:motor/motor.c ****  *    PWM2. Connect signal PWM2 to pin P0.7.
+  76:motor/motor.c ****  *    The function sets initial frequency. Initial duty cucle is set to 0%.
+  77:motor/motor.c ****  *
+  78:motor/motor.c ****  * Params:
+  79:motor/motor.c ****  *    [in] initialFreqValue - the initial frequency value. Value calculated as:
+  80:motor/motor.c ****  *
+  81:motor/motor.c ****  *                     (crystal frequency * PLL multiplication factor)
+  82:motor/motor.c ****  *                     -----------------------------------------------
+  83:motor/motor.c ****  *                           (VPBDIV factor * desired frequency)
+  84:motor/motor.c ****  *
+  85:motor/motor.c ****  ****************************************************************************/
+  86:motor/motor.c **** static void
+  87:motor/motor.c **** initPwm(tU32 initialFreqValue)
+  88:motor/motor.c **** {
+  18              		.loc 1 88 0
+  19 0000 80B5     		push	{r7, lr}
+  20              	.LCFI0:
+  21 0002 81B0     		sub	sp, sp, #4
+  22              	.LCFI1:
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s 			page 3
+
+
+  23 0004 00AF     		add	r7, sp, #0
+  24              	.LCFI2:
+  25 0006 3B1C     		mov	r3, r7
+  26 0008 1860     		str	r0, [r3]
+  89:motor/motor.c ****   /*
+  90:motor/motor.c ****    * initialize PWM
+  91:motor/motor.c ****    */
+  92:motor/motor.c ****   PWM_PR  = 0x00000000;             //set prescale to 0
+  27              		.loc 1 92 0
+  28 000a 0F4A     		ldr	r2, .L3
+  29 000c 0023     		mov	r3, #0
+  30 000e 1360     		str	r3, [r2]
+  93:motor/motor.c ****   PWM_MCR = 0x0002;                 //counter resets on MR0 match (period time)
+  31              		.loc 1 93 0
+  32 0010 0E4A     		ldr	r2, .L3+4
+  33 0012 0223     		mov	r3, #2
+  34 0014 1360     		str	r3, [r2]
+  94:motor/motor.c ****   PWM_MR0 = initialFreqValue;       //MR0 = period cycle time
+  35              		.loc 1 94 0
+  36 0016 0E4A     		ldr	r2, .L3+8
+  37 0018 3B1C     		mov	r3, r7
+  38 001a 1B68     		ldr	r3, [r3]
+  39 001c 1360     		str	r3, [r2]
+  95:motor/motor.c ****   PWM_MR2 = 0;                      //MR2 = duty cycle control, initial = 0%
+  40              		.loc 1 95 0
+  41 001e 0D4A     		ldr	r2, .L3+12
+  42 0020 0023     		mov	r3, #0
+  43 0022 1360     		str	r3, [r2]
+  96:motor/motor.c ****   PWM_MR5 = 0;                      //MR5 = duty cycle control, initial = 0%
+  44              		.loc 1 96 0
+  45 0024 0C4A     		ldr	r2, .L3+16
+  46 0026 0023     		mov	r3, #0
+  47 0028 1360     		str	r3, [r2]
+  97:motor/motor.c ****   PWM_LER = 0x25;                   //latch new values for MR0 and MR2 and MR5
+  48              		.loc 1 97 0
+  49 002a 0C4A     		ldr	r2, .L3+20
+  50 002c 2523     		mov	r3, #37
+  51 002e 1360     		str	r3, [r2]
+  98:motor/motor.c ****   PWM_PCR = 0x2400;                 //enable PWM2 and PWM5 in single edge control mode
+  52              		.loc 1 98 0
+  53 0030 0B4A     		ldr	r2, .L3+24
+  54 0032 9023     		mov	r3, #144
+  55 0034 9B01     		lsl	r3, r3, #6
+  56 0036 1360     		str	r3, [r2]
+  99:motor/motor.c ****   PWM_TCR = 0x09;                   //enable PWM and Counter
+  57              		.loc 1 99 0
+  58 0038 0A4A     		ldr	r2, .L3+28
+  59 003a 0923     		mov	r3, #9
+  60 003c 1360     		str	r3, [r2]
+ 100:motor/motor.c **** 
+ 101:motor/motor.c **** 
+ 102:motor/motor.c **** }
+  61              		.loc 1 102 0
+  62 003e BD46     		mov	sp, r7
+  63 0040 01B0     		add	sp, sp, #4
+  64              		@ sp needed for prologue
+  65 0042 80BC     		pop	{r7}
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s 			page 4
+
+
+  66 0044 01BC     		pop	{r0}
+  67 0046 0047     		bx	r0
+  68              	.L4:
+  69              		.align	2
+  70              	.L3:
+  71 0048 0C4001E0 		.word	-536788980
+  72 004c 144001E0 		.word	-536788972
+  73 0050 184001E0 		.word	-536788968
+  74 0054 204001E0 		.word	-536788960
+  75 0058 444001E0 		.word	-536788924
+  76 005c 504001E0 		.word	-536788912
+  77 0060 4C4001E0 		.word	-536788916
+  78 0064 044001E0 		.word	-536788988
+  79              	.LFE2:
+  80              		.size	initPwm, .-initPwm
+  81              		.global	__udivsi3
+  82              		.align	2
+  83              		.code 16
+  84              		.thumb_func
+  85              		.type	setPwmDutyPercent1, %function
+  86              	setPwmDutyPercent1:
+  87              	.LFB3:
+ 103:motor/motor.c **** 
+ 104:motor/motor.c **** /*****************************************************************************
+ 105:motor/motor.c ****  *
+ 106:motor/motor.c ****  * Description:
+ 107:motor/motor.c ****  *    Update the duty cycle value of the PWM signal.
+ 108:motor/motor.c ****  *
+ 109:motor/motor.c ****  * Params:
+ 110:motor/motor.c ****  *    [in] dutyValue - the new duty cycle value in percent in increments
+ 111:motor/motor.c ****  *                     of 0.01% (i.e., 10% = 1000).
+ 112:motor/motor.c ****  *
+ 113:motor/motor.c ****  ****************************************************************************/
+ 114:motor/motor.c **** static void
+ 115:motor/motor.c **** setPwmDutyPercent1(tU32 dutyValue1)
+ 116:motor/motor.c **** {
+  88              		.loc 1 116 0
+  89 0068 90B5     		push	{r4, r7, lr}
+  90              	.LCFI3:
+  91 006a 81B0     		sub	sp, sp, #4
+  92              	.LCFI4:
+  93 006c 00AF     		add	r7, sp, #0
+  94              	.LCFI5:
+  95 006e 3B1C     		mov	r3, r7
+  96 0070 1860     		str	r0, [r3]
+ 117:motor/motor.c ****   PWM_MR2 = (PWM_MR0 * dutyValue1) / 10000;  //update duty cycle
+  97              		.loc 1 117 0
+  98 0072 0A4C     		ldr	r4, .L7
+  99 0074 0A4B     		ldr	r3, .L7+4
+ 100 0076 1A68     		ldr	r2, [r3]
+ 101 0078 3B1C     		mov	r3, r7
+ 102 007a 1B68     		ldr	r3, [r3]
+ 103 007c 5343     		mul	r3, r2
+ 104 007e 181C     		mov	r0, r3
+ 105 0080 0849     		ldr	r1, .L7+8
+ 106 0082 FFF7FEFF 		bl	__udivsi3
+ 107 0086 031C     		mov	r3, r0
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s 			page 5
+
+
+ 108 0088 2360     		str	r3, [r4]
+ 118:motor/motor.c ****   PWM_LER = 0x04;                           //latch new values for MR2
+ 109              		.loc 1 118 0
+ 110 008a 074A     		ldr	r2, .L7+12
+ 111 008c 0423     		mov	r3, #4
+ 112 008e 1360     		str	r3, [r2]
+ 119:motor/motor.c **** }
+ 113              		.loc 1 119 0
+ 114 0090 BD46     		mov	sp, r7
+ 115 0092 01B0     		add	sp, sp, #4
+ 116              		@ sp needed for prologue
+ 117 0094 90BC     		pop	{r4, r7}
+ 118 0096 01BC     		pop	{r0}
+ 119 0098 0047     		bx	r0
+ 120              	.L8:
+ 121 009a 0000     		.align	2
+ 122              	.L7:
+ 123 009c 204001E0 		.word	-536788960
+ 124 00a0 184001E0 		.word	-536788968
+ 125 00a4 10270000 		.word	10000
+ 126 00a8 504001E0 		.word	-536788912
+ 127              	.LFE3:
+ 128              		.size	setPwmDutyPercent1, .-setPwmDutyPercent1
+ 129              		.align	2
+ 130              		.code 16
+ 131              		.thumb_func
+ 132              		.type	setPwmDutyPercent2, %function
+ 133              	setPwmDutyPercent2:
+ 134              	.LFB4:
+ 120:motor/motor.c **** 
+ 121:motor/motor.c **** static void
+ 122:motor/motor.c **** setPwmDutyPercent2(tU32 dutyValue2)
+ 123:motor/motor.c **** {
+ 135              		.loc 1 123 0
+ 136 00ac 90B5     		push	{r4, r7, lr}
+ 137              	.LCFI6:
+ 138 00ae 81B0     		sub	sp, sp, #4
+ 139              	.LCFI7:
+ 140 00b0 00AF     		add	r7, sp, #0
+ 141              	.LCFI8:
+ 142 00b2 3B1C     		mov	r3, r7
+ 143 00b4 1860     		str	r0, [r3]
+ 124:motor/motor.c ****   PWM_MR5 = (PWM_MR0 * dutyValue2) / 10000;  //update duty cycle
+ 144              		.loc 1 124 0
+ 145 00b6 0A4C     		ldr	r4, .L11
+ 146 00b8 0A4B     		ldr	r3, .L11+4
+ 147 00ba 1A68     		ldr	r2, [r3]
+ 148 00bc 3B1C     		mov	r3, r7
+ 149 00be 1B68     		ldr	r3, [r3]
+ 150 00c0 5343     		mul	r3, r2
+ 151 00c2 181C     		mov	r0, r3
+ 152 00c4 0849     		ldr	r1, .L11+8
+ 153 00c6 FFF7FEFF 		bl	__udivsi3
+ 154 00ca 031C     		mov	r3, r0
+ 155 00cc 2360     		str	r3, [r4]
+ 125:motor/motor.c ****   PWM_LER = 0x20;         //latch new values for MR5
+ 156              		.loc 1 125 0
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s 			page 6
+
+
+ 157 00ce 074A     		ldr	r2, .L11+12
+ 158 00d0 2023     		mov	r3, #32
+ 159 00d2 1360     		str	r3, [r2]
+ 126:motor/motor.c **** }
+ 160              		.loc 1 126 0
+ 161 00d4 BD46     		mov	sp, r7
+ 162 00d6 01B0     		add	sp, sp, #4
+ 163              		@ sp needed for prologue
+ 164 00d8 90BC     		pop	{r4, r7}
+ 165 00da 01BC     		pop	{r0}
+ 166 00dc 0047     		bx	r0
+ 167              	.L12:
+ 168 00de 0000     		.align	2
+ 169              	.L11:
+ 170 00e0 444001E0 		.word	-536788924
+ 171 00e4 184001E0 		.word	-536788968
+ 172 00e8 10270000 		.word	10000
+ 173 00ec 504001E0 		.word	-536788912
+ 174              	.LFE4:
+ 175              		.size	setPwmDutyPercent2, .-setPwmDutyPercent2
+ 176              		.align	2
+ 177              		.code 16
+ 178              		.thumb_func
+ 179              		.type	setPwmDuty1, %function
+ 180              	setPwmDuty1:
+ 181              	.LFB5:
+ 127:motor/motor.c **** /*****************************************************************************
+ 128:motor/motor.c ****  *
+ 129:motor/motor.c ****  * Description:
+ 130:motor/motor.c ****  *    Update the duty cycle value of the PWM signal.
+ 131:motor/motor.c ****  *
+ 132:motor/motor.c ****  * Params:
+ 133:motor/motor.c ****  *    [in] dutyValue - the new duty cycle value. Value calculated as:
+ 134:motor/motor.c ****  *    (crystal frequency * PLL multiplication factor)
+ 135:motor/motor.c ****  *    ----------------------------------------------- * duty cycle in percent
+ 136:motor/motor.c ****  *           (VPBDIV factor * PWM frequency)
+ 137:motor/motor.c ****  *
+ 138:motor/motor.c ****  *                    or
+ 139:motor/motor.c ****  *
+ 140:motor/motor.c ****  *    value in MR0 register * duty cycle in percent
+ 141:motor/motor.c ****  *
+ 142:motor/motor.c ****  ****************************************************************************/
+ 143:motor/motor.c **** static void
+ 144:motor/motor.c **** setPwmDuty1(tU32 dutyValue1)
+ 145:motor/motor.c **** {
+ 182              		.loc 1 145 0
+ 183 00f0 80B5     		push	{r7, lr}
+ 184              	.LCFI9:
+ 185 00f2 81B0     		sub	sp, sp, #4
+ 186              	.LCFI10:
+ 187 00f4 00AF     		add	r7, sp, #0
+ 188              	.LCFI11:
+ 189 00f6 3B1C     		mov	r3, r7
+ 190 00f8 1860     		str	r0, [r3]
+ 146:motor/motor.c ****   PWM_MR2 = dutyValue1;    //update duty cycle
+ 191              		.loc 1 146 0
+ 192 00fa 064A     		ldr	r2, .L15
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s 			page 7
+
+
+ 193 00fc 3B1C     		mov	r3, r7
+ 194 00fe 1B68     		ldr	r3, [r3]
+ 195 0100 1360     		str	r3, [r2]
+ 147:motor/motor.c ****   PWM_LER = 0x04;         //latch new values for MR2
+ 196              		.loc 1 147 0
+ 197 0102 054A     		ldr	r2, .L15+4
+ 198 0104 0423     		mov	r3, #4
+ 199 0106 1360     		str	r3, [r2]
+ 148:motor/motor.c **** }
+ 200              		.loc 1 148 0
+ 201 0108 BD46     		mov	sp, r7
+ 202 010a 01B0     		add	sp, sp, #4
+ 203              		@ sp needed for prologue
+ 204 010c 80BC     		pop	{r7}
+ 205 010e 01BC     		pop	{r0}
+ 206 0110 0047     		bx	r0
+ 207              	.L16:
+ 208 0112 0000     		.align	2
+ 209              	.L15:
+ 210 0114 204001E0 		.word	-536788960
+ 211 0118 504001E0 		.word	-536788912
+ 212              	.LFE5:
+ 213              		.size	setPwmDuty1, .-setPwmDuty1
+ 214              		.align	2
+ 215              		.code 16
+ 216              		.thumb_func
+ 217              		.type	setPwmDuty2, %function
+ 218              	setPwmDuty2:
+ 219              	.LFB6:
+ 149:motor/motor.c **** static void
+ 150:motor/motor.c **** setPwmDuty2(tU32 dutyValue2)
+ 151:motor/motor.c **** {
+ 220              		.loc 1 151 0
+ 221 011c 80B5     		push	{r7, lr}
+ 222              	.LCFI12:
+ 223 011e 81B0     		sub	sp, sp, #4
+ 224              	.LCFI13:
+ 225 0120 00AF     		add	r7, sp, #0
+ 226              	.LCFI14:
+ 227 0122 3B1C     		mov	r3, r7
+ 228 0124 1860     		str	r0, [r3]
+ 152:motor/motor.c ****   PWM_MR5 = dutyValue2;    //update duty cycle
+ 229              		.loc 1 152 0
+ 230 0126 064A     		ldr	r2, .L19
+ 231 0128 3B1C     		mov	r3, r7
+ 232 012a 1B68     		ldr	r3, [r3]
+ 233 012c 1360     		str	r3, [r2]
+ 153:motor/motor.c ****   PWM_LER = 0x20;         //latch new values for MR5
+ 234              		.loc 1 153 0
+ 235 012e 054A     		ldr	r2, .L19+4
+ 236 0130 2023     		mov	r3, #32
+ 237 0132 1360     		str	r3, [r2]
+ 154:motor/motor.c **** }
+ 238              		.loc 1 154 0
+ 239 0134 BD46     		mov	sp, r7
+ 240 0136 01B0     		add	sp, sp, #4
+ 241              		@ sp needed for prologue
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s 			page 8
+
+
+ 242 0138 80BC     		pop	{r7}
+ 243 013a 01BC     		pop	{r0}
+ 244 013c 0047     		bx	r0
+ 245              	.L20:
+ 246 013e 0000     		.align	2
+ 247              	.L19:
+ 248 0140 444001E0 		.word	-536788924
+ 249 0144 504001E0 		.word	-536788912
+ 250              	.LFE6:
+ 251              		.size	setPwmDuty2, .-setPwmDuty2
+ 252              		.align	2
+ 253              		.code 16
+ 254              		.thumb_func
+ 255              		.type	delayMs, %function
+ 256              	delayMs:
+ 257              	.LFB7:
+ 155:motor/motor.c **** /*****************************************************************************
+ 156:motor/motor.c ****  *
+ 157:motor/motor.c ****  * Description:
+ 158:motor/motor.c ****  *    Delay execution by a specified number of milliseconds by using
+ 159:motor/motor.c ****  *    timer #1. A polled implementation.
+ 160:motor/motor.c ****  *
+ 161:motor/motor.c ****  * Params:
+ 162:motor/motor.c ****  *    [in] delayInMs - the number of milliseconds to delay.
+ 163:motor/motor.c ****  *
+ 164:motor/motor.c ****  ****************************************************************************/
+ 165:motor/motor.c **** static void
+ 166:motor/motor.c **** delayMs(tU16 delayInMs)
+ 167:motor/motor.c **** {
+ 258              		.loc 1 167 0
+ 259 0148 80B5     		push	{r7, lr}
+ 260              	.LCFI15:
+ 261 014a 81B0     		sub	sp, sp, #4
+ 262              	.LCFI16:
+ 263 014c 00AF     		add	r7, sp, #0
+ 264              	.LCFI17:
+ 265 014e 031C     		mov	r3, r0
+ 266 0150 3A1C     		mov	r2, r7
+ 267 0152 1380     		strh	r3, [r2]
+ 168:motor/motor.c ****   /*
+ 169:motor/motor.c ****    * setup timer #1 for delay
+ 170:motor/motor.c ****    */
+ 171:motor/motor.c ****   TIMER1_TCR = 0x02;          //stop and reset timer
+ 268              		.loc 1 171 0
+ 269 0154 104A     		ldr	r2, .L25
+ 270 0156 0223     		mov	r3, #2
+ 271 0158 1360     		str	r3, [r2]
+ 172:motor/motor.c ****   TIMER1_PR  = 0x00;          //set prescaler to zero
+ 272              		.loc 1 172 0
+ 273 015a 104A     		ldr	r2, .L25+4
+ 274 015c 0023     		mov	r3, #0
+ 275 015e 1360     		str	r3, [r2]
+ 173:motor/motor.c ****   TIMER1_MR0 = delayInMs * ((CRYSTAL_FREQUENCY * PLL_FACTOR)/ (1000 * VPBDIV_FACTOR));
+ 276              		.loc 1 173 0
+ 277 0160 0F49     		ldr	r1, .L25+8
+ 278 0162 3B1C     		mov	r3, r7
+ 279 0164 1A88     		ldrh	r2, [r3]
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s 			page 9
+
+
+ 280 0166 0F4B     		ldr	r3, .L25+12
+ 281 0168 5343     		mul	r3, r2
+ 282 016a 0B60     		str	r3, [r1]
+ 174:motor/motor.c ****   TIMER1_IR  = 0xff;          //reset all interrrupt flags
+ 283              		.loc 1 174 0
+ 284 016c 0E4A     		ldr	r2, .L25+16
+ 285 016e FF23     		mov	r3, #255
+ 286 0170 1360     		str	r3, [r2]
+ 175:motor/motor.c ****   TIMER1_MCR = 0x04;          //stop timer on match
+ 287              		.loc 1 175 0
+ 288 0172 0E4A     		ldr	r2, .L25+20
+ 289 0174 0423     		mov	r3, #4
+ 290 0176 1360     		str	r3, [r2]
+ 176:motor/motor.c ****   TIMER1_TCR = 0x01;          //start timer
+ 291              		.loc 1 176 0
+ 292 0178 074A     		ldr	r2, .L25
+ 293 017a 0123     		mov	r3, #1
+ 294 017c 1360     		str	r3, [r2]
+ 295              	.L22:
+ 177:motor/motor.c ****   
+ 178:motor/motor.c ****   //wait until delay time has elapsed
+ 179:motor/motor.c ****   while (TIMER1_TCR & 0x01)
+ 296              		.loc 1 179 0
+ 297 017e 064B     		ldr	r3, .L25
+ 298 0180 1A68     		ldr	r2, [r3]
+ 299 0182 0123     		mov	r3, #1
+ 300 0184 1340     		and	r3, r3, r2
+ 301 0186 1B06     		lsl	r3, r3, #24
+ 302 0188 1B0E     		lsr	r3, r3, #24
+ 303 018a 002B     		cmp	r3, #0
+ 304 018c F7D1     		bne	.L22
+ 180:motor/motor.c ****     ;
+ 181:motor/motor.c **** }
+ 305              		.loc 1 181 0
+ 306 018e BD46     		mov	sp, r7
+ 307 0190 01B0     		add	sp, sp, #4
+ 308              		@ sp needed for prologue
+ 309 0192 80BC     		pop	{r7}
+ 310 0194 01BC     		pop	{r0}
+ 311 0196 0047     		bx	r0
+ 312              	.L26:
+ 313              		.align	2
+ 314              	.L25:
+ 315 0198 048000E0 		.word	-536838140
+ 316 019c 0C8000E0 		.word	-536838132
+ 317 01a0 188000E0 		.word	-536838120
+ 318 01a4 60EA0000 		.word	60000
+ 319 01a8 008000E0 		.word	-536838144
+ 320 01ac 148000E0 		.word	-536838124
+ 321              	.LFE7:
+ 322              		.size	delayMs, .-delayMs
+ 323              		.align	2
+ 324              		.global	initPins
+ 325              		.code 16
+ 326              		.thumb_func
+ 327              		.type	initPins, %function
+ 328              	initPins:
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s 			page 10
+
+
+ 329              	.LFB8:
+ 182:motor/motor.c **** 
+ 183:motor/motor.c **** /*****************************************************************************
+ 184:motor/motor.c ****  * Implementation of public functions
+ 185:motor/motor.c ****  ****************************************************************************/
+ 186:motor/motor.c **** 
+ 187:motor/motor.c **** /*****************************************************************************
+ 188:motor/motor.c ****  *
+ 189:motor/motor.c ****  * Description:
+ 190:motor/motor.c ****  *    The main-function. 
+ 191:motor/motor.c ****  *
+ 192:motor/motor.c ****  * Returns:
+ 193:motor/motor.c ****  *    Always 0, since return value is not used.
+ 194:motor/motor.c ****  *
+ 195:motor/motor.c ****  ****************************************************************************/
+ 196:motor/motor.c **** void initPins() {
+ 330              		.loc 1 196 0
+ 331 01b0 80B5     		push	{r7, lr}
+ 332              	.LCFI18:
+ 333 01b2 02AF     		add	r7, sp, #8
+ 334              	.LCFI19:
+ 197:motor/motor.c **** 
+ 198:motor/motor.c **** 	/*
+ 199:motor/motor.c **** 	   * connect signal PWM2 to pin P0.7
+ 200:motor/motor.c **** 	   */
+ 201:motor/motor.c **** 	  PINSEL0 &= ~0x0000c000;  //clear bits related to P0.7
+ 335              		.loc 1 201 0
+ 336 01b4 2149     		ldr	r1, .L29
+ 337 01b6 214B     		ldr	r3, .L29
+ 338 01b8 1A68     		ldr	r2, [r3]
+ 339 01ba 214B     		ldr	r3, .L29+4
+ 340 01bc 1340     		and	r3, r3, r2
+ 341 01be 0B60     		str	r3, [r1]
+ 202:motor/motor.c **** 	  PINSEL0 |=  0x00008000;  //connect signal PWM2 to P0.7 (second alternative function)
+ 342              		.loc 1 202 0
+ 343 01c0 1E49     		ldr	r1, .L29
+ 344 01c2 1E4B     		ldr	r3, .L29
+ 345 01c4 1A68     		ldr	r2, [r3]
+ 346 01c6 8023     		mov	r3, #128
+ 347 01c8 1B02     		lsl	r3, r3, #8
+ 348 01ca 1343     		orr	r3, r3, r2
+ 349 01cc 0B60     		str	r3, [r1]
+ 203:motor/motor.c **** 
+ 204:motor/motor.c **** 	  PINSEL0 &= ~0xC0000000;	// set P0.15 to EINT2
+ 350              		.loc 1 204 0
+ 351 01ce 1B4A     		ldr	r2, .L29
+ 352 01d0 1A4B     		ldr	r3, .L29
+ 353 01d2 1B68     		ldr	r3, [r3]
+ 354 01d4 9B00     		lsl	r3, r3, #2
+ 355 01d6 9B08     		lsr	r3, r3, #2
+ 356 01d8 1360     		str	r3, [r2]
+ 205:motor/motor.c **** 	  PINSEL0 |=  0x80000000;
+ 357              		.loc 1 205 0
+ 358 01da 1849     		ldr	r1, .L29
+ 359 01dc 174B     		ldr	r3, .L29
+ 360 01de 1A68     		ldr	r2, [r3]
+ 361 01e0 8023     		mov	r3, #128
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s 			page 11
+
+
+ 362 01e2 1B06     		lsl	r3, r3, #24
+ 363 01e4 1343     		orr	r3, r3, r2
+ 364 01e6 0B60     		str	r3, [r1]
+ 206:motor/motor.c **** 
+ 207:motor/motor.c **** 	  PINSEL1 &= ~0x000C0000;	// set P0.25 to GPIO Port 0.25
+ 365              		.loc 1 207 0
+ 366 01e8 1649     		ldr	r1, .L29+8
+ 367 01ea 164B     		ldr	r3, .L29+8
+ 368 01ec 1A68     		ldr	r2, [r3]
+ 369 01ee 164B     		ldr	r3, .L29+12
+ 370 01f0 1340     		and	r3, r3, r2
+ 371 01f2 0B60     		str	r3, [r1]
+ 208:motor/motor.c **** 	  /*
+ 209:motor/motor.c **** 	   * connect signal PWM5 to pin P0.21
+ 210:motor/motor.c **** 	   */
+ 211:motor/motor.c **** 
+ 212:motor/motor.c **** 	  PINSEL1 &= ~0x00000c00; //clear bits related to P0.21
+ 372              		.loc 1 212 0
+ 373 01f4 1349     		ldr	r1, .L29+8
+ 374 01f6 134B     		ldr	r3, .L29+8
+ 375 01f8 1A68     		ldr	r2, [r3]
+ 376 01fa 144B     		ldr	r3, .L29+16
+ 377 01fc 1340     		and	r3, r3, r2
+ 378 01fe 0B60     		str	r3, [r1]
+ 213:motor/motor.c **** 	  PINSEL1 |= 0x00000100; //connect signal PWM5 to P0.21 (second alternative function)
+ 379              		.loc 1 213 0
+ 380 0200 1049     		ldr	r1, .L29+8
+ 381 0202 104B     		ldr	r3, .L29+8
+ 382 0204 1A68     		ldr	r2, [r3]
+ 383 0206 8023     		mov	r3, #128
+ 384 0208 5B00     		lsl	r3, r3, #1
+ 385 020a 1343     		orr	r3, r3, r2
+ 386 020c 0B60     		str	r3, [r1]
+ 214:motor/motor.c **** 
+ 215:motor/motor.c **** 	  PINSEL1 &= ~0x0000c000; //set P0.23 to GPIO
+ 387              		.loc 1 215 0
+ 388 020e 0D49     		ldr	r1, .L29+8
+ 389 0210 0C4B     		ldr	r3, .L29+8
+ 390 0212 1A68     		ldr	r2, [r3]
+ 391 0214 0A4B     		ldr	r3, .L29+4
+ 392 0216 1340     		and	r3, r3, r2
+ 393 0218 0B60     		str	r3, [r1]
+ 216:motor/motor.c **** 
+ 217:motor/motor.c **** 	  PINSEL1 &= ~0xc0000000;  //set P0.31 to GPIO
+ 394              		.loc 1 217 0
+ 395 021a 0A4A     		ldr	r2, .L29+8
+ 396 021c 094B     		ldr	r3, .L29+8
+ 397 021e 1B68     		ldr	r3, [r3]
+ 398 0220 9B00     		lsl	r3, r3, #2
+ 399 0222 9B08     		lsr	r3, r3, #2
+ 400 0224 1360     		str	r3, [r2]
+ 218:motor/motor.c **** 	  PINSEL1 |= 0x80000100;	// TODO: describe the pin functions
+ 401              		.loc 1 218 0
+ 402 0226 0749     		ldr	r1, .L29+8
+ 403 0228 064B     		ldr	r3, .L29+8
+ 404 022a 1A68     		ldr	r2, [r3]
+ 405 022c 084B     		ldr	r3, .L29+20
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s 			page 12
+
+
+ 406 022e 1343     		orr	r3, r3, r2
+ 407 0230 0B60     		str	r3, [r1]
+ 219:motor/motor.c **** }
+ 408              		.loc 1 219 0
+ 409 0232 BD46     		mov	sp, r7
+ 410 0234 82B0     		sub	sp, sp, #8
+ 411              		@ sp needed for prologue
+ 412 0236 80BC     		pop	{r7}
+ 413 0238 01BC     		pop	{r0}
+ 414 023a 0047     		bx	r0
+ 415              	.L30:
+ 416              		.align	2
+ 417              	.L29:
+ 418 023c 00C002E0 		.word	-536690688
+ 419 0240 FF3FFFFF 		.word	-49153
+ 420 0244 04C002E0 		.word	-536690684
+ 421 0248 FFFFF3FF 		.word	-786433
+ 422 024c FFF3FFFF 		.word	-3073
+ 423 0250 00010080 		.word	-2147483392
+ 424              	.LFE8:
+ 425              		.size	initPins, .-initPins
+ 426              		.align	2
+ 427              		.global	setModeIn1
+ 428              		.code 16
+ 429              		.thumb_func
+ 430              		.type	setModeIn1, %function
+ 431              	setModeIn1:
+ 432              	.LFB9:
+ 220:motor/motor.c **** 
+ 221:motor/motor.c **** void setModeIn1() {
+ 433              		.loc 1 221 0
+ 434 0254 80B5     		push	{r7, lr}
+ 435              	.LCFI20:
+ 436 0256 02AF     		add	r7, sp, #8
+ 437              	.LCFI21:
+ 222:motor/motor.c **** 
+ 223:motor/motor.c **** 	// REMARK: do not use the "slow" functions, the "mode" pin on the 3953 PWM motor driver is never c
+ 224:motor/motor.c **** 	if (MODE_IN1 == 1) {	// MODE_IN1 = Forward, Fast Current-Decay Mode
+ 225:motor/motor.c **** 		IODIR |= P07;	// ENABLE (P0.7)
+ 438              		.loc 1 225 0
+ 439 0258 1149     		ldr	r1, .L33
+ 440 025a 114B     		ldr	r3, .L33
+ 441 025c 1A68     		ldr	r2, [r3]
+ 442 025e 8023     		mov	r3, #128
+ 443 0260 1343     		orr	r3, r3, r2
+ 444 0262 0B60     		str	r3, [r1]
+ 226:motor/motor.c **** 		IOCLR = P07;	// set to L
+ 445              		.loc 1 226 0
+ 446 0264 0F4A     		ldr	r2, .L33+4
+ 447 0266 8023     		mov	r3, #128
+ 448 0268 1360     		str	r3, [r2]
+ 227:motor/motor.c **** 
+ 228:motor/motor.c **** 		IODIR |= P15;	// PHASE (P0.15)
+ 449              		.loc 1 228 0
+ 450 026a 0D49     		ldr	r1, .L33
+ 451 026c 0C4B     		ldr	r3, .L33
+ 452 026e 1A68     		ldr	r2, [r3]
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s 			page 13
+
+
+ 453 0270 8023     		mov	r3, #128
+ 454 0272 1B02     		lsl	r3, r3, #8
+ 455 0274 1343     		orr	r3, r3, r2
+ 456 0276 0B60     		str	r3, [r1]
+ 229:motor/motor.c **** 		IOSET = P15;	// set to H
+ 457              		.loc 1 229 0
+ 458 0278 0B4A     		ldr	r2, .L33+8
+ 459 027a 8023     		mov	r3, #128
+ 460 027c 1B02     		lsl	r3, r3, #8
+ 461 027e 1360     		str	r3, [r2]
+ 230:motor/motor.c **** 
+ 231:motor/motor.c **** 		IODIR |= P25;	// BRAKE (P0.25)
+ 462              		.loc 1 231 0
+ 463 0280 0749     		ldr	r1, .L33
+ 464 0282 074B     		ldr	r3, .L33
+ 465 0284 1A68     		ldr	r2, [r3]
+ 466 0286 8023     		mov	r3, #128
+ 467 0288 9B04     		lsl	r3, r3, #18
+ 468 028a 1343     		orr	r3, r3, r2
+ 469 028c 0B60     		str	r3, [r1]
+ 232:motor/motor.c **** 		IOSET = P25;	// set to H
+ 470              		.loc 1 232 0
+ 471 028e 064A     		ldr	r2, .L33+8
+ 472 0290 8023     		mov	r3, #128
+ 473 0292 9B04     		lsl	r3, r3, #18
+ 474 0294 1360     		str	r3, [r2]
+ 233:motor/motor.c **** 	}
+ 234:motor/motor.c **** 	//LOOK AT MODE_IN1
+ 235:motor/motor.c **** 	else if (MODE_IN1 == 2){ // MODE_IN1 = Forward, Slow Current-Decay Mode
+ 236:motor/motor.c **** 		IODIR |= P07; // ENABLE (P0.7)
+ 237:motor/motor.c **** 		IOCLR = P07; // set to L
+ 238:motor/motor.c **** 
+ 239:motor/motor.c **** 		IODIR |= P15; // PHASE (P0.15)
+ 240:motor/motor.c **** 		IOSET = P15; // set to H
+ 241:motor/motor.c **** 
+ 242:motor/motor.c **** 		IODIR |= P25; // BRAKE (P0.25)
+ 243:motor/motor.c **** 		IOSET = P25; // set to H
+ 244:motor/motor.c **** 	}
+ 245:motor/motor.c **** 	else if (MODE_IN1 == 3){ // Reverse, Fast Current-Decay Mode
+ 246:motor/motor.c **** 		IODIR |= P07; // ENABLE (P0.7)
+ 247:motor/motor.c **** 		IOCLR = P07; // set to L
+ 248:motor/motor.c **** 
+ 249:motor/motor.c **** 		IODIR |= P15; // PHASE (P0.15)
+ 250:motor/motor.c **** 		IOCLR = P15; // set to L
+ 251:motor/motor.c **** 
+ 252:motor/motor.c **** 		IODIR |= P25; // BRAKE (P0.25)
+ 253:motor/motor.c **** 		IOSET = P25; // set to H
+ 254:motor/motor.c **** 	} //LOOK AT MODE
+ 255:motor/motor.c **** 	else if (MODE_IN1 == 4){ // Reverse, Slow Current-Decay Mode
+ 256:motor/motor.c **** 		IODIR |= P07; // ENABLE (P0.7)
+ 257:motor/motor.c **** 		IOCLR = P07; // set to L
+ 258:motor/motor.c **** 
+ 259:motor/motor.c **** 		IODIR |= P15; // PHASE (P0.15)
+ 260:motor/motor.c **** 		IOCLR = P15; // set to L
+ 261:motor/motor.c **** 
+ 262:motor/motor.c **** 		IODIR |= P25; // BRAKE (P0.25)
+ 263:motor/motor.c **** 		IOSET = P25; // set to H
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s 			page 14
+
+
+ 264:motor/motor.c **** 	}
+ 265:motor/motor.c **** 	else if (MODE_IN1 == 5){ // Brake, Fast Current-Decay Mode
+ 266:motor/motor.c **** 		IODIR |= P07; // ENABLE (P0.7)
+ 267:motor/motor.c **** 		IOCLR = P07; // set to L
+ 268:motor/motor.c **** 
+ 269:motor/motor.c **** 		IODIR |= P15; // PHASE (P0.15)
+ 270:motor/motor.c **** 		IOCLR = P15; // set to L
+ 271:motor/motor.c **** 
+ 272:motor/motor.c **** 		IODIR |= P25; // BRAKE (P0.25)
+ 273:motor/motor.c **** 		IOCLR = P25; // set to L
+ 274:motor/motor.c **** 	}//LOOK AT MODE
+ 275:motor/motor.c **** 	else if (MODE_IN1 == 6){ // Brake, No Current Control
+ 276:motor/motor.c **** 		IODIR |= P07; // ENABLE (P0.7)
+ 277:motor/motor.c **** 		IOCLR = P07; // set to L
+ 278:motor/motor.c **** 
+ 279:motor/motor.c **** 		IODIR |= P15; // PHASE (P0.15)
+ 280:motor/motor.c **** 		IOCLR = P15; // set to L
+ 281:motor/motor.c **** 
+ 282:motor/motor.c **** 		IODIR |= P25; // BRAKE (P0.25)
+ 283:motor/motor.c **** 		IOCLR = P25; // set to L
+ 284:motor/motor.c **** 	}
+ 285:motor/motor.c **** 
+ 286:motor/motor.c **** }
+ 475              		.loc 1 286 0
+ 476 0296 BD46     		mov	sp, r7
+ 477 0298 82B0     		sub	sp, sp, #8
+ 478              		@ sp needed for prologue
+ 479 029a 80BC     		pop	{r7}
+ 480 029c 01BC     		pop	{r0}
+ 481 029e 0047     		bx	r0
+ 482              	.L34:
+ 483              		.align	2
+ 484              	.L33:
+ 485 02a0 088002E0 		.word	-536707064
+ 486 02a4 0C8002E0 		.word	-536707060
+ 487 02a8 048002E0 		.word	-536707068
+ 488              	.LFE9:
+ 489              		.size	setModeIn1, .-setModeIn1
+ 490              		.align	2
+ 491              		.global	setModeIn2
+ 492              		.code 16
+ 493              		.thumb_func
+ 494              		.type	setModeIn2, %function
+ 495              	setModeIn2:
+ 496              	.LFB10:
+ 287:motor/motor.c **** void setModeIn2() {
+ 497              		.loc 1 287 0
+ 498 02ac 80B5     		push	{r7, lr}
+ 499              	.LCFI22:
+ 500 02ae 02AF     		add	r7, sp, #8
+ 501              	.LCFI23:
+ 288:motor/motor.c **** 
+ 289:motor/motor.c **** 	if (MODE_IN2 == 1) {	// MODE_IN1 = Forward, Fast Current-Decay Mode
+ 290:motor/motor.c **** 		IODIR |= P21;	// ENABLE (P0.7)
+ 291:motor/motor.c **** 		IOCLR = P21;	// set to L
+ 292:motor/motor.c **** 
+ 293:motor/motor.c **** 		IODIR |= P23;	// PHASE (P0.15)
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s 			page 15
+
+
+ 294:motor/motor.c **** 		IOSET = P23;	// set to H
+ 295:motor/motor.c **** 
+ 296:motor/motor.c **** 		IODIR |= P31;	// BRAKE (P0.25)
+ 297:motor/motor.c **** 		IOSET = P31;	// set to H
+ 298:motor/motor.c **** 	}
+ 299:motor/motor.c **** 	//LOOK AT MODE_IN1
+ 300:motor/motor.c **** 	else if (MODE_IN2 == 2){ // MODE_IN1 = Forward, Slow Current-Decay Mode
+ 301:motor/motor.c **** 		IODIR |= P21; // ENABLE (P0.7)
+ 302:motor/motor.c **** 		IOCLR = P21; // set to L
+ 303:motor/motor.c **** 
+ 304:motor/motor.c **** 		IODIR |= P23; // PHASE (P0.15)
+ 305:motor/motor.c **** 		IOSET = P23; // set to H
+ 306:motor/motor.c **** 
+ 307:motor/motor.c **** 		IODIR |= P31; // BRAKE (P0.25)
+ 308:motor/motor.c **** 		IOSET = P31; // set to H
+ 309:motor/motor.c **** 	}
+ 310:motor/motor.c **** 	else if (MODE_IN2 == 3){ // Reverse, Fast Current-Decay Mode
+ 311:motor/motor.c **** 		IODIR |= P21; // ENABLE (P0.7)
+ 502              		.loc 1 311 0
+ 503 02b0 1249     		ldr	r1, .L37
+ 504 02b2 124B     		ldr	r3, .L37
+ 505 02b4 1A68     		ldr	r2, [r3]
+ 506 02b6 8023     		mov	r3, #128
+ 507 02b8 9B03     		lsl	r3, r3, #14
+ 508 02ba 1343     		orr	r3, r3, r2
+ 509 02bc 0B60     		str	r3, [r1]
+ 312:motor/motor.c **** 		IOCLR = P21; // set to L
+ 510              		.loc 1 312 0
+ 511 02be 104A     		ldr	r2, .L37+4
+ 512 02c0 8023     		mov	r3, #128
+ 513 02c2 9B03     		lsl	r3, r3, #14
+ 514 02c4 1360     		str	r3, [r2]
+ 313:motor/motor.c **** 
+ 314:motor/motor.c **** 		IODIR |= P23; // PHASE (P0.15)
+ 515              		.loc 1 314 0
+ 516 02c6 0D49     		ldr	r1, .L37
+ 517 02c8 0C4B     		ldr	r3, .L37
+ 518 02ca 1A68     		ldr	r2, [r3]
+ 519 02cc 8023     		mov	r3, #128
+ 520 02ce 1B04     		lsl	r3, r3, #16
+ 521 02d0 1343     		orr	r3, r3, r2
+ 522 02d2 0B60     		str	r3, [r1]
+ 315:motor/motor.c **** 		IOCLR = P23; // set to L
+ 523              		.loc 1 315 0
+ 524 02d4 0A4A     		ldr	r2, .L37+4
+ 525 02d6 8023     		mov	r3, #128
+ 526 02d8 1B04     		lsl	r3, r3, #16
+ 527 02da 1360     		str	r3, [r2]
+ 316:motor/motor.c **** 
+ 317:motor/motor.c **** 		IODIR |= P31; // BRAKE (P0.25)
+ 528              		.loc 1 317 0
+ 529 02dc 0749     		ldr	r1, .L37
+ 530 02de 074B     		ldr	r3, .L37
+ 531 02e0 1A68     		ldr	r2, [r3]
+ 532 02e2 8023     		mov	r3, #128
+ 533 02e4 1B06     		lsl	r3, r3, #24
+ 534 02e6 1343     		orr	r3, r3, r2
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s 			page 16
+
+
+ 535 02e8 0B60     		str	r3, [r1]
+ 318:motor/motor.c **** 		IOSET = P31; // set to H
+ 536              		.loc 1 318 0
+ 537 02ea 064A     		ldr	r2, .L37+8
+ 538 02ec 8023     		mov	r3, #128
+ 539 02ee 1B06     		lsl	r3, r3, #24
+ 540 02f0 1360     		str	r3, [r2]
+ 319:motor/motor.c **** 	} //LOOK AT MODE
+ 320:motor/motor.c **** 	else if (MODE_IN2 == 4){ // Reverse, Slow Current-Decay Mode
+ 321:motor/motor.c **** 		IODIR |= P21; // ENABLE (P0.7)
+ 322:motor/motor.c **** 		IOCLR = P21; // set to L
+ 323:motor/motor.c **** 
+ 324:motor/motor.c **** 		IODIR |= P23; // PHASE (P0.15)
+ 325:motor/motor.c **** 		IOCLR = P23; // set to L
+ 326:motor/motor.c **** 
+ 327:motor/motor.c **** 		IODIR |= P31; // BRAKE (P0.25)
+ 328:motor/motor.c **** 		IOSET = P31; // set to H
+ 329:motor/motor.c **** 	}
+ 330:motor/motor.c **** 	else if (MODE_IN2 == 5){ // Brake, Fast Current-Decay Mode
+ 331:motor/motor.c **** 		IODIR |= P21; // ENABLE (P0.7)
+ 332:motor/motor.c **** 		IOCLR = P21; // set to L
+ 333:motor/motor.c **** 
+ 334:motor/motor.c **** 		IODIR |= P23; // PHASE (P0.15)
+ 335:motor/motor.c **** 		IOCLR = P23; // set to L
+ 336:motor/motor.c **** 
+ 337:motor/motor.c **** 		IODIR |= P31; // BRAKE (P0.25)
+ 338:motor/motor.c **** 		IOCLR = P31; // set to L
+ 339:motor/motor.c **** 	}//LOOK AT MODE
+ 340:motor/motor.c **** 	else if (MODE_IN2 == 6){ // Brake, No Current Control
+ 341:motor/motor.c **** 		IODIR |= P21; // ENABLE (P0.7)
+ 342:motor/motor.c **** 		IOCLR = P21; // set to L
+ 343:motor/motor.c **** 
+ 344:motor/motor.c **** 		IODIR |= P23; // PHASE (P0.15)
+ 345:motor/motor.c **** 		IOCLR = P23; // set to L
+ 346:motor/motor.c **** 
+ 347:motor/motor.c **** 		IODIR |= P31; // BRAKE (P0.25)
+ 348:motor/motor.c **** 		IOCLR = P31; // set to L
+ 349:motor/motor.c **** 	}
+ 350:motor/motor.c **** 
+ 351:motor/motor.c **** }
+ 541              		.loc 1 351 0
+ 542 02f2 BD46     		mov	sp, r7
+ 543 02f4 82B0     		sub	sp, sp, #8
+ 544              		@ sp needed for prologue
+ 545 02f6 80BC     		pop	{r7}
+ 546 02f8 01BC     		pop	{r0}
+ 547 02fa 0047     		bx	r0
+ 548              	.L38:
+ 549              		.align	2
+ 550              	.L37:
+ 551 02fc 088002E0 		.word	-536707064
+ 552 0300 0C8002E0 		.word	-536707060
+ 553 0304 048002E0 		.word	-536707068
+ 554              	.LFE10:
+ 555              		.size	setModeIn2, .-setModeIn2
+ 556              		.align	2
+ 557              		.global	runPwm
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s 			page 17
+
+
+ 558              		.code 16
+ 559              		.thumb_func
+ 560              		.type	runPwm, %function
+ 561              	runPwm:
+ 562              	.LFB11:
+ 352:motor/motor.c **** 
+ 353:motor/motor.c **** int
+ 354:motor/motor.c **** runPwm()
+ 355:motor/motor.c **** {
+ 563              		.loc 1 355 0
+ 564 0308 80B5     		push	{r7, lr}
+ 565              	.LCFI24:
+ 566 030a 83B0     		sub	sp, sp, #12
+ 567              	.LCFI25:
+ 568 030c 00AF     		add	r7, sp, #0
+ 569              	.LCFI26:
+ 356:motor/motor.c ****   tU32 duty1;
+ 357:motor/motor.c ****   tU32 duty2;
+ 358:motor/motor.c ****   tU32 freq;
+ 359:motor/motor.c **** 
+ 360:motor/motor.c ****   //set frequency to 1000 Hz (1 kHz)
+ 361:motor/motor.c ****   freq = ((CRYSTAL_FREQUENCY * PLL_FACTOR)/ (VPBDIV_FACTOR * 1000));
+ 570              		.loc 1 361 0
+ 571 030e 3A1C     		mov	r2, r7
+ 572 0310 0832     		add	r2, r2, #8
+ 573 0312 144B     		ldr	r3, .L42
+ 574 0314 1360     		str	r3, [r2]
+ 362:motor/motor.c **** 
+ 363:motor/motor.c ****   //initialize PWM unit
+ 364:motor/motor.c ****   initPwm(freq);
+ 575              		.loc 1 364 0
+ 576 0316 3B1C     		mov	r3, r7
+ 577 0318 0833     		add	r3, r3, #8
+ 578 031a 1B68     		ldr	r3, [r3]
+ 579 031c 181C     		mov	r0, r3
+ 580 031e FFF76FFE 		bl	initPwm
+ 365:motor/motor.c ****   
+ 366:motor/motor.c ****   initPins();
+ 581              		.loc 1 366 0
+ 582 0322 FFF7FEFF 		bl	initPins
+ 367:motor/motor.c **** 
+ 368:motor/motor.c ****   //vary duty cycle
+ 369:motor/motor.c ****   duty1 = 0;
+ 583              		.loc 1 369 0
+ 584 0326 3A1C     		mov	r2, r7
+ 585 0328 0023     		mov	r3, #0
+ 586 032a 1360     		str	r3, [r2]
+ 370:motor/motor.c **** 
+ 371:motor/motor.c ****   duty2 = 9999;
+ 587              		.loc 1 371 0
+ 588 032c 3A1D     		add	r2, r7, #4
+ 589 032e 0E4B     		ldr	r3, .L42+4
+ 590 0330 1360     		str	r3, [r2]
+ 372:motor/motor.c **** 
+ 373:motor/motor.c ****   setModeIn1();
+ 591              		.loc 1 373 0
+ 592 0332 FFF7FEFF 		bl	setModeIn1
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s 			page 18
+
+
+ 374:motor/motor.c ****   setModeIn2();
+ 593              		.loc 1 374 0
+ 594 0336 FFF7FEFF 		bl	setModeIn2
+ 595              	.L40:
+ 375:motor/motor.c **** 
+ 376:motor/motor.c **** 
+ 377:motor/motor.c ****   while(1)
+ 378:motor/motor.c ****   {
+ 379:motor/motor.c **** 		//set frequency value
+ 380:motor/motor.c **** 		setPwmDutyPercent1(duty1);
+ 596              		.loc 1 380 0
+ 597 033a 3B1C     		mov	r3, r7
+ 598 033c 1B68     		ldr	r3, [r3]
+ 599 033e 181C     		mov	r0, r3
+ 600 0340 FFF792FE 		bl	setPwmDutyPercent1
+ 381:motor/motor.c **** 		setPwmDutyPercent2(duty2);
+ 601              		.loc 1 381 0
+ 602 0344 3B1D     		add	r3, r7, #4
+ 603 0346 1B68     		ldr	r3, [r3]
+ 604 0348 181C     		mov	r0, r3
+ 605 034a FFF7AFFE 		bl	setPwmDutyPercent2
+ 382:motor/motor.c **** 
+ 383:motor/motor.c **** 		//wait 10 ms
+ 384:motor/motor.c **** 		delayMs(10);
+ 606              		.loc 1 384 0
+ 607 034e 0A20     		mov	r0, #10
+ 608 0350 FFF7FAFE 		bl	delayMs
+ 385:motor/motor.c **** 
+ 386:motor/motor.c **** 		// COMMENT: the duty sets the speed of the motor driver
+ 387:motor/motor.c **** 		// the value that can be set is 0-10000
+ 388:motor/motor.c **** 		// a higher value means a lower speed, conversely a low value means a higher speed
+ 389:motor/motor.c **** 
+ 390:motor/motor.c **** 		if (TASK == 1) {
+ 391:motor/motor.c **** 			//update duty cycle (0.00 - 100.00%, in steps of 0.10%)
+ 392:motor/motor.c **** 			duty1 += 10;
+ 393:motor/motor.c **** 			if (duty1 > 10000)
+ 394:motor/motor.c **** 				duty1 = 0;
+ 395:motor/motor.c **** 		}
+ 396:motor/motor.c **** 
+ 397:motor/motor.c **** 		else if (TASK == 2) {
+ 398:motor/motor.c **** 			duty1 = 0;
+ 609              		.loc 1 398 0
+ 610 0354 3A1C     		mov	r2, r7
+ 611 0356 0023     		mov	r3, #0
+ 612 0358 1360     		str	r3, [r2]
+ 399:motor/motor.c **** 			duty2 = 9999;
+ 613              		.loc 1 399 0
+ 614 035a 3A1D     		add	r2, r7, #4
+ 615 035c 024B     		ldr	r3, .L42+4
+ 616 035e 1360     		str	r3, [r2]
+ 400:motor/motor.c **** 		}
+ 401:motor/motor.c **** 
+ 402:motor/motor.c **** 	}
+ 617              		.loc 1 402 0
+ 618 0360 EBE7     		b	.L40
+ 619              	.L43:
+ 620 0362 0000     		.align	2
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s 			page 19
+
+
+ 621              	.L42:
+ 622 0364 60EA0000 		.word	60000
+ 623 0368 0F270000 		.word	9999
+ 624              	.LFE11:
+ 625              		.size	runPwm, .-runPwm
+ 626              		.align	2
+ 627              		.global	procEx1
+ 628              		.code 16
+ 629              		.thumb_func
+ 630              		.type	procEx1, %function
+ 631              	procEx1:
+ 632              	.LFB12:
+ 633              		.file 2 "proc1.c"
+   1:proc1.c       **** /*
+   2:proc1.c       ****  * proc1.c
+   3:proc1.c       ****  *
+   4:proc1.c       ****  *  Created on: 31 okt 2011
+   5:proc1.c       ****  *      Author: Tommy
+   6:proc1.c       ****  */
+   7:proc1.c       **** 
+   8:proc1.c       **** /*****************************************************************************
+   9:proc1.c       ****  *
+  10:proc1.c       ****  *    Exempel 1
+  11:proc1.c       ****  *
+  12:proc1.c       ****  *
+  13:proc1.c       ****  ****************************************************************************/
+  14:proc1.c       **** #include "pre_emptive_os/api/osapi.h"
+  15:proc1.c       **** #include "general.h"
+  16:proc1.c       **** #include "startup/lpc2xxx.h"
+  17:proc1.c       **** #include "startup/printf_P.h"
+  18:proc1.c       **** #include "startup/ea_init.h"
+  19:proc1.c       **** #include "startup/consol.h"
+  20:proc1.c       **** #include "startup/config.h"
+  21:proc1.c       **** #include "startup/framework.h"
+  22:proc1.c       **** #include "motor/motor.c"
+  23:proc1.c       **** 
+  24:proc1.c       **** #include "LCD/LCD.h"  //  Funktionsprototyper för LCD-rutinerna
+  25:proc1.c       **** 
+  26:proc1.c       **** extern long const delayshort;
+  27:proc1.c       **** extern long const delaylong;
+  28:proc1.c       **** 
+  29:proc1.c       **** extern tCntSem mutexLCD;
+  30:proc1.c       **** 
+  31:proc1.c       **** /*****************************************************************************
+  32:proc1.c       ****  * Function prototypes
+  33:proc1.c       ****  ****************************************************************************/
+  34:proc1.c       **** void initLCD(void);
+  35:proc1.c       **** 
+  36:proc1.c       **** /****************************************************************************/
+  37:proc1.c       **** 
+  38:proc1.c       **** void
+  39:proc1.c       **** procEx1(void* arg)
+  40:proc1.c       **** {
+ 634              		.loc 2 40 0
+ 635 036c 80B5     		push	{r7, lr}
+ 636              	.LCFI27:
+ 637 036e 82B0     		sub	sp, sp, #8
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s 			page 20
+
+
+ 638              	.LCFI28:
+ 639 0370 00AF     		add	r7, sp, #0
+ 640              	.LCFI29:
+ 641 0372 3B1C     		mov	r3, r7
+ 642 0374 1860     		str	r0, [r3]
+ 643              	.L45:
+  41:proc1.c       ****   tU8 error;
+  42:proc1.c       **** 
+  43:proc1.c       **** 	for (;;) {	// QUESTION: why use for-loop?
+  44:proc1.c       **** 
+  45:proc1.c       **** 		osSemTake(&mutexLCD, 0, &error);
+ 644              		.loc 2 45 0
+ 645 0376 0B4B     		ldr	r3, .L47
+ 646 0378 FA1D     		add	r2, r7, #7
+ 647 037a 181C     		mov	r0, r3
+ 648 037c 0021     		mov	r1, #0
+ 649 037e FFF7FEFF 		bl	osSemTake
+  46:proc1.c       **** 
+  47:proc1.c       **** 		initLCD();
+ 650              		.loc 2 47 0
+ 651 0382 FFF7FEFF 		bl	initLCD
+  48:proc1.c       **** 		runPwm();
+ 652              		.loc 2 48 0
+ 653 0386 FFF7FEFF 		bl	runPwm
+  49:proc1.c       **** 
+  50:proc1.c       **** 
+  51:proc1.c       **** 		osSemGive(&mutexLCD, &error);
+ 654              		.loc 2 51 0
+ 655 038a 064B     		ldr	r3, .L47
+ 656 038c FA1D     		add	r2, r7, #7
+ 657 038e 181C     		mov	r0, r3
+ 658 0390 111C     		mov	r1, r2
+ 659 0392 FFF7FEFF 		bl	osSemGive
+  52:proc1.c       **** 
+  53:proc1.c       **** 		osSleep(1000);
+ 660              		.loc 2 53 0
+ 661 0396 FA23     		mov	r3, #250
+ 662 0398 9B00     		lsl	r3, r3, #2
+ 663 039a 181C     		mov	r0, r3
+ 664 039c FFF7FEFF 		bl	osSleep
+  54:proc1.c       **** 	}
+ 665              		.loc 2 54 0
+ 666 03a0 E9E7     		b	.L45
+ 667              	.L48:
+ 668 03a2 0000     		.align	2
+ 669              	.L47:
+ 670 03a4 00000000 		.word	mutexLCD
+ 671              	.LFE12:
+ 672              		.size	procEx1, .-procEx1
+ 673              		.align	2
+ 674              		.global	initLCD
+ 675              		.code 16
+ 676              		.thumb_func
+ 677              		.type	initLCD, %function
+ 678              	initLCD:
+ 679              	.LFB13:
+  55:proc1.c       **** 
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s 			page 21
+
+
+  56:proc1.c       **** }
+  57:proc1.c       **** 
+  58:proc1.c       **** void initLCD(void) {
+ 680              		.loc 2 58 0
+ 681 03a8 80B5     		push	{r7, lr}
+ 682              	.LCFI30:
+ 683 03aa 00AF     		add	r7, sp, #0
+ 684              	.LCFI31:
+  59:proc1.c       **** 	delay(delayshort);
+ 685              		.loc 2 59 0
+ 686 03ac 094B     		ldr	r3, .L51
+ 687 03ae 1B68     		ldr	r3, [r3]
+ 688 03b0 181C     		mov	r0, r3
+ 689 03b2 FFF7FEFF 		bl	delay
+  60:proc1.c       **** 	send_instruction(1);	//cleara displayen
+ 690              		.loc 2 60 0
+ 691 03b6 0120     		mov	r0, #1
+ 692 03b8 FFF7FEFF 		bl	send_instruction
+  61:proc1.c       **** 	delay(delaylong);
+ 693              		.loc 2 61 0
+ 694 03bc 064B     		ldr	r3, .L51+4
+ 695 03be 1B68     		ldr	r3, [r3]
+ 696 03c0 181C     		mov	r0, r3
+ 697 03c2 FFF7FEFF 		bl	delay
+  62:proc1.c       **** 	send_instruction(2);  	//cursorn till första positionen
+ 698              		.loc 2 62 0
+ 699 03c6 0220     		mov	r0, #2
+ 700 03c8 FFF7FEFF 		bl	send_instruction
+  63:proc1.c       **** }
+ 701              		.loc 2 63 0
+ 702 03cc BD46     		mov	sp, r7
+ 703              		@ sp needed for prologue
+ 704 03ce 80BC     		pop	{r7}
+ 705 03d0 01BC     		pop	{r0}
+ 706 03d2 0047     		bx	r0
+ 707              	.L52:
+ 708              		.align	2
+ 709              	.L51:
+ 710 03d4 00000000 		.word	delayshort
+ 711 03d8 00000000 		.word	delaylong
+ 712              	.LFE13:
+ 713              		.size	initLCD, .-initLCD
+ 714              		.section	.debug_frame,"",%progbits
+ 715              	.Lframe0:
+ 716 0000 0C000000 		.4byte	.LECIE0-.LSCIE0
+ 717              	.LSCIE0:
+ 718 0004 FFFFFFFF 		.4byte	0xffffffff
+ 719 0008 01       		.byte	0x1
+ 720 0009 00       		.ascii	"\000"
+ 721 000a 01       		.uleb128 0x1
+ 722 000b 7C       		.sleb128 -4
+ 723 000c 0E       		.byte	0xe
+ 724 000d 0C       		.byte	0xc
+ 725 000e 0D       		.uleb128 0xd
+ 726 000f 00       		.uleb128 0x0
+ 727              		.align	2
+ 728              	.LECIE0:
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s 			page 22
+
+
+ 729              	.LSFDE0:
+ 730 0010 1C000000 		.4byte	.LEFDE0-.LASFDE0
+ 731              	.LASFDE0:
+ 732 0014 00000000 		.4byte	.Lframe0
+ 733 0018 00000000 		.4byte	.LFB2
+ 734 001c 68000000 		.4byte	.LFE2-.LFB2
+ 735 0020 42       		.byte	0x4
+ 736              		.4byte	.LCFI0-.LFB2
+ 737 0021 0E       		.byte	0xe
+ 738 0022 08       		.uleb128 0x8
+ 739 0023 87       		.byte	0x87
+ 740 0024 02       		.uleb128 0x2
+ 741 0025 8E       		.byte	0x8e
+ 742 0026 01       		.uleb128 0x1
+ 743 0027 42       		.byte	0x4
+ 744              		.4byte	.LCFI1-.LCFI0
+ 745 0028 0E       		.byte	0xe
+ 746 0029 0C       		.uleb128 0xc
+ 747 002a 42       		.byte	0x4
+ 748              		.4byte	.LCFI2-.LCFI1
+ 749 002b 0D       		.byte	0xd
+ 750 002c 07       		.uleb128 0x7
+ 751 002d 000000   		.align	2
+ 752              	.LEFDE0:
+ 753              	.LSFDE2:
+ 754 0030 1C000000 		.4byte	.LEFDE2-.LASFDE2
+ 755              	.LASFDE2:
+ 756 0034 00000000 		.4byte	.Lframe0
+ 757 0038 68000000 		.4byte	.LFB3
+ 758 003c 44000000 		.4byte	.LFE3-.LFB3
+ 759 0040 42       		.byte	0x4
+ 760              		.4byte	.LCFI3-.LFB3
+ 761 0041 0E       		.byte	0xe
+ 762 0042 0C       		.uleb128 0xc
+ 763 0043 84       		.byte	0x84
+ 764 0044 03       		.uleb128 0x3
+ 765 0045 87       		.byte	0x87
+ 766 0046 02       		.uleb128 0x2
+ 767 0047 8E       		.byte	0x8e
+ 768 0048 01       		.uleb128 0x1
+ 769 0049 42       		.byte	0x4
+ 770              		.4byte	.LCFI4-.LCFI3
+ 771 004a 0E       		.byte	0xe
+ 772 004b 10       		.uleb128 0x10
+ 773 004c 42       		.byte	0x4
+ 774              		.4byte	.LCFI5-.LCFI4
+ 775 004d 0D       		.byte	0xd
+ 776 004e 07       		.uleb128 0x7
+ 777 004f 00       		.align	2
+ 778              	.LEFDE2:
+ 779              	.LSFDE4:
+ 780 0050 1C000000 		.4byte	.LEFDE4-.LASFDE4
+ 781              	.LASFDE4:
+ 782 0054 00000000 		.4byte	.Lframe0
+ 783 0058 AC000000 		.4byte	.LFB4
+ 784 005c 44000000 		.4byte	.LFE4-.LFB4
+ 785 0060 42       		.byte	0x4
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s 			page 23
+
+
+ 786              		.4byte	.LCFI6-.LFB4
+ 787 0061 0E       		.byte	0xe
+ 788 0062 0C       		.uleb128 0xc
+ 789 0063 84       		.byte	0x84
+ 790 0064 03       		.uleb128 0x3
+ 791 0065 87       		.byte	0x87
+ 792 0066 02       		.uleb128 0x2
+ 793 0067 8E       		.byte	0x8e
+ 794 0068 01       		.uleb128 0x1
+ 795 0069 42       		.byte	0x4
+ 796              		.4byte	.LCFI7-.LCFI6
+ 797 006a 0E       		.byte	0xe
+ 798 006b 10       		.uleb128 0x10
+ 799 006c 42       		.byte	0x4
+ 800              		.4byte	.LCFI8-.LCFI7
+ 801 006d 0D       		.byte	0xd
+ 802 006e 07       		.uleb128 0x7
+ 803 006f 00       		.align	2
+ 804              	.LEFDE4:
+ 805              	.LSFDE6:
+ 806 0070 1C000000 		.4byte	.LEFDE6-.LASFDE6
+ 807              	.LASFDE6:
+ 808 0074 00000000 		.4byte	.Lframe0
+ 809 0078 F0000000 		.4byte	.LFB5
+ 810 007c 2C000000 		.4byte	.LFE5-.LFB5
+ 811 0080 42       		.byte	0x4
+ 812              		.4byte	.LCFI9-.LFB5
+ 813 0081 0E       		.byte	0xe
+ 814 0082 08       		.uleb128 0x8
+ 815 0083 87       		.byte	0x87
+ 816 0084 02       		.uleb128 0x2
+ 817 0085 8E       		.byte	0x8e
+ 818 0086 01       		.uleb128 0x1
+ 819 0087 42       		.byte	0x4
+ 820              		.4byte	.LCFI10-.LCFI9
+ 821 0088 0E       		.byte	0xe
+ 822 0089 0C       		.uleb128 0xc
+ 823 008a 42       		.byte	0x4
+ 824              		.4byte	.LCFI11-.LCFI10
+ 825 008b 0D       		.byte	0xd
+ 826 008c 07       		.uleb128 0x7
+ 827 008d 000000   		.align	2
+ 828              	.LEFDE6:
+ 829              	.LSFDE8:
+ 830 0090 1C000000 		.4byte	.LEFDE8-.LASFDE8
+ 831              	.LASFDE8:
+ 832 0094 00000000 		.4byte	.Lframe0
+ 833 0098 1C010000 		.4byte	.LFB6
+ 834 009c 2C000000 		.4byte	.LFE6-.LFB6
+ 835 00a0 42       		.byte	0x4
+ 836              		.4byte	.LCFI12-.LFB6
+ 837 00a1 0E       		.byte	0xe
+ 838 00a2 08       		.uleb128 0x8
+ 839 00a3 87       		.byte	0x87
+ 840 00a4 02       		.uleb128 0x2
+ 841 00a5 8E       		.byte	0x8e
+ 842 00a6 01       		.uleb128 0x1
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s 			page 24
+
+
+ 843 00a7 42       		.byte	0x4
+ 844              		.4byte	.LCFI13-.LCFI12
+ 845 00a8 0E       		.byte	0xe
+ 846 00a9 0C       		.uleb128 0xc
+ 847 00aa 42       		.byte	0x4
+ 848              		.4byte	.LCFI14-.LCFI13
+ 849 00ab 0D       		.byte	0xd
+ 850 00ac 07       		.uleb128 0x7
+ 851 00ad 000000   		.align	2
+ 852              	.LEFDE8:
+ 853              	.LSFDE10:
+ 854 00b0 1C000000 		.4byte	.LEFDE10-.LASFDE10
+ 855              	.LASFDE10:
+ 856 00b4 00000000 		.4byte	.Lframe0
+ 857 00b8 48010000 		.4byte	.LFB7
+ 858 00bc 68000000 		.4byte	.LFE7-.LFB7
+ 859 00c0 42       		.byte	0x4
+ 860              		.4byte	.LCFI15-.LFB7
+ 861 00c1 0E       		.byte	0xe
+ 862 00c2 08       		.uleb128 0x8
+ 863 00c3 87       		.byte	0x87
+ 864 00c4 02       		.uleb128 0x2
+ 865 00c5 8E       		.byte	0x8e
+ 866 00c6 01       		.uleb128 0x1
+ 867 00c7 42       		.byte	0x4
+ 868              		.4byte	.LCFI16-.LCFI15
+ 869 00c8 0E       		.byte	0xe
+ 870 00c9 0C       		.uleb128 0xc
+ 871 00ca 42       		.byte	0x4
+ 872              		.4byte	.LCFI17-.LCFI16
+ 873 00cb 0D       		.byte	0xd
+ 874 00cc 07       		.uleb128 0x7
+ 875 00cd 000000   		.align	2
+ 876              	.LEFDE10:
+ 877              	.LSFDE12:
+ 878 00d0 18000000 		.4byte	.LEFDE12-.LASFDE12
+ 879              	.LASFDE12:
+ 880 00d4 00000000 		.4byte	.Lframe0
+ 881 00d8 B0010000 		.4byte	.LFB8
+ 882 00dc A4000000 		.4byte	.LFE8-.LFB8
+ 883 00e0 42       		.byte	0x4
+ 884              		.4byte	.LCFI18-.LFB8
+ 885 00e1 0E       		.byte	0xe
+ 886 00e2 08       		.uleb128 0x8
+ 887 00e3 87       		.byte	0x87
+ 888 00e4 02       		.uleb128 0x2
+ 889 00e5 8E       		.byte	0x8e
+ 890 00e6 01       		.uleb128 0x1
+ 891 00e7 42       		.byte	0x4
+ 892              		.4byte	.LCFI19-.LCFI18
+ 893 00e8 0C       		.byte	0xc
+ 894 00e9 07       		.uleb128 0x7
+ 895 00ea 00       		.uleb128 0x0
+ 896 00eb 00       		.align	2
+ 897              	.LEFDE12:
+ 898              	.LSFDE14:
+ 899 00ec 18000000 		.4byte	.LEFDE14-.LASFDE14
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s 			page 25
+
+
+ 900              	.LASFDE14:
+ 901 00f0 00000000 		.4byte	.Lframe0
+ 902 00f4 54020000 		.4byte	.LFB9
+ 903 00f8 58000000 		.4byte	.LFE9-.LFB9
+ 904 00fc 42       		.byte	0x4
+ 905              		.4byte	.LCFI20-.LFB9
+ 906 00fd 0E       		.byte	0xe
+ 907 00fe 08       		.uleb128 0x8
+ 908 00ff 87       		.byte	0x87
+ 909 0100 02       		.uleb128 0x2
+ 910 0101 8E       		.byte	0x8e
+ 911 0102 01       		.uleb128 0x1
+ 912 0103 42       		.byte	0x4
+ 913              		.4byte	.LCFI21-.LCFI20
+ 914 0104 0C       		.byte	0xc
+ 915 0105 07       		.uleb128 0x7
+ 916 0106 00       		.uleb128 0x0
+ 917 0107 00       		.align	2
+ 918              	.LEFDE14:
+ 919              	.LSFDE16:
+ 920 0108 18000000 		.4byte	.LEFDE16-.LASFDE16
+ 921              	.LASFDE16:
+ 922 010c 00000000 		.4byte	.Lframe0
+ 923 0110 AC020000 		.4byte	.LFB10
+ 924 0114 5C000000 		.4byte	.LFE10-.LFB10
+ 925 0118 42       		.byte	0x4
+ 926              		.4byte	.LCFI22-.LFB10
+ 927 0119 0E       		.byte	0xe
+ 928 011a 08       		.uleb128 0x8
+ 929 011b 87       		.byte	0x87
+ 930 011c 02       		.uleb128 0x2
+ 931 011d 8E       		.byte	0x8e
+ 932 011e 01       		.uleb128 0x1
+ 933 011f 42       		.byte	0x4
+ 934              		.4byte	.LCFI23-.LCFI22
+ 935 0120 0C       		.byte	0xc
+ 936 0121 07       		.uleb128 0x7
+ 937 0122 00       		.uleb128 0x0
+ 938 0123 00       		.align	2
+ 939              	.LEFDE16:
+ 940              	.LSFDE18:
+ 941 0124 1C000000 		.4byte	.LEFDE18-.LASFDE18
+ 942              	.LASFDE18:
+ 943 0128 00000000 		.4byte	.Lframe0
+ 944 012c 08030000 		.4byte	.LFB11
+ 945 0130 64000000 		.4byte	.LFE11-.LFB11
+ 946 0134 42       		.byte	0x4
+ 947              		.4byte	.LCFI24-.LFB11
+ 948 0135 0E       		.byte	0xe
+ 949 0136 08       		.uleb128 0x8
+ 950 0137 87       		.byte	0x87
+ 951 0138 02       		.uleb128 0x2
+ 952 0139 8E       		.byte	0x8e
+ 953 013a 01       		.uleb128 0x1
+ 954 013b 42       		.byte	0x4
+ 955              		.4byte	.LCFI25-.LCFI24
+ 956 013c 0E       		.byte	0xe
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s 			page 26
+
+
+ 957 013d 14       		.uleb128 0x14
+ 958 013e 42       		.byte	0x4
+ 959              		.4byte	.LCFI26-.LCFI25
+ 960 013f 0D       		.byte	0xd
+ 961 0140 07       		.uleb128 0x7
+ 962 0141 000000   		.align	2
+ 963              	.LEFDE18:
+ 964              	.LSFDE20:
+ 965 0144 1C000000 		.4byte	.LEFDE20-.LASFDE20
+ 966              	.LASFDE20:
+ 967 0148 00000000 		.4byte	.Lframe0
+ 968 014c 6C030000 		.4byte	.LFB12
+ 969 0150 3C000000 		.4byte	.LFE12-.LFB12
+ 970 0154 42       		.byte	0x4
+ 971              		.4byte	.LCFI27-.LFB12
+ 972 0155 0E       		.byte	0xe
+ 973 0156 08       		.uleb128 0x8
+ 974 0157 87       		.byte	0x87
+ 975 0158 02       		.uleb128 0x2
+ 976 0159 8E       		.byte	0x8e
+ 977 015a 01       		.uleb128 0x1
+ 978 015b 42       		.byte	0x4
+ 979              		.4byte	.LCFI28-.LCFI27
+ 980 015c 0E       		.byte	0xe
+ 981 015d 10       		.uleb128 0x10
+ 982 015e 42       		.byte	0x4
+ 983              		.4byte	.LCFI29-.LCFI28
+ 984 015f 0D       		.byte	0xd
+ 985 0160 07       		.uleb128 0x7
+ 986 0161 000000   		.align	2
+ 987              	.LEFDE20:
+ 988              	.LSFDE22:
+ 989 0164 18000000 		.4byte	.LEFDE22-.LASFDE22
+ 990              	.LASFDE22:
+ 991 0168 00000000 		.4byte	.Lframe0
+ 992 016c A8030000 		.4byte	.LFB13
+ 993 0170 34000000 		.4byte	.LFE13-.LFB13
+ 994 0174 42       		.byte	0x4
+ 995              		.4byte	.LCFI30-.LFB13
+ 996 0175 0E       		.byte	0xe
+ 997 0176 08       		.uleb128 0x8
+ 998 0177 87       		.byte	0x87
+ 999 0178 02       		.uleb128 0x2
+ 1000 0179 8E       		.byte	0x8e
+ 1001 017a 01       		.uleb128 0x1
+ 1002 017b 42       		.byte	0x4
+ 1003              		.4byte	.LCFI31-.LCFI30
+ 1004 017c 0D       		.byte	0xd
+ 1005 017d 07       		.uleb128 0x7
+ 1006 017e 0000     		.align	2
+ 1007              	.LEFDE22:
+ 1008              		.file 3 "pre_emptive_os/api/osapi.h"
+ 1009              		.file 4 "pre_emptive_os/api/../api/general.h"
+ 1010              		.text
+ 1011              	.Letext0:
+ 1012              		.section	.debug_loc,"",%progbits
+ 1013              	.Ldebug_loc0:
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s 			page 27
+
+
+ 1014              	.LLST0:
+ 1015 0000 00000000 		.4byte	.LFB2-.Ltext0
+ 1016 0004 02000000 		.4byte	.LCFI0-.Ltext0
+ 1017 0008 0100     		.2byte	0x1
+ 1018 000a 5D       		.byte	0x5d
+ 1019 000b 02000000 		.4byte	.LCFI0-.Ltext0
+ 1020 000f 04000000 		.4byte	.LCFI1-.Ltext0
+ 1021 0013 0200     		.2byte	0x2
+ 1022 0015 7D       		.byte	0x7d
+ 1023 0016 08       		.sleb128 8
+ 1024 0017 04000000 		.4byte	.LCFI1-.Ltext0
+ 1025 001b 06000000 		.4byte	.LCFI2-.Ltext0
+ 1026 001f 0200     		.2byte	0x2
+ 1027 0021 7D       		.byte	0x7d
+ 1028 0022 0C       		.sleb128 12
+ 1029 0023 06000000 		.4byte	.LCFI2-.Ltext0
+ 1030 0027 68000000 		.4byte	.LFE2-.Ltext0
+ 1031 002b 0200     		.2byte	0x2
+ 1032 002d 77       		.byte	0x77
+ 1033 002e 0C       		.sleb128 12
+ 1034 002f 00000000 		.4byte	0x0
+ 1035 0033 00000000 		.4byte	0x0
+ 1036              	.LLST1:
+ 1037 0037 68000000 		.4byte	.LFB3-.Ltext0
+ 1038 003b 6A000000 		.4byte	.LCFI3-.Ltext0
+ 1039 003f 0100     		.2byte	0x1
+ 1040 0041 5D       		.byte	0x5d
+ 1041 0042 6A000000 		.4byte	.LCFI3-.Ltext0
+ 1042 0046 6C000000 		.4byte	.LCFI4-.Ltext0
+ 1043 004a 0200     		.2byte	0x2
+ 1044 004c 7D       		.byte	0x7d
+ 1045 004d 0C       		.sleb128 12
+ 1046 004e 6C000000 		.4byte	.LCFI4-.Ltext0
+ 1047 0052 6E000000 		.4byte	.LCFI5-.Ltext0
+ 1048 0056 0200     		.2byte	0x2
+ 1049 0058 7D       		.byte	0x7d
+ 1050 0059 10       		.sleb128 16
+ 1051 005a 6E000000 		.4byte	.LCFI5-.Ltext0
+ 1052 005e AC000000 		.4byte	.LFE3-.Ltext0
+ 1053 0062 0200     		.2byte	0x2
+ 1054 0064 77       		.byte	0x77
+ 1055 0065 10       		.sleb128 16
+ 1056 0066 00000000 		.4byte	0x0
+ 1057 006a 00000000 		.4byte	0x0
+ 1058              	.LLST2:
+ 1059 006e AC000000 		.4byte	.LFB4-.Ltext0
+ 1060 0072 AE000000 		.4byte	.LCFI6-.Ltext0
+ 1061 0076 0100     		.2byte	0x1
+ 1062 0078 5D       		.byte	0x5d
+ 1063 0079 AE000000 		.4byte	.LCFI6-.Ltext0
+ 1064 007d B0000000 		.4byte	.LCFI7-.Ltext0
+ 1065 0081 0200     		.2byte	0x2
+ 1066 0083 7D       		.byte	0x7d
+ 1067 0084 0C       		.sleb128 12
+ 1068 0085 B0000000 		.4byte	.LCFI7-.Ltext0
+ 1069 0089 B2000000 		.4byte	.LCFI8-.Ltext0
+ 1070 008d 0200     		.2byte	0x2
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s 			page 28
+
+
+ 1071 008f 7D       		.byte	0x7d
+ 1072 0090 10       		.sleb128 16
+ 1073 0091 B2000000 		.4byte	.LCFI8-.Ltext0
+ 1074 0095 F0000000 		.4byte	.LFE4-.Ltext0
+ 1075 0099 0200     		.2byte	0x2
+ 1076 009b 77       		.byte	0x77
+ 1077 009c 10       		.sleb128 16
+ 1078 009d 00000000 		.4byte	0x0
+ 1079 00a1 00000000 		.4byte	0x0
+ 1080              	.LLST3:
+ 1081 00a5 F0000000 		.4byte	.LFB5-.Ltext0
+ 1082 00a9 F2000000 		.4byte	.LCFI9-.Ltext0
+ 1083 00ad 0100     		.2byte	0x1
+ 1084 00af 5D       		.byte	0x5d
+ 1085 00b0 F2000000 		.4byte	.LCFI9-.Ltext0
+ 1086 00b4 F4000000 		.4byte	.LCFI10-.Ltext0
+ 1087 00b8 0200     		.2byte	0x2
+ 1088 00ba 7D       		.byte	0x7d
+ 1089 00bb 08       		.sleb128 8
+ 1090 00bc F4000000 		.4byte	.LCFI10-.Ltext0
+ 1091 00c0 F6000000 		.4byte	.LCFI11-.Ltext0
+ 1092 00c4 0200     		.2byte	0x2
+ 1093 00c6 7D       		.byte	0x7d
+ 1094 00c7 0C       		.sleb128 12
+ 1095 00c8 F6000000 		.4byte	.LCFI11-.Ltext0
+ 1096 00cc 1C010000 		.4byte	.LFE5-.Ltext0
+ 1097 00d0 0200     		.2byte	0x2
+ 1098 00d2 77       		.byte	0x77
+ 1099 00d3 0C       		.sleb128 12
+ 1100 00d4 00000000 		.4byte	0x0
+ 1101 00d8 00000000 		.4byte	0x0
+ 1102              	.LLST4:
+ 1103 00dc 1C010000 		.4byte	.LFB6-.Ltext0
+ 1104 00e0 1E010000 		.4byte	.LCFI12-.Ltext0
+ 1105 00e4 0100     		.2byte	0x1
+ 1106 00e6 5D       		.byte	0x5d
+ 1107 00e7 1E010000 		.4byte	.LCFI12-.Ltext0
+ 1108 00eb 20010000 		.4byte	.LCFI13-.Ltext0
+ 1109 00ef 0200     		.2byte	0x2
+ 1110 00f1 7D       		.byte	0x7d
+ 1111 00f2 08       		.sleb128 8
+ 1112 00f3 20010000 		.4byte	.LCFI13-.Ltext0
+ 1113 00f7 22010000 		.4byte	.LCFI14-.Ltext0
+ 1114 00fb 0200     		.2byte	0x2
+ 1115 00fd 7D       		.byte	0x7d
+ 1116 00fe 0C       		.sleb128 12
+ 1117 00ff 22010000 		.4byte	.LCFI14-.Ltext0
+ 1118 0103 48010000 		.4byte	.LFE6-.Ltext0
+ 1119 0107 0200     		.2byte	0x2
+ 1120 0109 77       		.byte	0x77
+ 1121 010a 0C       		.sleb128 12
+ 1122 010b 00000000 		.4byte	0x0
+ 1123 010f 00000000 		.4byte	0x0
+ 1124              	.LLST5:
+ 1125 0113 48010000 		.4byte	.LFB7-.Ltext0
+ 1126 0117 4A010000 		.4byte	.LCFI15-.Ltext0
+ 1127 011b 0100     		.2byte	0x1
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s 			page 29
+
+
+ 1128 011d 5D       		.byte	0x5d
+ 1129 011e 4A010000 		.4byte	.LCFI15-.Ltext0
+ 1130 0122 4C010000 		.4byte	.LCFI16-.Ltext0
+ 1131 0126 0200     		.2byte	0x2
+ 1132 0128 7D       		.byte	0x7d
+ 1133 0129 08       		.sleb128 8
+ 1134 012a 4C010000 		.4byte	.LCFI16-.Ltext0
+ 1135 012e 4E010000 		.4byte	.LCFI17-.Ltext0
+ 1136 0132 0200     		.2byte	0x2
+ 1137 0134 7D       		.byte	0x7d
+ 1138 0135 0C       		.sleb128 12
+ 1139 0136 4E010000 		.4byte	.LCFI17-.Ltext0
+ 1140 013a B0010000 		.4byte	.LFE7-.Ltext0
+ 1141 013e 0200     		.2byte	0x2
+ 1142 0140 77       		.byte	0x77
+ 1143 0141 0C       		.sleb128 12
+ 1144 0142 00000000 		.4byte	0x0
+ 1145 0146 00000000 		.4byte	0x0
+ 1146              	.LLST6:
+ 1147 014a B0010000 		.4byte	.LFB8-.Ltext0
+ 1148 014e B2010000 		.4byte	.LCFI18-.Ltext0
+ 1149 0152 0100     		.2byte	0x1
+ 1150 0154 5D       		.byte	0x5d
+ 1151 0155 B2010000 		.4byte	.LCFI18-.Ltext0
+ 1152 0159 B4010000 		.4byte	.LCFI19-.Ltext0
+ 1153 015d 0200     		.2byte	0x2
+ 1154 015f 7D       		.byte	0x7d
+ 1155 0160 08       		.sleb128 8
+ 1156 0161 B4010000 		.4byte	.LCFI19-.Ltext0
+ 1157 0165 54020000 		.4byte	.LFE8-.Ltext0
+ 1158 0169 0100     		.2byte	0x1
+ 1159 016b 57       		.byte	0x57
+ 1160 016c 00000000 		.4byte	0x0
+ 1161 0170 00000000 		.4byte	0x0
+ 1162              	.LLST7:
+ 1163 0174 54020000 		.4byte	.LFB9-.Ltext0
+ 1164 0178 56020000 		.4byte	.LCFI20-.Ltext0
+ 1165 017c 0100     		.2byte	0x1
+ 1166 017e 5D       		.byte	0x5d
+ 1167 017f 56020000 		.4byte	.LCFI20-.Ltext0
+ 1168 0183 58020000 		.4byte	.LCFI21-.Ltext0
+ 1169 0187 0200     		.2byte	0x2
+ 1170 0189 7D       		.byte	0x7d
+ 1171 018a 08       		.sleb128 8
+ 1172 018b 58020000 		.4byte	.LCFI21-.Ltext0
+ 1173 018f AC020000 		.4byte	.LFE9-.Ltext0
+ 1174 0193 0100     		.2byte	0x1
+ 1175 0195 57       		.byte	0x57
+ 1176 0196 00000000 		.4byte	0x0
+ 1177 019a 00000000 		.4byte	0x0
+ 1178              	.LLST8:
+ 1179 019e AC020000 		.4byte	.LFB10-.Ltext0
+ 1180 01a2 AE020000 		.4byte	.LCFI22-.Ltext0
+ 1181 01a6 0100     		.2byte	0x1
+ 1182 01a8 5D       		.byte	0x5d
+ 1183 01a9 AE020000 		.4byte	.LCFI22-.Ltext0
+ 1184 01ad B0020000 		.4byte	.LCFI23-.Ltext0
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s 			page 30
+
+
+ 1185 01b1 0200     		.2byte	0x2
+ 1186 01b3 7D       		.byte	0x7d
+ 1187 01b4 08       		.sleb128 8
+ 1188 01b5 B0020000 		.4byte	.LCFI23-.Ltext0
+ 1189 01b9 08030000 		.4byte	.LFE10-.Ltext0
+ 1190 01bd 0100     		.2byte	0x1
+ 1191 01bf 57       		.byte	0x57
+ 1192 01c0 00000000 		.4byte	0x0
+ 1193 01c4 00000000 		.4byte	0x0
+ 1194              	.LLST9:
+ 1195 01c8 08030000 		.4byte	.LFB11-.Ltext0
+ 1196 01cc 0A030000 		.4byte	.LCFI24-.Ltext0
+ 1197 01d0 0100     		.2byte	0x1
+ 1198 01d2 5D       		.byte	0x5d
+ 1199 01d3 0A030000 		.4byte	.LCFI24-.Ltext0
+ 1200 01d7 0C030000 		.4byte	.LCFI25-.Ltext0
+ 1201 01db 0200     		.2byte	0x2
+ 1202 01dd 7D       		.byte	0x7d
+ 1203 01de 08       		.sleb128 8
+ 1204 01df 0C030000 		.4byte	.LCFI25-.Ltext0
+ 1205 01e3 0E030000 		.4byte	.LCFI26-.Ltext0
+ 1206 01e7 0200     		.2byte	0x2
+ 1207 01e9 7D       		.byte	0x7d
+ 1208 01ea 14       		.sleb128 20
+ 1209 01eb 0E030000 		.4byte	.LCFI26-.Ltext0
+ 1210 01ef 6C030000 		.4byte	.LFE11-.Ltext0
+ 1211 01f3 0200     		.2byte	0x2
+ 1212 01f5 77       		.byte	0x77
+ 1213 01f6 14       		.sleb128 20
+ 1214 01f7 00000000 		.4byte	0x0
+ 1215 01fb 00000000 		.4byte	0x0
+ 1216              	.LLST10:
+ 1217 01ff 6C030000 		.4byte	.LFB12-.Ltext0
+ 1218 0203 6E030000 		.4byte	.LCFI27-.Ltext0
+ 1219 0207 0100     		.2byte	0x1
+ 1220 0209 5D       		.byte	0x5d
+ 1221 020a 6E030000 		.4byte	.LCFI27-.Ltext0
+ 1222 020e 70030000 		.4byte	.LCFI28-.Ltext0
+ 1223 0212 0200     		.2byte	0x2
+ 1224 0214 7D       		.byte	0x7d
+ 1225 0215 08       		.sleb128 8
+ 1226 0216 70030000 		.4byte	.LCFI28-.Ltext0
+ 1227 021a 72030000 		.4byte	.LCFI29-.Ltext0
+ 1228 021e 0200     		.2byte	0x2
+ 1229 0220 7D       		.byte	0x7d
+ 1230 0221 10       		.sleb128 16
+ 1231 0222 72030000 		.4byte	.LCFI29-.Ltext0
+ 1232 0226 A8030000 		.4byte	.LFE12-.Ltext0
+ 1233 022a 0200     		.2byte	0x2
+ 1234 022c 77       		.byte	0x77
+ 1235 022d 10       		.sleb128 16
+ 1236 022e 00000000 		.4byte	0x0
+ 1237 0232 00000000 		.4byte	0x0
+ 1238              	.LLST11:
+ 1239 0236 A8030000 		.4byte	.LFB13-.Ltext0
+ 1240 023a AA030000 		.4byte	.LCFI30-.Ltext0
+ 1241 023e 0100     		.2byte	0x1
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s 			page 31
+
+
+ 1242 0240 5D       		.byte	0x5d
+ 1243 0241 AA030000 		.4byte	.LCFI30-.Ltext0
+ 1244 0245 AC030000 		.4byte	.LCFI31-.Ltext0
+ 1245 0249 0200     		.2byte	0x2
+ 1246 024b 7D       		.byte	0x7d
+ 1247 024c 08       		.sleb128 8
+ 1248 024d AC030000 		.4byte	.LCFI31-.Ltext0
+ 1249 0251 DC030000 		.4byte	.LFE13-.Ltext0
+ 1250 0255 0200     		.2byte	0x2
+ 1251 0257 77       		.byte	0x77
+ 1252 0258 08       		.sleb128 8
+ 1253 0259 00000000 		.4byte	0x0
+ 1254 025d 00000000 		.4byte	0x0
+ 1255              		.section	.debug_info
+ 1256 0000 64050000 		.4byte	0x564
+ 1257 0004 0200     		.2byte	0x2
+ 1258 0006 00000000 		.4byte	.Ldebug_abbrev0
+ 1259 000a 04       		.byte	0x4
+ 1260 000b 01       		.uleb128 0x1
+ 1261 000c 00000000 		.4byte	.Ldebug_line0
+ 1262 0010 DC030000 		.4byte	.Letext0
+ 1263 0014 00000000 		.4byte	.Ltext0
+ 1264 0018 474E5520 		.ascii	"GNU C 4.1.1\000"
+ 1264      4320342E 
+ 1264      312E3100 
+ 1265 0024 01       		.byte	0x1
+ 1266 0025 70726F63 		.ascii	"proc1.c\000"
+ 1266      312E6300 
+ 1267 002d 2F637967 		.ascii	"/cygdrive/c/armprojects/buttonledas/Projekt12\000"
+ 1267      64726976 
+ 1267      652F632F 
+ 1267      61726D70 
+ 1267      726F6A65 
+ 1268 005b 02       		.uleb128 0x2
+ 1269 005c 74553800 		.ascii	"tU8\000"
+ 1270 0060 04       		.byte	0x4
+ 1271 0061 47       		.byte	0x47
+ 1272 0062 66000000 		.4byte	0x66
+ 1273 0066 03       		.uleb128 0x3
+ 1274 0067 756E7369 		.ascii	"unsigned char\000"
+ 1274      676E6564 
+ 1274      20636861 
+ 1274      7200
+ 1275 0075 01       		.byte	0x1
+ 1276 0076 08       		.byte	0x8
+ 1277 0077 02       		.uleb128 0x2
+ 1278 0078 74553136 		.ascii	"tU16\000"
+ 1278      00
+ 1279 007d 04       		.byte	0x4
+ 1280 007e 48       		.byte	0x48
+ 1281 007f 83000000 		.4byte	0x83
+ 1282 0083 03       		.uleb128 0x3
+ 1283 0084 73686F72 		.ascii	"short unsigned int\000"
+ 1283      7420756E 
+ 1283      7369676E 
+ 1283      65642069 
+ 1283      6E7400
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s 			page 32
+
+
+ 1284 0097 02       		.byte	0x2
+ 1285 0098 07       		.byte	0x7
+ 1286 0099 02       		.uleb128 0x2
+ 1287 009a 74553332 		.ascii	"tU32\000"
+ 1287      00
+ 1288 009f 04       		.byte	0x4
+ 1289 00a0 49       		.byte	0x49
+ 1290 00a1 A5000000 		.4byte	0xa5
+ 1291 00a5 03       		.uleb128 0x3
+ 1292 00a6 756E7369 		.ascii	"unsigned int\000"
+ 1292      676E6564 
+ 1292      20696E74 
+ 1292      00
+ 1293 00b3 04       		.byte	0x4
+ 1294 00b4 07       		.byte	0x7
+ 1295 00b5 03       		.uleb128 0x3
+ 1296 00b6 7369676E 		.ascii	"signed char\000"
+ 1296      65642063 
+ 1296      68617200 
+ 1297 00c2 01       		.byte	0x1
+ 1298 00c3 06       		.byte	0x6
+ 1299 00c4 03       		.uleb128 0x3
+ 1300 00c5 73686F72 		.ascii	"short int\000"
+ 1300      7420696E 
+ 1300      7400
+ 1301 00cf 02       		.byte	0x2
+ 1302 00d0 05       		.byte	0x5
+ 1303 00d1 03       		.uleb128 0x3
+ 1304 00d2 696E7400 		.ascii	"int\000"
+ 1305 00d6 04       		.byte	0x4
+ 1306 00d7 05       		.byte	0x5
+ 1307 00d8 04       		.uleb128 0x4
+ 1308 00d9 ED010000 		.4byte	0x1ed
+ 1309 00dd 5F744F53 		.ascii	"_tOSPCB__\000"
+ 1309      5043425F 
+ 1309      5F00
+ 1310 00e7 28       		.byte	0x28
+ 1311 00e8 03       		.byte	0x3
+ 1312 00e9 58       		.byte	0x58
+ 1313 00ea 05       		.uleb128 0x5
+ 1314 00eb 7053746B 		.ascii	"pStk\000"
+ 1314      00
+ 1315 00f0 03       		.byte	0x3
+ 1316 00f1 59       		.byte	0x59
+ 1317 00f2 ED010000 		.4byte	0x1ed
+ 1318 00f6 02       		.byte	0x2
+ 1319 00f7 23       		.byte	0x23
+ 1320 00f8 00       		.uleb128 0x0
+ 1321 00f9 05       		.uleb128 0x5
+ 1322 00fa 704E6578 		.ascii	"pNextPrioQueueReady\000"
+ 1322      74507269 
+ 1322      6F517565 
+ 1322      75655265 
+ 1322      61647900 
+ 1323 010e 03       		.byte	0x3
+ 1324 010f 5A       		.byte	0x5a
+ 1325 0110 F3010000 		.4byte	0x1f3
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s 			page 33
+
+
+ 1326 0114 02       		.byte	0x2
+ 1327 0115 23       		.byte	0x23
+ 1328 0116 04       		.uleb128 0x4
+ 1329 0117 05       		.uleb128 0x5
+ 1330 0118 70507265 		.ascii	"pPrevPrioQueueReady\000"
+ 1330      76507269 
+ 1330      6F517565 
+ 1330      75655265 
+ 1330      61647900 
+ 1331 012c 03       		.byte	0x3
+ 1332 012d 5B       		.byte	0x5b
+ 1333 012e F3010000 		.4byte	0x1f3
+ 1334 0132 02       		.byte	0x2
+ 1335 0133 23       		.byte	0x23
+ 1336 0134 08       		.uleb128 0x8
+ 1337 0135 05       		.uleb128 0x5
+ 1338 0136 704E6578 		.ascii	"pNextPrioQueueEvent\000"
+ 1338      74507269 
+ 1338      6F517565 
+ 1338      75654576 
+ 1338      656E7400 
+ 1339 014a 03       		.byte	0x3
+ 1340 014b 5C       		.byte	0x5c
+ 1341 014c F3010000 		.4byte	0x1f3
+ 1342 0150 02       		.byte	0x2
+ 1343 0151 23       		.byte	0x23
+ 1344 0152 0C       		.uleb128 0xc
+ 1345 0153 05       		.uleb128 0x5
+ 1346 0154 70507265 		.ascii	"pPrevPrioQueueEvent\000"
+ 1346      76507269 
+ 1346      6F517565 
+ 1346      75654576 
+ 1346      656E7400 
+ 1347 0168 03       		.byte	0x3
+ 1348 0169 5D       		.byte	0x5d
+ 1349 016a F3010000 		.4byte	0x1f3
+ 1350 016e 02       		.byte	0x2
+ 1351 016f 23       		.byte	0x23
+ 1352 0170 10       		.uleb128 0x10
+ 1353 0171 05       		.uleb128 0x5
+ 1354 0172 704E6578 		.ascii	"pNextTimeQueue\000"
+ 1354      7454696D 
+ 1354      65517565 
+ 1354      756500
+ 1355 0181 03       		.byte	0x3
+ 1356 0182 5E       		.byte	0x5e
+ 1357 0183 F3010000 		.4byte	0x1f3
+ 1358 0187 02       		.byte	0x2
+ 1359 0188 23       		.byte	0x23
+ 1360 0189 14       		.uleb128 0x14
+ 1361 018a 05       		.uleb128 0x5
+ 1362 018b 70696400 		.ascii	"pid\000"
+ 1363 018f 03       		.byte	0x3
+ 1364 0190 5F       		.byte	0x5f
+ 1365 0191 5B000000 		.4byte	0x5b
+ 1366 0195 02       		.byte	0x2
+ 1367 0196 23       		.byte	0x23
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s 			page 34
+
+
+ 1368 0197 18       		.uleb128 0x18
+ 1369 0198 05       		.uleb128 0x5
+ 1370 0199 7072696F 		.ascii	"prio\000"
+ 1370      00
+ 1371 019e 03       		.byte	0x3
+ 1372 019f 60       		.byte	0x60
+ 1373 01a0 5B000000 		.4byte	0x5b
+ 1374 01a4 02       		.byte	0x2
+ 1375 01a5 23       		.byte	0x23
+ 1376 01a6 19       		.uleb128 0x19
+ 1377 01a7 05       		.uleb128 0x5
+ 1378 01a8 666C6167 		.ascii	"flag\000"
+ 1378      00
+ 1379 01ad 03       		.byte	0x3
+ 1380 01ae 61       		.byte	0x61
+ 1381 01af 5B000000 		.4byte	0x5b
+ 1382 01b3 02       		.byte	0x2
+ 1383 01b4 23       		.byte	0x23
+ 1384 01b5 1A       		.uleb128 0x1a
+ 1385 01b6 05       		.uleb128 0x5
+ 1386 01b7 736C6565 		.ascii	"sleep\000"
+ 1386      7000
+ 1387 01bd 03       		.byte	0x3
+ 1388 01be 62       		.byte	0x62
+ 1389 01bf 99000000 		.4byte	0x99
+ 1390 01c3 02       		.byte	0x2
+ 1391 01c4 23       		.byte	0x23
+ 1392 01c5 1C       		.uleb128 0x1c
+ 1393 01c6 05       		.uleb128 0x5
+ 1394 01c7 7053746B 		.ascii	"pStkOrg\000"
+ 1394      4F726700 
+ 1395 01cf 03       		.byte	0x3
+ 1396 01d0 65       		.byte	0x65
+ 1397 01d1 ED010000 		.4byte	0x1ed
+ 1398 01d5 02       		.byte	0x2
+ 1399 01d6 23       		.byte	0x23
+ 1400 01d7 20       		.uleb128 0x20
+ 1401 01d8 05       		.uleb128 0x5
+ 1402 01d9 73746163 		.ascii	"stackSize\000"
+ 1402      6B53697A 
+ 1402      6500
+ 1403 01e3 03       		.byte	0x3
+ 1404 01e4 66       		.byte	0x66
+ 1405 01e5 77000000 		.4byte	0x77
+ 1406 01e9 02       		.byte	0x2
+ 1407 01ea 23       		.byte	0x23
+ 1408 01eb 24       		.uleb128 0x24
+ 1409 01ec 00       		.byte	0x0
+ 1410 01ed 06       		.uleb128 0x6
+ 1411 01ee 04       		.byte	0x4
+ 1412 01ef 5B000000 		.4byte	0x5b
+ 1413 01f3 06       		.uleb128 0x6
+ 1414 01f4 04       		.byte	0x4
+ 1415 01f5 D8000000 		.4byte	0xd8
+ 1416 01f9 02       		.uleb128 0x2
+ 1417 01fa 744F5350 		.ascii	"tOSPCB\000"
+ 1417      434200
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s 			page 35
+
+
+ 1418 0201 03       		.byte	0x3
+ 1419 0202 68       		.byte	0x68
+ 1420 0203 D8000000 		.4byte	0xd8
+ 1421 0207 04       		.uleb128 0x4
+ 1422 0208 41020000 		.4byte	0x241
+ 1423 020c 5F745072 		.ascii	"_tPrioQueue_\000"
+ 1423      696F5175 
+ 1423      6575655F 
+ 1423      00
+ 1424 0219 18       		.byte	0x18
+ 1425 021a 03       		.byte	0x3
+ 1426 021b 70       		.byte	0x70
+ 1427 021c 05       		.uleb128 0x5
+ 1428 021d 70507269 		.ascii	"pPrioList\000"
+ 1428      6F4C6973 
+ 1428      7400
+ 1429 0227 03       		.byte	0x3
+ 1430 0228 71       		.byte	0x71
+ 1431 0229 41020000 		.4byte	0x241
+ 1432 022d 02       		.byte	0x2
+ 1433 022e 23       		.byte	0x23
+ 1434 022f 00       		.uleb128 0x0
+ 1435 0230 05       		.uleb128 0x5
+ 1436 0231 70504342 		.ascii	"pPCBs\000"
+ 1436      7300
+ 1437 0237 03       		.byte	0x3
+ 1438 0238 72       		.byte	0x72
+ 1439 0239 66020000 		.4byte	0x266
+ 1440 023d 02       		.byte	0x2
+ 1441 023e 23       		.byte	0x23
+ 1442 023f 14       		.uleb128 0x14
+ 1443 0240 00       		.byte	0x0
+ 1444 0241 07       		.uleb128 0x7
+ 1445 0242 51020000 		.4byte	0x251
+ 1446 0246 66020000 		.4byte	0x266
+ 1447 024a 08       		.uleb128 0x8
+ 1448 024b 51020000 		.4byte	0x251
+ 1449 024f 04       		.byte	0x4
+ 1450 0250 00       		.byte	0x0
+ 1451 0251 03       		.uleb128 0x3
+ 1452 0252 6C6F6E67 		.ascii	"long unsigned int\000"
+ 1452      20756E73 
+ 1452      69676E65 
+ 1452      6420696E 
+ 1452      7400
+ 1453 0264 04       		.byte	0x4
+ 1454 0265 07       		.byte	0x7
+ 1455 0266 06       		.uleb128 0x6
+ 1456 0267 04       		.byte	0x4
+ 1457 0268 F9010000 		.4byte	0x1f9
+ 1458 026c 02       		.uleb128 0x2
+ 1459 026d 74507269 		.ascii	"tPrioQueue\000"
+ 1459      6F517565 
+ 1459      756500
+ 1460 0278 03       		.byte	0x3
+ 1461 0279 73       		.byte	0x73
+ 1462 027a 07020000 		.4byte	0x207
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s 			page 36
+
+
+ 1463 027e 04       		.uleb128 0x4
+ 1464 027f A2020000 		.4byte	0x2a2
+ 1465 0283 5F744F53 		.ascii	"_tOSEvent_\000"
+ 1465      4576656E 
+ 1465      745F00
+ 1466 028e 18       		.byte	0x18
+ 1467 028f 03       		.byte	0x3
+ 1468 0290 76       		.byte	0x76
+ 1469 0291 05       		.uleb128 0x5
+ 1470 0292 77616974 		.ascii	"waitQ\000"
+ 1470      5100
+ 1471 0298 03       		.byte	0x3
+ 1472 0299 77       		.byte	0x77
+ 1473 029a 6C020000 		.4byte	0x26c
+ 1474 029e 02       		.byte	0x2
+ 1475 029f 23       		.byte	0x23
+ 1476 02a0 00       		.uleb128 0x0
+ 1477 02a1 00       		.byte	0x0
+ 1478 02a2 02       		.uleb128 0x2
+ 1479 02a3 744F5345 		.ascii	"tOSEvent\000"
+ 1479      76656E74 
+ 1479      00
+ 1480 02ac 03       		.byte	0x3
+ 1481 02ad 78       		.byte	0x78
+ 1482 02ae 7E020000 		.4byte	0x27e
+ 1483 02b2 04       		.uleb128 0x4
+ 1484 02b3 E0020000 		.4byte	0x2e0
+ 1485 02b7 5F74436E 		.ascii	"_tCntSem_\000"
+ 1485      7453656D 
+ 1485      5F00
+ 1486 02c1 1C       		.byte	0x1c
+ 1487 02c2 03       		.byte	0x3
+ 1488 02c3 7B       		.byte	0x7b
+ 1489 02c4 05       		.uleb128 0x5
+ 1490 02c5 657600   		.ascii	"ev\000"
+ 1491 02c8 03       		.byte	0x3
+ 1492 02c9 7C       		.byte	0x7c
+ 1493 02ca A2020000 		.4byte	0x2a2
+ 1494 02ce 02       		.byte	0x2
+ 1495 02cf 23       		.byte	0x23
+ 1496 02d0 00       		.uleb128 0x0
+ 1497 02d1 05       		.uleb128 0x5
+ 1498 02d2 636E7400 		.ascii	"cnt\000"
+ 1499 02d6 03       		.byte	0x3
+ 1500 02d7 7D       		.byte	0x7d
+ 1501 02d8 77000000 		.4byte	0x77
+ 1502 02dc 02       		.byte	0x2
+ 1503 02dd 23       		.byte	0x23
+ 1504 02de 18       		.uleb128 0x18
+ 1505 02df 00       		.byte	0x0
+ 1506 02e0 02       		.uleb128 0x2
+ 1507 02e1 74436E74 		.ascii	"tCntSem\000"
+ 1507      53656D00 
+ 1508 02e9 03       		.byte	0x3
+ 1509 02ea 7F       		.byte	0x7f
+ 1510 02eb B2020000 		.4byte	0x2b2
+ 1511 02ef 09       		.uleb128 0x9
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s 			page 37
+
+
+ 1512 02f0 04       		.byte	0x4
+ 1513 02f1 0A       		.uleb128 0xa
+ 1514 02f2 29030000 		.4byte	0x329
+ 1515 02f6 696E6974 		.ascii	"initPwm\000"
+ 1515      50776D00 
+ 1516 02fe 01       		.byte	0x1
+ 1517 02ff 58       		.byte	0x58
+ 1518 0300 01       		.byte	0x1
+ 1519 0301 00000000 		.4byte	.LFB2
+ 1520 0305 68000000 		.4byte	.LFE2
+ 1521 0309 00000000 		.4byte	.LLST0
+ 1522 030d 0B       		.uleb128 0xb
+ 1523 030e 696E6974 		.ascii	"initialFreqValue\000"
+ 1523      69616C46 
+ 1523      72657156 
+ 1523      616C7565 
+ 1523      00
+ 1524 031f 01       		.byte	0x1
+ 1525 0320 57       		.byte	0x57
+ 1526 0321 A5000000 		.4byte	0xa5
+ 1527 0325 02       		.byte	0x2
+ 1528 0326 91       		.byte	0x91
+ 1529 0327 74       		.sleb128 -12
+ 1530 0328 00       		.byte	0x0
+ 1531 0329 0A       		.uleb128 0xa
+ 1532 032a 5F030000 		.4byte	0x35f
+ 1533 032e 73657450 		.ascii	"setPwmDutyPercent1\000"
+ 1533      776D4475 
+ 1533      74795065 
+ 1533      7263656E 
+ 1533      743100
+ 1534 0341 01       		.byte	0x1
+ 1535 0342 74       		.byte	0x74
+ 1536 0343 01       		.byte	0x1
+ 1537 0344 68000000 		.4byte	.LFB3
+ 1538 0348 AC000000 		.4byte	.LFE3
+ 1539 034c 37000000 		.4byte	.LLST1
+ 1540 0350 0C       		.uleb128 0xc
+ 1541 0351 00000000 		.4byte	.LASF0
+ 1542 0355 01       		.byte	0x1
+ 1543 0356 73       		.byte	0x73
+ 1544 0357 A5000000 		.4byte	0xa5
+ 1545 035b 02       		.byte	0x2
+ 1546 035c 91       		.byte	0x91
+ 1547 035d 70       		.sleb128 -16
+ 1548 035e 00       		.byte	0x0
+ 1549 035f 0A       		.uleb128 0xa
+ 1550 0360 95030000 		.4byte	0x395
+ 1551 0364 73657450 		.ascii	"setPwmDutyPercent2\000"
+ 1551      776D4475 
+ 1551      74795065 
+ 1551      7263656E 
+ 1551      743200
+ 1552 0377 01       		.byte	0x1
+ 1553 0378 7B       		.byte	0x7b
+ 1554 0379 01       		.byte	0x1
+ 1555 037a AC000000 		.4byte	.LFB4
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s 			page 38
+
+
+ 1556 037e F0000000 		.4byte	.LFE4
+ 1557 0382 6E000000 		.4byte	.LLST2
+ 1558 0386 0C       		.uleb128 0xc
+ 1559 0387 0B000000 		.4byte	.LASF1
+ 1560 038b 01       		.byte	0x1
+ 1561 038c 7A       		.byte	0x7a
+ 1562 038d A5000000 		.4byte	0xa5
+ 1563 0391 02       		.byte	0x2
+ 1564 0392 91       		.byte	0x91
+ 1565 0393 70       		.sleb128 -16
+ 1566 0394 00       		.byte	0x0
+ 1567 0395 0A       		.uleb128 0xa
+ 1568 0396 C4030000 		.4byte	0x3c4
+ 1569 039a 73657450 		.ascii	"setPwmDuty1\000"
+ 1569      776D4475 
+ 1569      74793100 
+ 1570 03a6 01       		.byte	0x1
+ 1571 03a7 91       		.byte	0x91
+ 1572 03a8 01       		.byte	0x1
+ 1573 03a9 F0000000 		.4byte	.LFB5
+ 1574 03ad 1C010000 		.4byte	.LFE5
+ 1575 03b1 A5000000 		.4byte	.LLST3
+ 1576 03b5 0C       		.uleb128 0xc
+ 1577 03b6 00000000 		.4byte	.LASF0
+ 1578 03ba 01       		.byte	0x1
+ 1579 03bb 90       		.byte	0x90
+ 1580 03bc A5000000 		.4byte	0xa5
+ 1581 03c0 02       		.byte	0x2
+ 1582 03c1 91       		.byte	0x91
+ 1583 03c2 74       		.sleb128 -12
+ 1584 03c3 00       		.byte	0x0
+ 1585 03c4 0A       		.uleb128 0xa
+ 1586 03c5 F3030000 		.4byte	0x3f3
+ 1587 03c9 73657450 		.ascii	"setPwmDuty2\000"
+ 1587      776D4475 
+ 1587      74793200 
+ 1588 03d5 01       		.byte	0x1
+ 1589 03d6 97       		.byte	0x97
+ 1590 03d7 01       		.byte	0x1
+ 1591 03d8 1C010000 		.4byte	.LFB6
+ 1592 03dc 48010000 		.4byte	.LFE6
+ 1593 03e0 DC000000 		.4byte	.LLST4
+ 1594 03e4 0C       		.uleb128 0xc
+ 1595 03e5 0B000000 		.4byte	.LASF1
+ 1596 03e9 01       		.byte	0x1
+ 1597 03ea 96       		.byte	0x96
+ 1598 03eb A5000000 		.4byte	0xa5
+ 1599 03ef 02       		.byte	0x2
+ 1600 03f0 91       		.byte	0x91
+ 1601 03f1 74       		.sleb128 -12
+ 1602 03f2 00       		.byte	0x0
+ 1603 03f3 0A       		.uleb128 0xa
+ 1604 03f4 24040000 		.4byte	0x424
+ 1605 03f8 64656C61 		.ascii	"delayMs\000"
+ 1605      794D7300 
+ 1606 0400 01       		.byte	0x1
+ 1607 0401 A7       		.byte	0xa7
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s 			page 39
+
+
+ 1608 0402 01       		.byte	0x1
+ 1609 0403 48010000 		.4byte	.LFB7
+ 1610 0407 B0010000 		.4byte	.LFE7
+ 1611 040b 13010000 		.4byte	.LLST5
+ 1612 040f 0B       		.uleb128 0xb
+ 1613 0410 64656C61 		.ascii	"delayInMs\000"
+ 1613      79496E4D 
+ 1613      7300
+ 1614 041a 01       		.byte	0x1
+ 1615 041b A6       		.byte	0xa6
+ 1616 041c 83000000 		.4byte	0x83
+ 1617 0420 02       		.byte	0x2
+ 1618 0421 91       		.byte	0x91
+ 1619 0422 74       		.sleb128 -12
+ 1620 0423 00       		.byte	0x0
+ 1621 0424 0D       		.uleb128 0xd
+ 1622 0425 01       		.byte	0x1
+ 1623 0426 696E6974 		.ascii	"initPins\000"
+ 1623      50696E73 
+ 1623      00
+ 1624 042f 01       		.byte	0x1
+ 1625 0430 C4       		.byte	0xc4
+ 1626 0431 B0010000 		.4byte	.LFB8
+ 1627 0435 54020000 		.4byte	.LFE8
+ 1628 0439 4A010000 		.4byte	.LLST6
+ 1629 043d 0D       		.uleb128 0xd
+ 1630 043e 01       		.byte	0x1
+ 1631 043f 7365744D 		.ascii	"setModeIn1\000"
+ 1631      6F646549 
+ 1631      6E3100
+ 1632 044a 01       		.byte	0x1
+ 1633 044b DD       		.byte	0xdd
+ 1634 044c 54020000 		.4byte	.LFB9
+ 1635 0450 AC020000 		.4byte	.LFE9
+ 1636 0454 74010000 		.4byte	.LLST7
+ 1637 0458 0E       		.uleb128 0xe
+ 1638 0459 01       		.byte	0x1
+ 1639 045a 7365744D 		.ascii	"setModeIn2\000"
+ 1639      6F646549 
+ 1639      6E3200
+ 1640 0465 01       		.byte	0x1
+ 1641 0466 1F01     		.2byte	0x11f
+ 1642 0468 AC020000 		.4byte	.LFB10
+ 1643 046c 08030000 		.4byte	.LFE10
+ 1644 0470 9E010000 		.4byte	.LLST8
+ 1645 0474 0F       		.uleb128 0xf
+ 1646 0475 C8040000 		.4byte	0x4c8
+ 1647 0479 01       		.byte	0x1
+ 1648 047a 72756E50 		.ascii	"runPwm\000"
+ 1648      776D00
+ 1649 0481 01       		.byte	0x1
+ 1650 0482 6301     		.2byte	0x163
+ 1651 0484 01       		.byte	0x1
+ 1652 0485 D1000000 		.4byte	0xd1
+ 1653 0489 08030000 		.4byte	.LFB11
+ 1654 048d 6C030000 		.4byte	.LFE11
+ 1655 0491 C8010000 		.4byte	.LLST9
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s 			page 40
+
+
+ 1656 0495 10       		.uleb128 0x10
+ 1657 0496 64757479 		.ascii	"duty1\000"
+ 1657      3100
+ 1658 049c 01       		.byte	0x1
+ 1659 049d 6401     		.2byte	0x164
+ 1660 049f A5000000 		.4byte	0xa5
+ 1661 04a3 02       		.byte	0x2
+ 1662 04a4 91       		.byte	0x91
+ 1663 04a5 6C       		.sleb128 -20
+ 1664 04a6 10       		.uleb128 0x10
+ 1665 04a7 64757479 		.ascii	"duty2\000"
+ 1665      3200
+ 1666 04ad 01       		.byte	0x1
+ 1667 04ae 6501     		.2byte	0x165
+ 1668 04b0 A5000000 		.4byte	0xa5
+ 1669 04b4 02       		.byte	0x2
+ 1670 04b5 91       		.byte	0x91
+ 1671 04b6 70       		.sleb128 -16
+ 1672 04b7 10       		.uleb128 0x10
+ 1673 04b8 66726571 		.ascii	"freq\000"
+ 1673      00
+ 1674 04bd 01       		.byte	0x1
+ 1675 04be 6601     		.2byte	0x166
+ 1676 04c0 A5000000 		.4byte	0xa5
+ 1677 04c4 02       		.byte	0x2
+ 1678 04c5 91       		.byte	0x91
+ 1679 04c6 74       		.sleb128 -12
+ 1680 04c7 00       		.byte	0x0
+ 1681 04c8 11       		.uleb128 0x11
+ 1682 04c9 04050000 		.4byte	0x504
+ 1683 04cd 01       		.byte	0x1
+ 1684 04ce 70726F63 		.ascii	"procEx1\000"
+ 1684      45783100 
+ 1685 04d6 02       		.byte	0x2
+ 1686 04d7 28       		.byte	0x28
+ 1687 04d8 01       		.byte	0x1
+ 1688 04d9 6C030000 		.4byte	.LFB12
+ 1689 04dd A8030000 		.4byte	.LFE12
+ 1690 04e1 FF010000 		.4byte	.LLST10
+ 1691 04e5 0B       		.uleb128 0xb
+ 1692 04e6 61726700 		.ascii	"arg\000"
+ 1693 04ea 02       		.byte	0x2
+ 1694 04eb 27       		.byte	0x27
+ 1695 04ec EF020000 		.4byte	0x2ef
+ 1696 04f0 02       		.byte	0x2
+ 1697 04f1 91       		.byte	0x91
+ 1698 04f2 70       		.sleb128 -16
+ 1699 04f3 12       		.uleb128 0x12
+ 1700 04f4 6572726F 		.ascii	"error\000"
+ 1700      7200
+ 1701 04fa 02       		.byte	0x2
+ 1702 04fb 29       		.byte	0x29
+ 1703 04fc 66000000 		.4byte	0x66
+ 1704 0500 02       		.byte	0x2
+ 1705 0501 91       		.byte	0x91
+ 1706 0502 77       		.sleb128 -9
+ 1707 0503 00       		.byte	0x0
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s 			page 41
+
+
+ 1708 0504 13       		.uleb128 0x13
+ 1709 0505 01       		.byte	0x1
+ 1710 0506 696E6974 		.ascii	"initLCD\000"
+ 1710      4C434400 
+ 1711 050e 02       		.byte	0x2
+ 1712 050f 3A       		.byte	0x3a
+ 1713 0510 01       		.byte	0x1
+ 1714 0511 A8030000 		.4byte	.LFB13
+ 1715 0515 DC030000 		.4byte	.LFE13
+ 1716 0519 36020000 		.4byte	.LLST11
+ 1717 051d 14       		.uleb128 0x14
+ 1718 051e 64656C61 		.ascii	"delayshort\000"
+ 1718      7973686F 
+ 1718      727400
+ 1719 0529 02       		.byte	0x2
+ 1720 052a 1A       		.byte	0x1a
+ 1721 052b 31050000 		.4byte	0x531
+ 1722 052f 01       		.byte	0x1
+ 1723 0530 01       		.byte	0x1
+ 1724 0531 15       		.uleb128 0x15
+ 1725 0532 36050000 		.4byte	0x536
+ 1726 0536 03       		.uleb128 0x3
+ 1727 0537 6C6F6E67 		.ascii	"long int\000"
+ 1727      20696E74 
+ 1727      00
+ 1728 0540 04       		.byte	0x4
+ 1729 0541 05       		.byte	0x5
+ 1730 0542 14       		.uleb128 0x14
+ 1731 0543 64656C61 		.ascii	"delaylong\000"
+ 1731      796C6F6E 
+ 1731      6700
+ 1732 054d 02       		.byte	0x2
+ 1733 054e 1B       		.byte	0x1b
+ 1734 054f 31050000 		.4byte	0x531
+ 1735 0553 01       		.byte	0x1
+ 1736 0554 01       		.byte	0x1
+ 1737 0555 14       		.uleb128 0x14
+ 1738 0556 6D757465 		.ascii	"mutexLCD\000"
+ 1738      784C4344 
+ 1738      00
+ 1739 055f 02       		.byte	0x2
+ 1740 0560 1D       		.byte	0x1d
+ 1741 0561 E0020000 		.4byte	0x2e0
+ 1742 0565 01       		.byte	0x1
+ 1743 0566 01       		.byte	0x1
+ 1744 0567 00       		.byte	0x0
+ 1745              		.section	.debug_abbrev
+ 1746 0000 01       		.uleb128 0x1
+ 1747 0001 11       		.uleb128 0x11
+ 1748 0002 01       		.byte	0x1
+ 1749 0003 10       		.uleb128 0x10
+ 1750 0004 06       		.uleb128 0x6
+ 1751 0005 12       		.uleb128 0x12
+ 1752 0006 01       		.uleb128 0x1
+ 1753 0007 11       		.uleb128 0x11
+ 1754 0008 01       		.uleb128 0x1
+ 1755 0009 25       		.uleb128 0x25
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s 			page 42
+
+
+ 1756 000a 08       		.uleb128 0x8
+ 1757 000b 13       		.uleb128 0x13
+ 1758 000c 0B       		.uleb128 0xb
+ 1759 000d 03       		.uleb128 0x3
+ 1760 000e 08       		.uleb128 0x8
+ 1761 000f 1B       		.uleb128 0x1b
+ 1762 0010 08       		.uleb128 0x8
+ 1763 0011 00       		.byte	0x0
+ 1764 0012 00       		.byte	0x0
+ 1765 0013 02       		.uleb128 0x2
+ 1766 0014 16       		.uleb128 0x16
+ 1767 0015 00       		.byte	0x0
+ 1768 0016 03       		.uleb128 0x3
+ 1769 0017 08       		.uleb128 0x8
+ 1770 0018 3A       		.uleb128 0x3a
+ 1771 0019 0B       		.uleb128 0xb
+ 1772 001a 3B       		.uleb128 0x3b
+ 1773 001b 0B       		.uleb128 0xb
+ 1774 001c 49       		.uleb128 0x49
+ 1775 001d 13       		.uleb128 0x13
+ 1776 001e 00       		.byte	0x0
+ 1777 001f 00       		.byte	0x0
+ 1778 0020 03       		.uleb128 0x3
+ 1779 0021 24       		.uleb128 0x24
+ 1780 0022 00       		.byte	0x0
+ 1781 0023 03       		.uleb128 0x3
+ 1782 0024 08       		.uleb128 0x8
+ 1783 0025 0B       		.uleb128 0xb
+ 1784 0026 0B       		.uleb128 0xb
+ 1785 0027 3E       		.uleb128 0x3e
+ 1786 0028 0B       		.uleb128 0xb
+ 1787 0029 00       		.byte	0x0
+ 1788 002a 00       		.byte	0x0
+ 1789 002b 04       		.uleb128 0x4
+ 1790 002c 13       		.uleb128 0x13
+ 1791 002d 01       		.byte	0x1
+ 1792 002e 01       		.uleb128 0x1
+ 1793 002f 13       		.uleb128 0x13
+ 1794 0030 03       		.uleb128 0x3
+ 1795 0031 08       		.uleb128 0x8
+ 1796 0032 0B       		.uleb128 0xb
+ 1797 0033 0B       		.uleb128 0xb
+ 1798 0034 3A       		.uleb128 0x3a
+ 1799 0035 0B       		.uleb128 0xb
+ 1800 0036 3B       		.uleb128 0x3b
+ 1801 0037 0B       		.uleb128 0xb
+ 1802 0038 00       		.byte	0x0
+ 1803 0039 00       		.byte	0x0
+ 1804 003a 05       		.uleb128 0x5
+ 1805 003b 0D       		.uleb128 0xd
+ 1806 003c 00       		.byte	0x0
+ 1807 003d 03       		.uleb128 0x3
+ 1808 003e 08       		.uleb128 0x8
+ 1809 003f 3A       		.uleb128 0x3a
+ 1810 0040 0B       		.uleb128 0xb
+ 1811 0041 3B       		.uleb128 0x3b
+ 1812 0042 0B       		.uleb128 0xb
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s 			page 43
+
+
+ 1813 0043 49       		.uleb128 0x49
+ 1814 0044 13       		.uleb128 0x13
+ 1815 0045 38       		.uleb128 0x38
+ 1816 0046 0A       		.uleb128 0xa
+ 1817 0047 00       		.byte	0x0
+ 1818 0048 00       		.byte	0x0
+ 1819 0049 06       		.uleb128 0x6
+ 1820 004a 0F       		.uleb128 0xf
+ 1821 004b 00       		.byte	0x0
+ 1822 004c 0B       		.uleb128 0xb
+ 1823 004d 0B       		.uleb128 0xb
+ 1824 004e 49       		.uleb128 0x49
+ 1825 004f 13       		.uleb128 0x13
+ 1826 0050 00       		.byte	0x0
+ 1827 0051 00       		.byte	0x0
+ 1828 0052 07       		.uleb128 0x7
+ 1829 0053 01       		.uleb128 0x1
+ 1830 0054 01       		.byte	0x1
+ 1831 0055 01       		.uleb128 0x1
+ 1832 0056 13       		.uleb128 0x13
+ 1833 0057 49       		.uleb128 0x49
+ 1834 0058 13       		.uleb128 0x13
+ 1835 0059 00       		.byte	0x0
+ 1836 005a 00       		.byte	0x0
+ 1837 005b 08       		.uleb128 0x8
+ 1838 005c 21       		.uleb128 0x21
+ 1839 005d 00       		.byte	0x0
+ 1840 005e 49       		.uleb128 0x49
+ 1841 005f 13       		.uleb128 0x13
+ 1842 0060 2F       		.uleb128 0x2f
+ 1843 0061 0B       		.uleb128 0xb
+ 1844 0062 00       		.byte	0x0
+ 1845 0063 00       		.byte	0x0
+ 1846 0064 09       		.uleb128 0x9
+ 1847 0065 0F       		.uleb128 0xf
+ 1848 0066 00       		.byte	0x0
+ 1849 0067 0B       		.uleb128 0xb
+ 1850 0068 0B       		.uleb128 0xb
+ 1851 0069 00       		.byte	0x0
+ 1852 006a 00       		.byte	0x0
+ 1853 006b 0A       		.uleb128 0xa
+ 1854 006c 2E       		.uleb128 0x2e
+ 1855 006d 01       		.byte	0x1
+ 1856 006e 01       		.uleb128 0x1
+ 1857 006f 13       		.uleb128 0x13
+ 1858 0070 03       		.uleb128 0x3
+ 1859 0071 08       		.uleb128 0x8
+ 1860 0072 3A       		.uleb128 0x3a
+ 1861 0073 0B       		.uleb128 0xb
+ 1862 0074 3B       		.uleb128 0x3b
+ 1863 0075 0B       		.uleb128 0xb
+ 1864 0076 27       		.uleb128 0x27
+ 1865 0077 0C       		.uleb128 0xc
+ 1866 0078 11       		.uleb128 0x11
+ 1867 0079 01       		.uleb128 0x1
+ 1868 007a 12       		.uleb128 0x12
+ 1869 007b 01       		.uleb128 0x1
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s 			page 44
+
+
+ 1870 007c 40       		.uleb128 0x40
+ 1871 007d 06       		.uleb128 0x6
+ 1872 007e 00       		.byte	0x0
+ 1873 007f 00       		.byte	0x0
+ 1874 0080 0B       		.uleb128 0xb
+ 1875 0081 05       		.uleb128 0x5
+ 1876 0082 00       		.byte	0x0
+ 1877 0083 03       		.uleb128 0x3
+ 1878 0084 08       		.uleb128 0x8
+ 1879 0085 3A       		.uleb128 0x3a
+ 1880 0086 0B       		.uleb128 0xb
+ 1881 0087 3B       		.uleb128 0x3b
+ 1882 0088 0B       		.uleb128 0xb
+ 1883 0089 49       		.uleb128 0x49
+ 1884 008a 13       		.uleb128 0x13
+ 1885 008b 02       		.uleb128 0x2
+ 1886 008c 0A       		.uleb128 0xa
+ 1887 008d 00       		.byte	0x0
+ 1888 008e 00       		.byte	0x0
+ 1889 008f 0C       		.uleb128 0xc
+ 1890 0090 05       		.uleb128 0x5
+ 1891 0091 00       		.byte	0x0
+ 1892 0092 03       		.uleb128 0x3
+ 1893 0093 0E       		.uleb128 0xe
+ 1894 0094 3A       		.uleb128 0x3a
+ 1895 0095 0B       		.uleb128 0xb
+ 1896 0096 3B       		.uleb128 0x3b
+ 1897 0097 0B       		.uleb128 0xb
+ 1898 0098 49       		.uleb128 0x49
+ 1899 0099 13       		.uleb128 0x13
+ 1900 009a 02       		.uleb128 0x2
+ 1901 009b 0A       		.uleb128 0xa
+ 1902 009c 00       		.byte	0x0
+ 1903 009d 00       		.byte	0x0
+ 1904 009e 0D       		.uleb128 0xd
+ 1905 009f 2E       		.uleb128 0x2e
+ 1906 00a0 00       		.byte	0x0
+ 1907 00a1 3F       		.uleb128 0x3f
+ 1908 00a2 0C       		.uleb128 0xc
+ 1909 00a3 03       		.uleb128 0x3
+ 1910 00a4 08       		.uleb128 0x8
+ 1911 00a5 3A       		.uleb128 0x3a
+ 1912 00a6 0B       		.uleb128 0xb
+ 1913 00a7 3B       		.uleb128 0x3b
+ 1914 00a8 0B       		.uleb128 0xb
+ 1915 00a9 11       		.uleb128 0x11
+ 1916 00aa 01       		.uleb128 0x1
+ 1917 00ab 12       		.uleb128 0x12
+ 1918 00ac 01       		.uleb128 0x1
+ 1919 00ad 40       		.uleb128 0x40
+ 1920 00ae 06       		.uleb128 0x6
+ 1921 00af 00       		.byte	0x0
+ 1922 00b0 00       		.byte	0x0
+ 1923 00b1 0E       		.uleb128 0xe
+ 1924 00b2 2E       		.uleb128 0x2e
+ 1925 00b3 00       		.byte	0x0
+ 1926 00b4 3F       		.uleb128 0x3f
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s 			page 45
+
+
+ 1927 00b5 0C       		.uleb128 0xc
+ 1928 00b6 03       		.uleb128 0x3
+ 1929 00b7 08       		.uleb128 0x8
+ 1930 00b8 3A       		.uleb128 0x3a
+ 1931 00b9 0B       		.uleb128 0xb
+ 1932 00ba 3B       		.uleb128 0x3b
+ 1933 00bb 05       		.uleb128 0x5
+ 1934 00bc 11       		.uleb128 0x11
+ 1935 00bd 01       		.uleb128 0x1
+ 1936 00be 12       		.uleb128 0x12
+ 1937 00bf 01       		.uleb128 0x1
+ 1938 00c0 40       		.uleb128 0x40
+ 1939 00c1 06       		.uleb128 0x6
+ 1940 00c2 00       		.byte	0x0
+ 1941 00c3 00       		.byte	0x0
+ 1942 00c4 0F       		.uleb128 0xf
+ 1943 00c5 2E       		.uleb128 0x2e
+ 1944 00c6 01       		.byte	0x1
+ 1945 00c7 01       		.uleb128 0x1
+ 1946 00c8 13       		.uleb128 0x13
+ 1947 00c9 3F       		.uleb128 0x3f
+ 1948 00ca 0C       		.uleb128 0xc
+ 1949 00cb 03       		.uleb128 0x3
+ 1950 00cc 08       		.uleb128 0x8
+ 1951 00cd 3A       		.uleb128 0x3a
+ 1952 00ce 0B       		.uleb128 0xb
+ 1953 00cf 3B       		.uleb128 0x3b
+ 1954 00d0 05       		.uleb128 0x5
+ 1955 00d1 27       		.uleb128 0x27
+ 1956 00d2 0C       		.uleb128 0xc
+ 1957 00d3 49       		.uleb128 0x49
+ 1958 00d4 13       		.uleb128 0x13
+ 1959 00d5 11       		.uleb128 0x11
+ 1960 00d6 01       		.uleb128 0x1
+ 1961 00d7 12       		.uleb128 0x12
+ 1962 00d8 01       		.uleb128 0x1
+ 1963 00d9 40       		.uleb128 0x40
+ 1964 00da 06       		.uleb128 0x6
+ 1965 00db 00       		.byte	0x0
+ 1966 00dc 00       		.byte	0x0
+ 1967 00dd 10       		.uleb128 0x10
+ 1968 00de 34       		.uleb128 0x34
+ 1969 00df 00       		.byte	0x0
+ 1970 00e0 03       		.uleb128 0x3
+ 1971 00e1 08       		.uleb128 0x8
+ 1972 00e2 3A       		.uleb128 0x3a
+ 1973 00e3 0B       		.uleb128 0xb
+ 1974 00e4 3B       		.uleb128 0x3b
+ 1975 00e5 05       		.uleb128 0x5
+ 1976 00e6 49       		.uleb128 0x49
+ 1977 00e7 13       		.uleb128 0x13
+ 1978 00e8 02       		.uleb128 0x2
+ 1979 00e9 0A       		.uleb128 0xa
+ 1980 00ea 00       		.byte	0x0
+ 1981 00eb 00       		.byte	0x0
+ 1982 00ec 11       		.uleb128 0x11
+ 1983 00ed 2E       		.uleb128 0x2e
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s 			page 46
+
+
+ 1984 00ee 01       		.byte	0x1
+ 1985 00ef 01       		.uleb128 0x1
+ 1986 00f0 13       		.uleb128 0x13
+ 1987 00f1 3F       		.uleb128 0x3f
+ 1988 00f2 0C       		.uleb128 0xc
+ 1989 00f3 03       		.uleb128 0x3
+ 1990 00f4 08       		.uleb128 0x8
+ 1991 00f5 3A       		.uleb128 0x3a
+ 1992 00f6 0B       		.uleb128 0xb
+ 1993 00f7 3B       		.uleb128 0x3b
+ 1994 00f8 0B       		.uleb128 0xb
+ 1995 00f9 27       		.uleb128 0x27
+ 1996 00fa 0C       		.uleb128 0xc
+ 1997 00fb 11       		.uleb128 0x11
+ 1998 00fc 01       		.uleb128 0x1
+ 1999 00fd 12       		.uleb128 0x12
+ 2000 00fe 01       		.uleb128 0x1
+ 2001 00ff 40       		.uleb128 0x40
+ 2002 0100 06       		.uleb128 0x6
+ 2003 0101 00       		.byte	0x0
+ 2004 0102 00       		.byte	0x0
+ 2005 0103 12       		.uleb128 0x12
+ 2006 0104 34       		.uleb128 0x34
+ 2007 0105 00       		.byte	0x0
+ 2008 0106 03       		.uleb128 0x3
+ 2009 0107 08       		.uleb128 0x8
+ 2010 0108 3A       		.uleb128 0x3a
+ 2011 0109 0B       		.uleb128 0xb
+ 2012 010a 3B       		.uleb128 0x3b
+ 2013 010b 0B       		.uleb128 0xb
+ 2014 010c 49       		.uleb128 0x49
+ 2015 010d 13       		.uleb128 0x13
+ 2016 010e 02       		.uleb128 0x2
+ 2017 010f 0A       		.uleb128 0xa
+ 2018 0110 00       		.byte	0x0
+ 2019 0111 00       		.byte	0x0
+ 2020 0112 13       		.uleb128 0x13
+ 2021 0113 2E       		.uleb128 0x2e
+ 2022 0114 00       		.byte	0x0
+ 2023 0115 3F       		.uleb128 0x3f
+ 2024 0116 0C       		.uleb128 0xc
+ 2025 0117 03       		.uleb128 0x3
+ 2026 0118 08       		.uleb128 0x8
+ 2027 0119 3A       		.uleb128 0x3a
+ 2028 011a 0B       		.uleb128 0xb
+ 2029 011b 3B       		.uleb128 0x3b
+ 2030 011c 0B       		.uleb128 0xb
+ 2031 011d 27       		.uleb128 0x27
+ 2032 011e 0C       		.uleb128 0xc
+ 2033 011f 11       		.uleb128 0x11
+ 2034 0120 01       		.uleb128 0x1
+ 2035 0121 12       		.uleb128 0x12
+ 2036 0122 01       		.uleb128 0x1
+ 2037 0123 40       		.uleb128 0x40
+ 2038 0124 06       		.uleb128 0x6
+ 2039 0125 00       		.byte	0x0
+ 2040 0126 00       		.byte	0x0
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s 			page 47
+
+
+ 2041 0127 14       		.uleb128 0x14
+ 2042 0128 34       		.uleb128 0x34
+ 2043 0129 00       		.byte	0x0
+ 2044 012a 03       		.uleb128 0x3
+ 2045 012b 08       		.uleb128 0x8
+ 2046 012c 3A       		.uleb128 0x3a
+ 2047 012d 0B       		.uleb128 0xb
+ 2048 012e 3B       		.uleb128 0x3b
+ 2049 012f 0B       		.uleb128 0xb
+ 2050 0130 49       		.uleb128 0x49
+ 2051 0131 13       		.uleb128 0x13
+ 2052 0132 3F       		.uleb128 0x3f
+ 2053 0133 0C       		.uleb128 0xc
+ 2054 0134 3C       		.uleb128 0x3c
+ 2055 0135 0C       		.uleb128 0xc
+ 2056 0136 00       		.byte	0x0
+ 2057 0137 00       		.byte	0x0
+ 2058 0138 15       		.uleb128 0x15
+ 2059 0139 26       		.uleb128 0x26
+ 2060 013a 00       		.byte	0x0
+ 2061 013b 49       		.uleb128 0x49
+ 2062 013c 13       		.uleb128 0x13
+ 2063 013d 00       		.byte	0x0
+ 2064 013e 00       		.byte	0x0
+ 2065 013f 00       		.byte	0x0
+ 2066              		.section	.debug_pubnames,"",%progbits
+ 2067 0000 5C000000 		.4byte	0x5c
+ 2068 0004 0200     		.2byte	0x2
+ 2069 0006 00000000 		.4byte	.Ldebug_info0
+ 2070 000a 68050000 		.4byte	0x568
+ 2071 000e 24040000 		.4byte	0x424
+ 2072 0012 696E6974 		.ascii	"initPins\000"
+ 2072      50696E73 
+ 2072      00
+ 2073 001b 3D040000 		.4byte	0x43d
+ 2074 001f 7365744D 		.ascii	"setModeIn1\000"
+ 2074      6F646549 
+ 2074      6E3100
+ 2075 002a 58040000 		.4byte	0x458
+ 2076 002e 7365744D 		.ascii	"setModeIn2\000"
+ 2076      6F646549 
+ 2076      6E3200
+ 2077 0039 74040000 		.4byte	0x474
+ 2078 003d 72756E50 		.ascii	"runPwm\000"
+ 2078      776D00
+ 2079 0044 C8040000 		.4byte	0x4c8
+ 2080 0048 70726F63 		.ascii	"procEx1\000"
+ 2080      45783100 
+ 2081 0050 04050000 		.4byte	0x504
+ 2082 0054 696E6974 		.ascii	"initLCD\000"
+ 2082      4C434400 
+ 2083 005c 00000000 		.4byte	0x0
+ 2084              		.section	.debug_aranges,"",%progbits
+ 2085 0000 1C000000 		.4byte	0x1c
+ 2086 0004 0200     		.2byte	0x2
+ 2087 0006 00000000 		.4byte	.Ldebug_info0
+ 2088 000a 04       		.byte	0x4
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s 			page 48
+
+
+ 2089 000b 00       		.byte	0x0
+ 2090 000c 0000     		.2byte	0x0
+ 2091 000e 0000     		.2byte	0x0
+ 2092 0010 00000000 		.4byte	.Ltext0
+ 2093 0014 DC030000 		.4byte	.Letext0-.Ltext0
+ 2094 0018 00000000 		.4byte	0x0
+ 2095 001c 00000000 		.4byte	0x0
+ 2096              		.section	.debug_str,"",%progbits
+ 2097              	.LASF0:
+ 2098 0000 64757479 		.ascii	"dutyValue1\000"
+ 2098      56616C75 
+ 2098      653100
+ 2099              	.LASF1:
+ 2100 000b 64757479 		.ascii	"dutyValue2\000"
+ 2100      56616C75 
+ 2100      653200
+ 2101              		.ident	"GCC: (GNU) 4.1.1"
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s 			page 49
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 proc1.c
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s:1      .text:00000000 $t
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s:15     .text:00000000 initPwm
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s:71     .text:00000048 $d
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s:83     .text:00000068 $t
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s:86     .text:00000068 setPwmDutyPercent1
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s:123    .text:0000009c $d
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s:130    .text:000000ac $t
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s:133    .text:000000ac setPwmDutyPercent2
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s:170    .text:000000e0 $d
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s:177    .text:000000f0 $t
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s:180    .text:000000f0 setPwmDuty1
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s:210    .text:00000114 $d
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s:215    .text:0000011c $t
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s:218    .text:0000011c setPwmDuty2
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s:248    .text:00000140 $d
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s:253    .text:00000148 $t
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s:256    .text:00000148 delayMs
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s:315    .text:00000198 $d
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s:328    .text:000001b0 initPins
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s:325    .text:000001b0 $t
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s:418    .text:0000023c $d
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s:431    .text:00000254 setModeIn1
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s:428    .text:00000254 $t
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s:485    .text:000002a0 $d
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s:495    .text:000002ac setModeIn2
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s:492    .text:000002ac $t
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s:551    .text:000002fc $d
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s:561    .text:00000308 runPwm
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s:558    .text:00000308 $t
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s:622    .text:00000364 $d
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s:631    .text:0000036c procEx1
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s:628    .text:0000036c $t
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s:678    .text:000003a8 initLCD
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s:670    .text:000003a4 $d
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s:675    .text:000003a8 $t
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccysFK3M.s:710    .text:000003d4 $d
+
+UNDEFINED SYMBOLS
+__udivsi3
+osSemTake
+osSemGive
+osSleep
+mutexLCD
+delay
+send_instruction
+delayshort
+delaylong
