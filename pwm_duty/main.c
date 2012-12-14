@@ -14,8 +14,6 @@
  *
  *****************************************************************************/
 
-// TODO: make sure config/startup settings are adjusted for LPC2148
-
 /******************************************************************************
  * Includes
  *****************************************************************************/
@@ -30,6 +28,23 @@
 #define PLL_FACTOR        PLL_MUL
 #define VPBDIV_FACTOR     PBSD
 
+#define P07 (1 << 7)
+#define	P15	(1 << 15)
+#define	P25	(1 << 25)
+#define P21 (1 << 21)
+#define	P23 (1 << 23)
+#define	P31 (1 << 31)
+
+#define TASK	2		// task 1 - use circulary loop
+						// task 2 - use constant PWM signal
+#define MODE	1		// mode 1 - Forward, Fast Current-Decay Mode
+						// mode 2 - Forward, Slow Current-Decay Mode
+						// mode 3 - Reverse, Fast Current-Decay Mode
+						// mode 4 - Reverse, Slow Current-Decay Mode
+						// mode 5 - Brake, Fast Current-Decay Mode
+						// mode 6 - Brake, No Current Control
+#define MODE2	3
+
 
 /*****************************************************************************
  * Public function prototypes
@@ -43,6 +58,8 @@ static void initPwm(tU32 initialFreqValue);
 static void setPwmDutyPercent(tU32 dutyValue);
 static void setPwmDuty(tU32 dutyValue);
 static void delayMs(tU16 delayInMs);
+void setMode();
+void setMode2();
 
 /*****************************************************************************
  * Implementation of local functions
@@ -77,17 +94,7 @@ initPwm(tU32 initialFreqValue)
   PWM_PCR = 0x0400;                 //enable PWM2 in single edge control mode
   PWM_TCR = 0x09;                   //enable PWM and Counter
 
-  /*
-   * connect signal PWM2 to pin P0.7
-   */
-  PINSEL0 &= ~0x0000c000;  //clear bits related to P0.7
-  	  	  	  	  	  	   //COMMENT: this operation is equivalent to:
-  	  	  	  	  	  	   //	PINSEL0 &= 0xFFFF3FFF
-  	  	  	  	  	  	   //for more info see p.75 of manualLPC2148.pdf
-  PINSEL0 |=  0x00008000;  //connect signal PWM2 to P0.7 (second alternative function)
-  	  	  	  	  	  	   //for more info see p.75 of manualLPC2148.pdf
 
-  // QUESTION: no need to set P0.7 as an output (via IODIR)?
 }
 
 /*****************************************************************************
@@ -170,6 +177,162 @@ delayMs(tU16 delayInMs)
  *    Always 0, since return value is not used.
  *
  ****************************************************************************/
+void initPins() {
+
+	/*
+	   * connect signal PWM2 to pin P0.7
+	   */
+	  PINSEL0 &= ~0x0000c000;  //clear bits related to P0.7
+	  PINSEL0 |=  0x00008000;  //connect signal PWM2 to P0.7 (second alternative function)
+
+	  PINSEL0 &= ~0xC0000000;	// set P0.15 to EINT2
+	  PINSEL0 |=  0x80000000;
+
+	  PINSEL1 &= ~0x000C0000;	// set P0.25 to GPIO Port 0.25
+	  /*
+	  	   * connect signal PWM5 to pin P0.21
+	  	   */
+
+	  PINSEL1 &= ~0x00000c00; //clear bits related to P0.21
+	  PINSEL1 |= 0x00000100; //connect signal PWM5 to P0.21 (second alternative function)
+
+	  PINSEL1 &= ~0x0000c000; //set P0.23 to GPIO
+
+	  PINSEL1 &= ~0xc0000000;  //set P0.31 to GPIO
+	  PINSEL1 |= 0x80000100;
+}
+
+void setMode() {
+
+	if (MODE == 1) {	// MODE = Forward, Fast Current-Decay Mode
+		IODIR |= P07;	// ENABLE (P0.7)
+		IOCLR = P07;	// set to L
+
+		IODIR |= P15;	// PHASE (P0.15)
+		IOSET = P15;	// set to H
+
+		IODIR |= P25;	// BRAKE (P0.25)
+		IOSET = P25;	// set to H
+	}
+	//LOOK AT MODE
+	else if (MODE == 2){ // MODE = Forward, Slow Current-Decay Mode
+		IODIR |= P07; // ENABLE (P0.7)
+		IOCLR = P07; // set to L
+
+		IODIR |= P15; // PHASE (P0.15)
+		IOSET = P15; // set to H
+
+		IODIR |= P25; // BRAKE (P0.25)
+		IOSET = P25; // set to H
+	}
+	else if (MODE == 3){ // Reverse, Fast Current-Decay Mode
+		IODIR |= P07; // ENABLE (P0.7)
+		IOCLR = P07; // set to L
+
+		IODIR |= P15; // PHASE (P0.15)
+		IOCLR = P15; // set to L
+
+		IODIR |= P25; // BRAKE (P0.25)
+		IOSET = P25; // set to H
+	} //LOOK AT MODE
+	else if (MODE == 4){ // Reverse, Slow Current-Decay Mode
+		IODIR |= P07; // ENABLE (P0.7)
+		IOCLR = P07; // set to L
+
+		IODIR |= P15; // PHASE (P0.15)
+		IOCLR = P15; // set to L
+
+		IODIR |= P25; // BRAKE (P0.25)
+		IOSET = P25; // set to H
+	}
+	else if (MODE == 5){ // Brake, Fast Current-Decay Mode
+		IODIR |= P07; // ENABLE (P0.7)
+		IOCLR = P07; // set to L
+
+		IODIR |= P15; // PHASE (P0.15)
+		IOCLR = P15; // set to L
+
+		IODIR |= P25; // BRAKE (P0.25)
+		IOCLR = P25; // set to L
+	}//LOOK AT MODE
+	else if (MODE == 6){ // Brake, No Current Control
+		IODIR |= P07; // ENABLE (P0.7)
+		IOCLR = P07; // set to L
+
+		IODIR |= P15; // PHASE (P0.15)
+		IOCLR = P15; // set to L
+
+		IODIR |= P25; // BRAKE (P0.25)
+		IOCLR = P25; // set to L
+	}
+
+}
+void setMode2() {
+
+	if (MODE2 == 1) {	// MODE = Forward, Fast Current-Decay Mode
+		IODIR |= P21;	// ENABLE (P0.7)
+		IOCLR = P21;	// set to L
+
+		IODIR |= P23;	// PHASE (P0.15)
+		IOSET = P23;	// set to H
+
+		IODIR |= P31;	// BRAKE (P0.25)
+		IOSET = P31;	// set to H
+	}
+	//LOOK AT MODE
+	else if (MODE2 == 2){ // MODE = Forward, Slow Current-Decay Mode
+		IODIR |= P21; // ENABLE (P0.7)
+		IOCLR = P21; // set to L
+
+		IODIR |= P23; // PHASE (P0.15)
+		IOSET = P23; // set to H
+
+		IODIR |= P31; // BRAKE (P0.25)
+		IOSET = P31; // set to H
+	}
+	else if (MODE2 == 3){ // Reverse, Fast Current-Decay Mode
+		IODIR |= P21; // ENABLE (P0.7)
+		IOCLR = P21; // set to L
+
+		IODIR |= P23; // PHASE (P0.15)
+		IOCLR = P23; // set to L
+
+		IODIR |= P31; // BRAKE (P0.25)
+		IOSET = P31; // set to H
+	} //LOOK AT MODE
+	else if (MODE2 == 4){ // Reverse, Slow Current-Decay Mode
+		IODIR |= P21; // ENABLE (P0.7)
+		IOCLR = P21; // set to L
+
+		IODIR |= P23; // PHASE (P0.15)
+		IOCLR = P23; // set to L
+
+		IODIR |= P31; // BRAKE (P0.25)
+		IOSET = P31; // set to H
+	}
+	else if (MODE2 == 5){ // Brake, Fast Current-Decay Mode
+		IODIR |= P21; // ENABLE (P0.7)
+		IOCLR = P21; // set to L
+
+		IODIR |= P23; // PHASE (P0.15)
+		IOCLR = P23; // set to L
+
+		IODIR |= P31; // BRAKE (P0.25)
+		IOCLR = P31; // set to L
+	}//LOOK AT MODE
+	else if (MODE2 == 6){ // Brake, No Current Control
+		IODIR |= P21; // ENABLE (P0.7)
+		IOCLR = P21; // set to L
+
+		IODIR |= P23; // PHASE (P0.15)
+		IOCLR = P23; // set to L
+
+		IODIR |= P31; // BRAKE (P0.25)
+		IOCLR = P31; // set to L
+	}
+
+}
+
 int
 main(void)
 {
@@ -182,26 +345,42 @@ main(void)
   //initialize PWM unit
   initPwm(freq);
   
+  initPins();
+
   //vary duty cycle
   duty = 0;
 
+  setMode();
+  setMode2();
+
+
   while(1)
   {
-    //set frequency value
-    setPwmDutyPercent(duty);
-    
-    //wait 10 ms
-    delayMs(10);
-    
-    //update duty cycle (0.00 - 100.00%, in steps of 0.10%)
-    duty += 10;
-    if (duty > 10000)
-      duty = 0;
-  }
+		//set frequency value
+		setPwmDutyPercent(duty);
 
-  // TODO: read the output of PWM2 on the oscilloscope (what's the most performance efficient way to do this?)
-  //	1. move value of P0.07 to P0.20? (assembly code)
-  //	2. if-else statements that set/clear P0.20 depending on the value of P0.07
+		//wait 10 ms
+		delayMs(10);
+
+		// COMMENT: the duty sets the speed of the motor driver
+		// the value that can be set is 0-10000
+		// a higher value means a lower speed, conversely a low value means a higher speed
+
+		if (TASK == 1) {
+			//update duty cycle (0.00 - 100.00%, in steps of 0.10%)
+			duty += 10;
+			if (duty > 10000)
+				duty = 0;
+		}
+
+		else if (TASK == 2) {
+			duty = 0;
+		}
+
+	}
+
+
+
 
   return 0;
 }
