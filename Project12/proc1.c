@@ -55,6 +55,7 @@ procEx1(void* arg)
 
 }
 
+// TODO: rename this function
 void initLCD(void) {
 	delay(delayshort);
 	send_instruction(1);	//cleara displayen
