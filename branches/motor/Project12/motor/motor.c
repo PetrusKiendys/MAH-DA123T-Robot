@@ -21,6 +21,7 @@
 #include <lpc2xxx.h>
 #include "../startup/config.h"
 
+
 /******************************************************************************
  * Defines and typedefs
  *****************************************************************************/
@@ -35,22 +36,21 @@
 #define	P23 (1 << 23)
 #define	P31 (1 << 31)
 
-#define TASK		1	// task 1 - use circulary loop
+#define TASK	2		// task 1 - use circulary loop
 						// task 2 - use constant PWM signal
-#define MODE_IN1	1	// mode 1 - Forward, Fast Current-Decay Mode
+#define MODE	1		// mode 1 - Forward, Fast Current-Decay Mode
 						// mode 2 - Forward, Slow Current-Decay Mode
 						// mode 3 - Reverse, Fast Current-Decay Mode
 						// mode 4 - Reverse, Slow Current-Decay Mode
 						// mode 5 - Brake, Fast Current-Decay Mode
 						// mode 6 - Brake, No Current Control
-						// REMARK: only use "fast" modes
-#define MODE_IN2	1		// see above description..
+#define MODE2	3
 
 
 /*****************************************************************************
  * Public function prototypes
  ****************************************************************************/
-int runPwm(void);
+int main(void);
 
 /*****************************************************************************
  * Local function prototypes
@@ -61,8 +61,8 @@ static void setPwmDutyPercent2(tU32 dutyValue2);
 static void setPwmDuty1(tU32 dutyValue1);
 static void setPwmDuty2(tU32 dutyValue2);
 static void delayMs(tU16 delayInMs);
-void setModeIn1();
-void setModeIn2();
+void setMode1();
+void setMode2();
 
 /*****************************************************************************
  * Implementation of local functions
@@ -84,34 +84,20 @@ void setModeIn2();
  *
  ****************************************************************************/
 static void
-initPwm1(tU32 initialFreqValue)
-{
-	  /*
-	 * initialize PWM
-	 */
-
-	PWM_PR = 0x00000000; //set prescale to 0
-	PWM_MCR = 0x0002; //counter resets on MR0 match (period time)
-	PWM_MR0 = initialFreqValue; //MR0 = period cycle time
-	PWM_MR2 = 0; //MR2 = duty cycle control, initial = 0%
-	PWM_LER = 0x05; //latch new values for MR0 and MR2
-	PWM_PCR = 0x0400; //enable PWM2 in single edge control mode
-	PWM_TCR = 0x09;
-
-
-}static void
-initPwm2(tU32 initialFreqValue)
+initPwm(tU32 initialFreqValue)
 {
   /*
    * initialize PWM
    */
-	PWM_PR = 0x00000000; //set prescale to 0
-	PWM_MCR = 0x0002; //counter resets on MR0 match (period time)
-	PWM_MR0 = initialFreqValue; //MR0 = period cycle time
-	PWM_MR5 = 0; //MR5 = duty cycle control, initial = 0%
-	PWM_LER = 0x21; //latch new values for MR0 and MR5
-	PWM_PCR = 0x2400; //enable PWM2 in single edge control mode
-	PWM_TCR = 0x09;
+  PWM_PR  = 0x00000000;             //set prescale to 0
+  PWM_MCR = 0x0002;                 //counter resets on MR0 match (period time)
+  PWM_MR0 = initialFreqValue;       //MR0 = period cycle time
+  PWM_MR2 = 0;      				//MR2 = duty cycle control, initial = 0%
+  PWM_MR5 = 0;  					//MR5 = duty cycle control, initial = 0%
+  PWM_LER = 0x25;                   //latch new values for MR0 and MR2
+  PWM_PCR = 0x2400;                 //enable PWM2 in single edge control mode
+  PWM_TCR = 0x09;                   //enable PWM and Counter
+
 
 }
 
@@ -128,7 +114,7 @@ initPwm2(tU32 initialFreqValue)
 static void
 setPwmDutyPercent1(tU32 dutyValue1)
 {
-  PWM_MR2 = (PWM_MR0 * dutyValue1) / 10000;  //update duty cycle
+  PWM_MR2 = (PWM_MR0 * dutyValue1) / 10000; //update duty cycle
   PWM_LER = 0x04;                           //latch new values for MR2
 }
 
@@ -220,8 +206,8 @@ void initPins() {
 
 	  PINSEL1 &= ~0x000C0000;	// set P0.25 to GPIO Port 0.25
 	  /*
-	   * connect signal PWM5 to pin P0.21
-	   */
+	  	   * connect signal PWM5 to pin P0.21
+	  	   */
 
 	  PINSEL1 &= ~0x00000c00; //clear bits related to P0.21
 	  PINSEL1 |= 0x00000100; //connect signal PWM5 to P0.21 (second alternative function)
@@ -229,13 +215,12 @@ void initPins() {
 	  PINSEL1 &= ~0x0000c000; //set P0.23 to GPIO
 
 	  PINSEL1 &= ~0xc0000000;  //set P0.31 to GPIO
-	  PINSEL1 |= 0x80000100;	// TODO: describe the pin functions
+	  PINSEL1 |= 0x80000100;
 }
 
-void setModeIn1() {
+void setMode1() {
 
-	// REMARK: do not use the "slow" functions, the "mode" pin on the 3953 PWM motor driver is never changed!
-	if (MODE_IN1 == 1) {	// MODE_IN1 = Forward, Fast Current-Decay Mode
+	if (MODE == 1) {	// MODE = Forward, Fast Current-Decay Mode
 		IODIR |= P07;	// ENABLE (P0.7)
 		IOCLR = P07;	// set to L
 
@@ -245,8 +230,8 @@ void setModeIn1() {
 		IODIR |= P25;	// BRAKE (P0.25)
 		IOSET = P25;	// set to H
 	}
-	//LOOK AT MODE_IN1
-	else if (MODE_IN1 == 2){ // MODE_IN1 = Forward, Slow Current-Decay Mode
+	//LOOK AT MODE
+	else if (MODE == 2){ // MODE = Forward, Slow Current-Decay Mode
 		IODIR |= P07; // ENABLE (P0.7)
 		IOCLR = P07; // set to L
 
@@ -256,7 +241,7 @@ void setModeIn1() {
 		IODIR |= P25; // BRAKE (P0.25)
 		IOSET = P25; // set to H
 	}
-	else if (MODE_IN1 == 3){ // Reverse, Fast Current-Decay Mode
+	else if (MODE == 3){ // Reverse, Fast Current-Decay Mode
 		IODIR |= P07; // ENABLE (P0.7)
 		IOCLR = P07; // set to L
 
@@ -266,7 +251,7 @@ void setModeIn1() {
 		IODIR |= P25; // BRAKE (P0.25)
 		IOSET = P25; // set to H
 	} //LOOK AT MODE
-	else if (MODE_IN1 == 4){ // Reverse, Slow Current-Decay Mode
+	else if (MODE == 4){ // Reverse, Slow Current-Decay Mode
 		IODIR |= P07; // ENABLE (P0.7)
 		IOCLR = P07; // set to L
 
@@ -276,7 +261,7 @@ void setModeIn1() {
 		IODIR |= P25; // BRAKE (P0.25)
 		IOSET = P25; // set to H
 	}
-	else if (MODE_IN1 == 5){ // Brake, Fast Current-Decay Mode
+	else if (MODE == 5){ // Brake, Fast Current-Decay Mode
 		IODIR |= P07; // ENABLE (P0.7)
 		IOCLR = P07; // set to L
 
@@ -286,7 +271,7 @@ void setModeIn1() {
 		IODIR |= P25; // BRAKE (P0.25)
 		IOCLR = P25; // set to L
 	}//LOOK AT MODE
-	else if (MODE_IN1 == 6){ // Brake, No Current Control
+	else if (MODE == 6){ // Brake, No Current Control
 		IODIR |= P07; // ENABLE (P0.7)
 		IOCLR = P07; // set to L
 
@@ -298,9 +283,9 @@ void setModeIn1() {
 	}
 
 }
-void setModeIn2() {
+void setMode2() {
 
-	if (MODE_IN2 == 1) {	// MODE_IN1 = Forward, Fast Current-Decay Mode
+	if (MODE2 == 1) {	// MODE = Forward, Fast Current-Decay Mode
 		IODIR |= P21;	// ENABLE (P0.7)
 		IOCLR = P21;	// set to L
 
@@ -310,8 +295,8 @@ void setModeIn2() {
 		IODIR |= P31;	// BRAKE (P0.25)
 		IOSET = P31;	// set to H
 	}
-	//LOOK AT MODE_IN1
-	else if (MODE_IN2 == 2){ // MODE_IN1 = Forward, Slow Current-Decay Mode
+	//LOOK AT MODE
+	else if (MODE2 == 2){ // MODE = Forward, Slow Current-Decay Mode
 		IODIR |= P21; // ENABLE (P0.7)
 		IOCLR = P21; // set to L
 
@@ -321,7 +306,7 @@ void setModeIn2() {
 		IODIR |= P31; // BRAKE (P0.25)
 		IOSET = P31; // set to H
 	}
-	else if (MODE_IN2 == 3){ // Reverse, Fast Current-Decay Mode
+	else if (MODE2 == 3){ // Reverse, Fast Current-Decay Mode
 		IODIR |= P21; // ENABLE (P0.7)
 		IOCLR = P21; // set to L
 
@@ -331,7 +316,7 @@ void setModeIn2() {
 		IODIR |= P31; // BRAKE (P0.25)
 		IOSET = P31; // set to H
 	} //LOOK AT MODE
-	else if (MODE_IN2 == 4){ // Reverse, Slow Current-Decay Mode
+	else if (MODE2 == 4){ // Reverse, Slow Current-Decay Mode
 		IODIR |= P21; // ENABLE (P0.7)
 		IOCLR = P21; // set to L
 
@@ -341,7 +326,7 @@ void setModeIn2() {
 		IODIR |= P31; // BRAKE (P0.25)
 		IOSET = P31; // set to H
 	}
-	else if (MODE_IN2 == 5){ // Brake, Fast Current-Decay Mode
+	else if (MODE2 == 5){ // Brake, Fast Current-Decay Mode
 		IODIR |= P21; // ENABLE (P0.7)
 		IOCLR = P21; // set to L
 
@@ -351,7 +336,7 @@ void setModeIn2() {
 		IODIR |= P31; // BRAKE (P0.25)
 		IOCLR = P31; // set to L
 	}//LOOK AT MODE
-	else if (MODE_IN2 == 6){ // Brake, No Current Control
+	else if (MODE2 == 6){ // Brake, No Current Control
 		IODIR |= P21; // ENABLE (P0.7)
 		IOCLR = P21; // set to L
 
@@ -373,19 +358,17 @@ runPwm()
 
   //set frequency to 1000 Hz (1 kHz)
   freq = ((CRYSTAL_FREQUENCY * PLL_FACTOR)/ (VPBDIV_FACTOR * 1000));
-
   //initialize PWM unit
   initPwm(freq);
   
   initPins();
 
   //vary duty cycle
- // duty1 = 0;
+  duty1 = 0;
+  duty2 = 0;
 
-  //duty2 = 9999;
-
-  setModeIn1();
-  setModeIn2();
+  setMode1();
+  setMode2();
 
 
   while(1)
@@ -410,8 +393,9 @@ runPwm()
 
 		else if (TASK == 2) {
 			duty1 = 0;
-			duty2 = 9500;
+			duty2 = 7000;
 		}
 
 	}
+  return 0;
 }
