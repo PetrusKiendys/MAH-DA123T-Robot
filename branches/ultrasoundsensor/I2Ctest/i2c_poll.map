@@ -1,0 +1,393 @@
+Archive member included because of file (symbol)
+
+startup/libea_startup_thumb.a(consol.o)
+                              main.o (simplePrintf)
+startup/libea_startup_thumb.a(framework.o)
+                              main.o (eaInit)
+startup/libea_startup_thumb.a(startup.o)
+                              (_startup)
+/cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_udivsi3.o)
+                              i2c.o (__udivsi3)
+/cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_umodsi3.o)
+                              startup/libea_startup_thumb.a(consol.o) (__umodsi3)
+/cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_dvmd_tls.o)
+                              /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_udivsi3.o) (__div0)
+/cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/../../../../arm-elf/lib/interwork/libc.a(memcpy.o)
+                              startup/libea_startup_thumb.a(consol.o) (memcpy)
+
+Allocating common symbols
+Common symbol       size              file
+
+pHeapEnd            0x4               startup/libea_startup_thumb.a(framework.o)
+pHeapStart          0x4               startup/libea_startup_thumb.a(framework.o)
+
+Discarded input sections
+
+ .stabstr       0x00000000        0x0 startup/libea_startup_thumb.a(startup.o)
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+FLASH            0x00000000         0x00080000         xr
+RAM              0x40000000         0x00008000         rw
+*default*        0x00000000         0xffffffff
+
+Linker script and memory map
+
+LOAD main.o
+LOAD i2c.o
+LOAD startup/libea_startup_thumb.a
+START GROUP
+LOAD /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a
+LOAD /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/../../../../arm-elf/lib/interwork/libc.a
+END GROUP
+
+.text           0x00000000      0xedc
+ *startup.o(.text)
+ .text          0x00000000      0x1bc startup/libea_startup_thumb.a(startup.o)
+                0x00000000                _startup
+ *(.text)
+ .text          0x000001bc       0x7c main.o
+                0x000001bc                main
+ .text          0x00000238      0x38c i2c.o
+                0x00000254                i2cInit
+                0x000004bc                i2cRead
+                0x000002c4                i2cStart
+                0x00000540                i2cPoll
+                0x00000308                i2cStop
+                0x00000238                i2cCheckStatus
+                0x00000354                i2cGetChar
+                0x00000474                i2cRepeatStart
+                0x000003f0                i2cWrite
+                0x000003d0                i2cPutCharAndWait
+                0x0000032c                i2cPutChar
+                0x000003a4                i2cWaitAfterTransmit
+ .text          0x000005c4      0x3fc startup/libea_startup_thumb.a(consol.o)
+                0x000006b8                consolSendCh
+                0x00000728                consolSendNumber
+                0x00000698                consolSendChar
+                0x00000840                simplePrintf
+                0x000006fc                consolSendString
+                0x00000648                consolInit
+ .text          0x000009c0      0x280 startup/libea_startup_thumb.a(framework.o)
+                0x00000ae0                eaInit
+                0x00000a2c                lowLevelInit
+                0x000009c0                exceptionHandlerInit
+ .text          0x00000c40      0x114 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_udivsi3.o)
+                0x00000c40                __udivsi3
+                0x00000c40                __aeabi_uidiv
+                0x00000d3c                __aeabi_uidivmod
+ .text          0x00000d54       0xd0 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_umodsi3.o)
+                0x00000d54                __umodsi3
+ .text          0x00000e24        0x4 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_dvmd_tls.o)
+                0x00000e24                __aeabi_ldiv0
+                0x00000e24                __div0
+                0x00000e24                __aeabi_idiv0
+ .text          0x00000e28       0x9c /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/../../../../arm-elf/lib/interwork/libc.a(memcpy.o)
+                0x00000e28                memcpy
+ *(.glue_7)
+ .glue_7        0x00000ec4        0x0 main.o
+ .glue_7        0x00000ec4        0x0 i2c.o
+ .glue_7        0x00000ec4        0x0 startup/libea_startup_thumb.a(consol.o)
+ .glue_7        0x00000ec4        0x0 startup/libea_startup_thumb.a(framework.o)
+ .glue_7        0x00000ec4        0x0 startup/libea_startup_thumb.a(startup.o)
+ .glue_7        0x00000ec4        0x0 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_udivsi3.o)
+ .glue_7        0x00000ec4        0x0 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_umodsi3.o)
+ .glue_7        0x00000ec4        0x0 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_dvmd_tls.o)
+ .glue_7        0x00000ec4        0x0 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/../../../../arm-elf/lib/interwork/libc.a(memcpy.o)
+ *(.glue_7t)
+ .glue_7t       0x00000ec4        0x0 main.o
+ .glue_7t       0x00000ec4        0x0 i2c.o
+ .glue_7t       0x00000ec4        0x0 startup/libea_startup_thumb.a(consol.o)
+ .glue_7t       0x00000ec4        0x0 startup/libea_startup_thumb.a(framework.o)
+ .glue_7t       0x00000ec4        0x0 startup/libea_startup_thumb.a(startup.o)
+ .glue_7t       0x00000ec4        0x0 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_udivsi3.o)
+ .glue_7t       0x00000ec4        0x0 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_umodsi3.o)
+ .glue_7t       0x00000ec4        0x0 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_dvmd_tls.o)
+ .glue_7t       0x00000ec4       0x18 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/../../../../arm-elf/lib/interwork/libc.a(memcpy.o)
+                0x00000ed8                ____udivsi3_change_to_arm
+                0x00000ed0                __simplePrintf_change_to_arm
+                0x00000ed4                ____udivsi3_from_thumb
+                0x00000ec4                __eaInit_from_thumb
+                0x00000ecc                __simplePrintf_from_thumb
+                0x00000ec8                __eaInit_change_to_arm
+                0x00000edc                . = ALIGN (0x4)
+
+.rodata         0x00000edc      0x124
+ *(.rodata)
+ .rodata        0x00000edc       0x10 startup/libea_startup_thumb.a(consol.o)
+ *(.rodata*)
+ .rodata.str1.4
+                0x00000eec       0x47 main.o
+                                 0x48 (size before relaxing)
+ *fill*         0x00000f33        0x1 00
+ .rodata.str1.4
+                0x00000f34       0x11 startup/libea_startup_thumb.a(consol.o)
+                                 0x14 (size before relaxing)
+ *fill*         0x00000f45        0x3 00
+ .rodata.str1.4
+                0x00000f48       0xb8 startup/libea_startup_thumb.a(framework.o)
+                0x00001000                . = ALIGN (0x4)
+                0x00001000                _etext = .
+                0x00001000                PROVIDE (etext, .)
+
+.data           0x40000080        0x0 load address 0x00001000
+                0x40000080                _data = .
+ *(.data)
+ .data          0x40000080        0x0 main.o
+ .data          0x40000080        0x0 i2c.o
+ .data          0x40000080        0x0 startup/libea_startup_thumb.a(consol.o)
+ .data          0x40000080        0x0 startup/libea_startup_thumb.a(framework.o)
+ .data          0x40000080        0x0 startup/libea_startup_thumb.a(startup.o)
+ .data          0x40000080        0x0 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_udivsi3.o)
+ .data          0x40000080        0x0 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_umodsi3.o)
+ .data          0x40000080        0x0 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_dvmd_tls.o)
+ .data          0x40000080        0x0 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/../../../../arm-elf/lib/interwork/libc.a(memcpy.o)
+                0x40000080                . = ALIGN (0x4)
+                0x40000080                _edata = .
+                0x40000080                PROVIDE (edata, .)
+
+.bss            0x40000000        0x8
+                0x40000000                _bss = .
+                0x40000000                __bss_start = .
+                0x40000000                __bss_start__ = .
+ *(.bss)
+ .bss           0x40000000        0x0 main.o
+ .bss           0x40000000        0x0 i2c.o
+ .bss           0x40000000        0x0 startup/libea_startup_thumb.a(consol.o)
+ .bss           0x40000000        0x0 startup/libea_startup_thumb.a(framework.o)
+ .bss           0x40000000        0x0 startup/libea_startup_thumb.a(startup.o)
+ .bss           0x40000000        0x0 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_udivsi3.o)
+ .bss           0x40000000        0x0 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_umodsi3.o)
+ .bss           0x40000000        0x0 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_dvmd_tls.o)
+ .bss           0x40000000        0x0 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/../../../../arm-elf/lib/interwork/libc.a(memcpy.o)
+ *(COMMON)
+ COMMON         0x40000000        0x8 startup/libea_startup_thumb.a(framework.o)
+                0x40000000                pHeapEnd
+                0x40000004                pHeapStart
+                0x40000008                . = ALIGN (0x4)
+                0x40000008                . = ALIGN (0x4)
+                0x40000008                __bss_end = .
+                0x40000008                __bss_end__ = .
+                0x40000008                _end = .
+                0x40000008                PROVIDE (end, .)
+
+.stab           0x00000000      0x3b4
+ *(.stab)
+ .stab          0x00000000      0x3b4 startup/libea_startup_thumb.a(startup.o)
+
+.stabstr        0x00000000       0x55
+ *(.stabstr)
+ .stabstr       0x00000000       0x55 startup/libea_startup_thumb.a(startup.o)
+
+.stab.excl
+ *(.stab.excl)
+
+.stab.exclstr
+ *(.stab.exclstr)
+
+.stab.index
+ *(.stab.index)
+
+.stab.indexstr
+ *(.stab.indexstr)
+
+.comment        0x00000000       0x5a
+ *(.comment)
+ .comment       0x00000000       0x12 main.o
+ .comment       0x00000012       0x12 i2c.o
+ .comment       0x00000024       0x12 startup/libea_startup_thumb.a(consol.o)
+ .comment       0x00000036       0x12 startup/libea_startup_thumb.a(framework.o)
+ .comment       0x00000048       0x12 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/../../../../arm-elf/lib/interwork/libc.a(memcpy.o)
+
+.debug
+ *(.debug)
+
+.line
+ *(.line)
+
+.debug_srcinfo
+ *(.debug_srcinfo)
+
+.debug_sfnames
+ *(.debug_sfnames)
+
+.debug_aranges  0x00000000      0x100
+ *(.debug_aranges)
+ .debug_aranges
+                0x00000000       0x20 main.o
+ .debug_aranges
+                0x00000020       0x20 i2c.o
+ .debug_aranges
+                0x00000040       0x20 startup/libea_startup_thumb.a(consol.o)
+ .debug_aranges
+                0x00000060       0x20 startup/libea_startup_thumb.a(framework.o)
+ .debug_aranges
+                0x00000080       0x20 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_udivsi3.o)
+ .debug_aranges
+                0x000000a0       0x20 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_umodsi3.o)
+ .debug_aranges
+                0x000000c0       0x20 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_dvmd_tls.o)
+ .debug_aranges
+                0x000000e0       0x20 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/../../../../arm-elf/lib/interwork/libc.a(memcpy.o)
+
+.debug_pubnames
+                0x00000000      0x1ea
+ *(.debug_pubnames)
+ .debug_pubnames
+                0x00000000       0x1b main.o
+ .debug_pubnames
+                0x0000001b       0xcf i2c.o
+ .debug_pubnames
+                0x000000ea       0x80 startup/libea_startup_thumb.a(consol.o)
+ .debug_pubnames
+                0x0000016a       0x63 startup/libea_startup_thumb.a(framework.o)
+ .debug_pubnames
+                0x000001cd       0x1d /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/../../../../arm-elf/lib/interwork/libc.a(memcpy.o)
+
+.debug_info     0x00000000      0xca7
+ *(.debug_info .gnu.linkonce.wi.*)
+ .debug_info    0x00000000       0xb6 main.o
+ .debug_info    0x000000b6      0x431 i2c.o
+ .debug_info    0x000004e7      0x3cc startup/libea_startup_thumb.a(consol.o)
+ .debug_info    0x000008b3      0x1b2 startup/libea_startup_thumb.a(framework.o)
+ .debug_info    0x00000a65       0x68 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_udivsi3.o)
+ .debug_info    0x00000acd       0x68 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_umodsi3.o)
+ .debug_info    0x00000b35       0x68 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_dvmd_tls.o)
+ .debug_info    0x00000b9d      0x10a /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/../../../../arm-elf/lib/interwork/libc.a(memcpy.o)
+
+.debug_abbrev   0x00000000      0x5f5
+ *(.debug_abbrev)
+ .debug_abbrev  0x00000000       0xa1 main.o
+ .debug_abbrev  0x000000a1      0x16e i2c.o
+ .debug_abbrev  0x0000020f      0x234 startup/libea_startup_thumb.a(consol.o)
+ .debug_abbrev  0x00000443       0xd0 startup/libea_startup_thumb.a(framework.o)
+ .debug_abbrev  0x00000513       0x14 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_udivsi3.o)
+ .debug_abbrev  0x00000527       0x14 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_umodsi3.o)
+ .debug_abbrev  0x0000053b       0x14 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_dvmd_tls.o)
+ .debug_abbrev  0x0000054f       0xa6 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/../../../../arm-elf/lib/interwork/libc.a(memcpy.o)
+
+.debug_line     0x00000000      0x532
+ *(.debug_line)
+ .debug_line    0x00000000       0x4d main.o
+ .debug_line    0x0000004d       0xff i2c.o
+ .debug_line    0x0000014c      0x11e startup/libea_startup_thumb.a(consol.o)
+ .debug_line    0x0000026a       0xb1 startup/libea_startup_thumb.a(framework.o)
+ .debug_line    0x0000031b       0x84 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_udivsi3.o)
+ .debug_line    0x0000039f       0x6e /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_umodsi3.o)
+ .debug_line    0x0000040d       0x5d /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_dvmd_tls.o)
+ .debug_line    0x0000046a       0xc8 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/../../../../arm-elf/lib/interwork/libc.a(memcpy.o)
+
+.debug_frame    0x00000000      0x34c
+ *(.debug_frame)
+ .debug_frame   0x00000000       0x2c main.o
+ .debug_frame   0x0000002c      0x10c i2c.o
+ .debug_frame   0x00000138       0xcc startup/libea_startup_thumb.a(consol.o)
+ .debug_frame   0x00000204       0xc8 startup/libea_startup_thumb.a(framework.o)
+ .debug_frame   0x000002cc       0x2c /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_udivsi3.o)
+ .debug_frame   0x000002f8       0x2c /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_umodsi3.o)
+ .debug_frame   0x00000324       0x28 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/../../../../arm-elf/lib/interwork/libc.a(memcpy.o)
+
+.debug_str      0x00000000      0x418
+ *(.debug_str)
+ .debug_str     0x00000000       0x7c main.o
+                                 0x8e (size before relaxing)
+ .debug_str     0x0000007c       0xe4 i2c.o
+                                0x149 (size before relaxing)
+ .debug_str     0x00000160      0x13f startup/libea_startup_thumb.a(consol.o)
+                                0x1a6 (size before relaxing)
+ .debug_str     0x0000029f       0xcf startup/libea_startup_thumb.a(framework.o)
+                                0x129 (size before relaxing)
+ .debug_str     0x0000036e       0xaa /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/../../../../arm-elf/lib/interwork/libc.a(memcpy.o)
+                                 0xd6 (size before relaxing)
+
+.debug_loc      0x00000000      0xb9c
+ *(.debug_loc)
+ .debug_loc     0x00000000       0x2b main.o
+ .debug_loc     0x0000002b      0x511 i2c.o
+ .debug_loc     0x0000053c      0x3f0 startup/libea_startup_thumb.a(consol.o)
+ .debug_loc     0x0000092c      0x174 startup/libea_startup_thumb.a(framework.o)
+ .debug_loc     0x00000aa0       0xfc /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/../../../../arm-elf/lib/interwork/libc.a(memcpy.o)
+
+.debug_macinfo
+ *(.debug_macinfo)
+
+.debug_weaknames
+ *(.debug_weaknames)
+
+.debug_funcnames
+ *(.debug_funcnames)
+
+.debug_typenames
+ *(.debug_typenames)
+
+.debug_varnames
+ *(.debug_varnames)
+OUTPUT(i2c_poll.elf elf32-littlearm)
+
+Cross Reference Table
+
+Symbol                                            File
+____udivsi3_change_to_arm                         /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/../../../../arm-elf/lib/interwork/libc.a(memcpy.o)
+____udivsi3_from_thumb                            /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/../../../../arm-elf/lib/interwork/libc.a(memcpy.o)
+__aeabi_idiv0                                     /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_dvmd_tls.o)
+__aeabi_ldiv0                                     /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_dvmd_tls.o)
+__aeabi_uidiv                                     /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_udivsi3.o)
+__aeabi_uidivmod                                  /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_udivsi3.o)
+__bss_end__                                       startup/libea_startup_thumb.a(startup.o)
+__bss_start__                                     startup/libea_startup_thumb.a(startup.o)
+__div0                                            /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_dvmd_tls.o)
+                                                  /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_umodsi3.o)
+                                                  /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_udivsi3.o)
+__eaInit_change_to_arm                            /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/../../../../arm-elf/lib/interwork/libc.a(memcpy.o)
+__eaInit_from_thumb                               /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/../../../../arm-elf/lib/interwork/libc.a(memcpy.o)
+__simplePrintf_change_to_arm                      /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/../../../../arm-elf/lib/interwork/libc.a(memcpy.o)
+__simplePrintf_from_thumb                         /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/../../../../arm-elf/lib/interwork/libc.a(memcpy.o)
+__udivsi3                                         /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_udivsi3.o)
+                                                  startup/libea_startup_thumb.a(consol.o)
+                                                  i2c.o
+__umodsi3                                         /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_umodsi3.o)
+                                                  startup/libea_startup_thumb.a(consol.o)
+_data                                             startup/libea_startup_thumb.a(startup.o)
+_edata                                            startup/libea_startup_thumb.a(startup.o)
+_etext                                            startup/libea_startup_thumb.a(startup.o)
+_startup                                          startup/libea_startup_thumb.a(startup.o)
+consolInit                                        startup/libea_startup_thumb.a(consol.o)
+                                                  startup/libea_startup_thumb.a(framework.o)
+consolSendCh                                      startup/libea_startup_thumb.a(consol.o)
+consolSendChar                                    startup/libea_startup_thumb.a(consol.o)
+consolSendNumber                                  startup/libea_startup_thumb.a(consol.o)
+                                                  startup/libea_startup_thumb.a(framework.o)
+consolSendString                                  startup/libea_startup_thumb.a(consol.o)
+                                                  startup/libea_startup_thumb.a(framework.o)
+eaInit                                            startup/libea_startup_thumb.a(framework.o)
+                                                  main.o
+end                                               startup/libea_startup_thumb.a(framework.o)
+exceptionHandlerInit                              startup/libea_startup_thumb.a(framework.o)
+                                                  startup/libea_startup_thumb.a(startup.o)
+i2cCheckStatus                                    i2c.o
+i2cGetChar                                        i2c.o
+i2cInit                                           i2c.o
+                                                  main.o
+i2cPoll                                           i2c.o
+i2cPutChar                                        i2c.o
+i2cPutCharAndWait                                 i2c.o
+i2cRead                                           i2c.o
+                                                  main.o
+i2cRepeatStart                                    i2c.o
+i2cStart                                          i2c.o
+                                                  main.o
+i2cStop                                           i2c.o
+                                                  main.o
+i2cWaitAfterTransmit                              i2c.o
+i2cWrite                                          i2c.o
+lowLevelInit                                      startup/libea_startup_thumb.a(framework.o)
+                                                  startup/libea_startup_thumb.a(startup.o)
+main                                              main.o
+                                                  startup/libea_startup_thumb.a(startup.o)
+memcpy                                            /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/../../../../arm-elf/lib/interwork/libc.a(memcpy.o)
+                                                  startup/libea_startup_thumb.a(consol.o)
+pHeapEnd                                          startup/libea_startup_thumb.a(framework.o)
+pHeapStart                                        startup/libea_startup_thumb.a(framework.o)
+simplePrintf                                      startup/libea_startup_thumb.a(consol.o)
+                                                  main.o
