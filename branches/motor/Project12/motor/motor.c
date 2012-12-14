@@ -35,7 +35,7 @@
 #define	P23 (1 << 23)
 #define	P31 (1 << 31)
 
-#define TASK		2	// task 1 - use circulary loop
+#define TASK		1	// task 1 - use circulary loop
 						// task 2 - use constant PWM signal
 #define MODE_IN1	1	// mode 1 - Forward, Fast Current-Decay Mode
 						// mode 2 - Forward, Slow Current-Decay Mode
@@ -84,20 +84,34 @@ void setModeIn2();
  *
  ****************************************************************************/
 static void
-initPwm(tU32 initialFreqValue)
+initPwm1(tU32 initialFreqValue)
+{
+	  /*
+	 * initialize PWM
+	 */
+
+	PWM_PR = 0x00000000; //set prescale to 0
+	PWM_MCR = 0x0002; //counter resets on MR0 match (period time)
+	PWM_MR0 = initialFreqValue; //MR0 = period cycle time
+	PWM_MR2 = 0; //MR2 = duty cycle control, initial = 0%
+	PWM_LER = 0x05; //latch new values for MR0 and MR2
+	PWM_PCR = 0x0400; //enable PWM2 in single edge control mode
+	PWM_TCR = 0x09;
+
+
+}static void
+initPwm2(tU32 initialFreqValue)
 {
   /*
    * initialize PWM
    */
-  PWM_PR  = 0x00000000;             //set prescale to 0
-  PWM_MCR = 0x0002;                 //counter resets on MR0 match (period time)
-  PWM_MR0 = initialFreqValue;       //MR0 = period cycle time
-  PWM_MR2 = 0;                      //MR2 = duty cycle control, initial = 0%
-  PWM_MR5 = 0;                      //MR5 = duty cycle control, initial = 0%
-  PWM_LER = 0x25;                   //latch new values for MR0 and MR2 and MR5
-  PWM_PCR = 0x2400;                 //enable PWM2 and PWM5 in single edge control mode
-  PWM_TCR = 0x09;                   //enable PWM and Counter
-
+	PWM_PR = 0x00000000; //set prescale to 0
+	PWM_MCR = 0x0002; //counter resets on MR0 match (period time)
+	PWM_MR0 = initialFreqValue; //MR0 = period cycle time
+	PWM_MR5 = 0; //MR5 = duty cycle control, initial = 0%
+	PWM_LER = 0x21; //latch new values for MR0 and MR5
+	PWM_PCR = 0x2400; //enable PWM2 in single edge control mode
+	PWM_TCR = 0x09;
 
 }
 
@@ -366,9 +380,9 @@ runPwm()
   initPins();
 
   //vary duty cycle
-  duty1 = 0;
+ // duty1 = 0;
 
-  duty2 = 9999;
+  //duty2 = 9999;
 
   setModeIn1();
   setModeIn2();
@@ -396,7 +410,7 @@ runPwm()
 
 		else if (TASK == 2) {
 			duty1 = 0;
-			duty2 = 9999;
+			duty2 = 9500;
 		}
 
 	}
