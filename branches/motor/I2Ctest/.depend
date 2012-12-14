@@ -1,0 +1,4 @@
+main.o: main.c general.h startup/lpc2xxx.h startup/printf_P.h \
+  startup/config.h startup/consol.h startup/ea_init.h startup/framework.h \
+  startup/config.h i2c.h
+i2c.o: i2c.c i2c.h general.h startup/lpc2xxx.h startup/config.h
