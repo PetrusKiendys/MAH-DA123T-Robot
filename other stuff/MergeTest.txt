@@ -1,2 +1,0 @@
-merge1 (shell_ext)
-merge2 (web)
