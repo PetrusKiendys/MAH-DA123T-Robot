@@ -1,0 +1,2231 @@
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccTeZdSV.s 			page 1
+
+
+   1              		.code	16
+   2              		.file	"main.c"
+   3              		.section	.debug_abbrev,"",%progbits
+   4              	.Ldebug_abbrev0:
+   5              		.section	.debug_info,"",%progbits
+   6              	.Ldebug_info0:
+   7              		.section	.debug_line,"",%progbits
+   8              	.Ldebug_line0:
+   9 0000 EE000000 		.text
+   9      02008900 
+   9      00000201 
+   9      FB0E0D00 
+   9      01010101 
+  10              	.Ltext0:
+  11              		.align	2
+  12              		.global	initLightSwitchPins
+  13              		.code 16
+  14              		.thumb_func
+  15              		.type	initLightSwitchPins, %function
+  16              	initLightSwitchPins:
+  17              	.LFB2:
+  18              		.file 1 "lightSensorSwitch/initLightSwitch.c"
+   1:lightSensorSwitch/initLightSwitch.c **** 
+   2:lightSensorSwitch/initLightSwitch.c **** //#include "../pre_emptive_os/api/osapi.h"
+   3:lightSensorSwitch/initLightSwitch.c **** #include "../general.h"
+   4:lightSensorSwitch/initLightSwitch.c **** #include "../startup/lpc2xxx.h"
+   5:lightSensorSwitch/initLightSwitch.c **** #include "../startup/printf_P.h"
+   6:lightSensorSwitch/initLightSwitch.c **** #include "../startup/ea_init.h"
+   7:lightSensorSwitch/initLightSwitch.c **** #include "../startup/consol.h"
+   8:lightSensorSwitch/initLightSwitch.c **** #include "../startup/config.h"
+   9:lightSensorSwitch/initLightSwitch.c **** #include "../startup/framework.h"
+  10:lightSensorSwitch/initLightSwitch.c **** 
+  11:lightSensorSwitch/initLightSwitch.c **** #include "../LCD/LCD.h"  //  Funktionsprototyper för LCD-rutinerna
+  12:lightSensorSwitch/initLightSwitch.c **** 
+  13:lightSensorSwitch/initLightSwitch.c **** 
+  14:lightSensorSwitch/initLightSwitch.c **** #define P06 0x00000040	// Output Ljussensor
+  15:lightSensorSwitch/initLightSwitch.c **** #define P029 0x20000000 // Input Ljussensor
+  16:lightSensorSwitch/initLightSwitch.c **** #define P028 0x10000000 // Output Switch
+  17:lightSensorSwitch/initLightSwitch.c **** 
+  18:lightSensorSwitch/initLightSwitch.c **** //void initLightSwitchPins(void);
+  19:lightSensorSwitch/initLightSwitch.c **** 
+  20:lightSensorSwitch/initLightSwitch.c **** void initLightSwitchPins()
+  21:lightSensorSwitch/initLightSwitch.c **** {
+  19              		.loc 1 21 0
+  20 0000 80B5     		push	{r7, lr}
+  21              	.LCFI0:
+  22 0002 02AF     		add	r7, sp, #8
+  23              	.LCFI1:
+  22:lightSensorSwitch/initLightSwitch.c **** 
+  23:lightSensorSwitch/initLightSwitch.c ****   //FÖR LJUSSENSORN:
+  24:lightSensorSwitch/initLightSwitch.c ****   IODIR |= P06; // Sätter P0.6 till output
+  24              		.loc 1 24 0
+  25 0004 1049     		ldr	r1, .L3
+  26 0006 104B     		ldr	r3, .L3
+  27 0008 1A68     		ldr	r2, [r3]
+  28 000a 4023     		mov	r3, #64
+  29 000c 1343     		orr	r3, r3, r2
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccTeZdSV.s 			page 2
+
+
+  30 000e 0B60     		str	r3, [r1]
+  25:lightSensorSwitch/initLightSwitch.c ****   IODIR &= ~P029; // Sätter P029 till input
+  31              		.loc 1 25 0
+  32 0010 0D49     		ldr	r1, .L3
+  33 0012 0D4B     		ldr	r3, .L3
+  34 0014 1A68     		ldr	r2, [r3]
+  35 0016 0D4B     		ldr	r3, .L3+4
+  36 0018 1340     		and	r3, r3, r2
+  37 001a 0B60     		str	r3, [r1]
+  26:lightSensorSwitch/initLightSwitch.c ****   IOSET = P06; //Sätter p06 hög
+  38              		.loc 1 26 0
+  39 001c 0C4A     		ldr	r2, .L3+8
+  40 001e 4023     		mov	r3, #64
+  41 0020 1360     		str	r3, [r2]
+  27:lightSensorSwitch/initLightSwitch.c **** 
+  28:lightSensorSwitch/initLightSwitch.c ****  //För LJUSSENSOR+Digital Switch
+  29:lightSensorSwitch/initLightSwitch.c ****   PINSEL1 |= 0x05080000;	 //set AIN1 = P0.28, set AIN2 = P0.29,set Aout (DAC) = P0.25
+  42              		.loc 1 29 0
+  43 0022 0C49     		ldr	r1, .L3+12
+  44 0024 0B4B     		ldr	r3, .L3+12
+  45 0026 1A68     		ldr	r2, [r3]
+  46 0028 A123     		mov	r3, #161
+  47 002a DB04     		lsl	r3, r3, #19
+  48 002c 1343     		orr	r3, r3, r2
+  49 002e 0B60     		str	r3, [r1]
+  30:lightSensorSwitch/initLightSwitch.c **** 
+  31:lightSensorSwitch/initLightSwitch.c ****   // FÖR DIGITALSWITCH:
+  32:lightSensorSwitch/initLightSwitch.c ****   IODIR &= ~P028; // sätter P0.28 till input
+  50              		.loc 1 32 0
+  51 0030 0549     		ldr	r1, .L3
+  52 0032 054B     		ldr	r3, .L3
+  53 0034 1A68     		ldr	r2, [r3]
+  54 0036 084B     		ldr	r3, .L3+16
+  55 0038 1340     		and	r3, r3, r2
+  56 003a 0B60     		str	r3, [r1]
+  33:lightSensorSwitch/initLightSwitch.c **** 
+  34:lightSensorSwitch/initLightSwitch.c **** }
+  57              		.loc 1 34 0
+  58 003c BD46     		mov	sp, r7
+  59 003e 82B0     		sub	sp, sp, #8
+  60              		@ sp needed for prologue
+  61 0040 80BC     		pop	{r7}
+  62 0042 01BC     		pop	{r0}
+  63 0044 0047     		bx	r0
+  64              	.L4:
+  65 0046 0000     		.align	2
+  66              	.L3:
+  67 0048 088002E0 		.word	-536707064
+  68 004c FFFFFFDF 		.word	-536870913
+  69 0050 048002E0 		.word	-536707068
+  70 0054 04C002E0 		.word	-536690684
+  71 0058 FFFFFFEF 		.word	-268435457
+  72              	.LFE2:
+  73              		.size	initLightSwitchPins, .-initLightSwitchPins
+  74              		.global	delayshort
+  75              		.section	.rodata
+  76              		.align	2
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccTeZdSV.s 			page 3
+
+
+  77              		.type	delayshort, %object
+  78              		.size	delayshort, 4
+  79              	delayshort:
+  80 0000 B0040000 		.word	1200
+  81              		.global	delaylong
+  82              		.align	2
+  83              		.type	delaylong, %object
+  84              		.size	delaylong, 4
+  85              	delaylong:
+  86 0004 62C00000 		.word	49250
+  87              		.text
+  88              		.align	2
+  89              		.global	main
+  90              		.code 16
+  91              		.thumb_func
+  92              		.type	main, %function
+  93              	main:
+  94              	.LFB3:
+  95              		.file 2 "main.c"
+   1:main.c        **** /******************************************************************************
+   2:main.c        ****  *
+   3:main.c        ****  * Bas för Project12
+   4:main.c        ****  *
+   5:main.c        ****  * RTOS kompilerat för max 10 processer, 5 prioritetsnivåer
+   6:main.c        ****  * link_32k_512k_rom.ld ändrad så att ramadressen börjar på 0x40000200
+   7:main.c        ****  * Newlib används inte
+   8:main.c        ****  *
+   9:main.c        ****  * Alla ändringar när det gäller processortyp mm är gjorda.
+  10:main.c        ****  * Även förberett för on chip debugging.
+  11:main.c        ****  *
+  12:main.c        ****  * Projektet visar hur man kan ha processerna i olika filer, vilket är bra
+  13:main.c        ****  * när man är många som jobbar med samma projekt.
+  14:main.c        ****  * Namnen på källkodsfilerna måste anges i den yttre makefilen
+  15:main.c        ****  *
+  16:main.c        ****  * Pga av problem med BF_wait för vissa kort används i stället delay()i exemplen.
+  17:main.c        ****  *
+  18:main.c        ****  * I projektet visas även hur man hanterar avbrott. Exemplet samplar en analog signal
+  19:main.c        ****  * 8000 gånger/sekund och lägger sen ut värdena på DA-omvandlaren
+  20:main.c        ****  *
+  21:main.c        ****  * Tommy 121108
+  22:main.c        ****  *
+  23:main.c        ****  *****************************************************************************/
+  24:main.c        **** 
+  25:main.c        **** // QUESTION: how many ms is a tick (RTOS)?
+  26:main.c        **** 
+  27:main.c        **** #include "pre_emptive_os/api/osapi.h"
+  28:main.c        **** #include "general.h"
+  29:main.c        **** #include "startup/lpc2xxx.h"
+  30:main.c        **** #include "startup/printf_P.h"
+  31:main.c        **** #include "startup/ea_init.h"
+  32:main.c        **** #include "startup/consol.h"
+  33:main.c        **** #include "startup/config.h"
+  34:main.c        **** #include "startup/framework.h"
+  35:main.c        **** #include "lightSensorSwitch/initLightSwitch.c"
+  36:main.c        **** 
+  37:main.c        **** #include "LCD/LCD.h"  //  Funktionsprototyper för LCD-rutinerna
+  38:main.c        **** 
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccTeZdSV.s 			page 4
+
+
+  39:main.c        **** // Dessa definitioner används av en del av EA's rutiner
+  40:main.c        **** #define CRYSTAL_FREQUENCY FOSC
+  41:main.c        **** #define PLL_FACTOR        PLL_MUL
+  42:main.c        **** #define VPBDIV_FACTOR     PBSD
+  43:main.c        **** 
+  44:main.c        **** 
+  45:main.c        **** // Stackstorlekar för processerna. Kan behöva justeras. Se beskrivning av procStackUsage nedan
+  46:main.c        **** #define PROC_Ex1_STACK_SIZE 1024
+  47:main.c        **** #define PROC_Ex2_STACK_SIZE 1024
+  48:main.c        **** #define PROC_Ex3_STACK_SIZE 1024
+  49:main.c        **** 
+  50:main.c        **** #define INIT_STACK_SIZE  1024
+  51:main.c        **** #define PROC_ST_US_STACK_SIZE  1024
+  52:main.c        **** 
+  53:main.c        **** #define P06 0x00000040	// Output Ljussensor
+  54:main.c        **** #define P029 0x20000000 // Input Ljussensor
+  55:main.c        **** #define P028 0x10000000 // Output Switch
+  56:main.c        **** 
+  57:main.c        **** static tU8 procEx1Stack[PROC_Ex1_STACK_SIZE];
+  58:main.c        **** static tU8 procEx2Stack[PROC_Ex2_STACK_SIZE];
+  59:main.c        **** static tU8 procEx3Stack[PROC_Ex3_STACK_SIZE];
+  60:main.c        **** 
+  61:main.c        **** static tU8 initStack[INIT_STACK_SIZE];
+  62:main.c        **** static tU8 procStUsStack[PROC_ST_US_STACK_SIZE];
+  63:main.c        **** 
+  64:main.c        **** static tU8 pidEx1;
+  65:main.c        **** static tU8 pidEx2;
+  66:main.c        **** static tU8 pidEx3;
+  67:main.c        **** 
+  68:main.c        **** static tU8 pidStUs;
+  69:main.c        **** 
+  70:main.c        **** 
+  71:main.c        **** /*****************************************************************************
+  72:main.c        ****  * Function prototypes
+  73:main.c        ****  ****************************************************************************/
+  74:main.c        **** void procEx1(void* arg);
+  75:main.c        **** void procEx2(void* arg);
+  76:main.c        **** void procEx3(void* arg);
+  77:main.c        **** 
+  78:main.c        **** //int runPwm(void);
+  79:main.c        **** 
+  80:main.c        **** static void initProc(void* arg);
+  81:main.c        **** static void procStackUsage(void* arg);
+  82:main.c        **** //static tU16 getAnalogueInput(tU8 channel);
+  83:main.c        **** 
+  84:main.c        **** //static void initPwm(tU32 initialFreqValue);
+  85:main.c        **** 
+  86:main.c        **** 
+  87:main.c        **** //Exempel på avbrott (ljudsampling)
+  88:main.c        **** void Timer1ISRirq (void);  // skall inte ha något attribut när RTOS används
+  89:main.c        **** /****************************************************************************/
+  90:main.c        **** 
+  91:main.c        **** 
+  92:main.c        **** 
+  93:main.c        **** /****************************************************************************
+  94:main.c        ****  *
+  95:main.c        ****  * Globala konstanter och variabler
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccTeZdSV.s 			page 5
+
+
+  96:main.c        ****  *
+  97:main.c        ****  ****************************************************************************/
+  98:main.c        **** 
+  99:main.c        **** long const delayshort = 1200;
+ 100:main.c        **** long const delaylong = 49250;
+ 101:main.c        **** 
+ 102:main.c        **** // TODO: temporary global variables, make local later if possible..
+ 103:main.c        **** //tU32 duty;
+ 104:main.c        **** //set frequency to 1000 Hz (1 kHz)
+ 105:main.c        **** //tU32 const freq = ((CRYSTAL_FREQUENCY * PLL_FACTOR)/ (VPBDIV_FACTOR * 1000));
+ 106:main.c        **** 
+ 107:main.c        **** 
+ 108:main.c        **** 
+ 109:main.c        **** /****************************************************************************
+ 110:main.c        ****  *
+ 111:main.c        ****  * Semaforer för att skydda gemensamma resurser
+ 112:main.c        ****  * Används här som binära semaforer dvs antar bara värden 0 och 1 (mutex)
+ 113:main.c        ****  *
+ 114:main.c        ****  ****************************************************************************/
+ 115:main.c        **** 
+ 116:main.c        **** tCntSem mutexLCD;
+ 117:main.c        **** 
+ 118:main.c        **** 
+ 119:main.c        **** 
+ 120:main.c        **** /*****************************************************************************
+ 121:main.c        ****  *
+ 122:main.c        ****  * Description:
+ 123:main.c        ****  *    Initialize the PWM unit to generate a variable duty cycle signal on
+ 124:main.c        ****  *    PWM2. Connect signal PWM2 to pin P0.7.
+ 125:main.c        ****  *    The function sets initial frequency. Initial duty cucle is set to 0%.
+ 126:main.c        ****  *
+ 127:main.c        ****  * Params:
+ 128:main.c        ****  *    [in] initialFreqValue - the initial frequency value. Value calculated as:
+ 129:main.c        ****  *
+ 130:main.c        ****  *                     (crystal frequency * PLL multiplication factor)
+ 131:main.c        ****  *                     -----------------------------------------------
+ 132:main.c        ****  *                           (VPBDIV factor * desired frequency)
+ 133:main.c        ****  *
+ 134:main.c        ****  ****************************************************************************/
+ 135:main.c        **** //static void
+ 136:main.c        **** //initPwm(tU32 initialFreqValue)
+ 137:main.c        **** //{
+ 138:main.c        **** //  /*
+ 139:main.c        **** //   * initialize PWM
+ 140:main.c        **** //   */
+ 141:main.c        **** //  PWM_PR  = 0x00000000;             //set prescale to 0
+ 142:main.c        **** //  PWM_MCR = 0x0002;                 //counter resets on MR0 match (period time)
+ 143:main.c        **** //  PWM_MR0 = initialFreqValue;       //MR0 = period cycle time
+ 144:main.c        **** //  PWM_MR2 = 0;                      //MR2 = duty cycle control, initial = 0%
+ 145:main.c        **** //  PWM_LER = 0x05;                   //latch new values for MR0 and MR2
+ 146:main.c        **** //  PWM_PCR = 0x0400;                 //enable PWM2 in single edge control mode
+ 147:main.c        **** //  PWM_TCR = 0x09;                   //enable PWM and Counter
+ 148:main.c        **** //
+ 149:main.c        **** //  /*
+ 150:main.c        **** //   * connect signal PWM2 to pin P0.7
+ 151:main.c        **** //   */
+ 152:main.c        **** //  PINSEL0 &= ~0x0000c000;  //clear bits related to P0.7
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccTeZdSV.s 			page 6
+
+
+ 153:main.c        **** //  PINSEL0 |=  0x00008000;  //connect signal PWM2 to P0.7 (second alternative function)
+ 154:main.c        **** //}
+ 155:main.c        **** 
+ 156:main.c        **** 
+ 157:main.c        **** /*****************************************************************************
+ 158:main.c        ****  *
+ 159:main.c        ****  * Main
+ 160:main.c        ****  *
+ 161:main.c        ****  ****************************************************************************/
+ 162:main.c        **** int
+ 163:main.c        **** main(void)
+ 164:main.c        **** {
+  96              		.loc 2 164 0
+  97 005c B0B5     		push	{r4, r5, r7, lr}
+  98              	.LCFI2:
+  99 005e 84B0     		sub	sp, sp, #16
+ 100              	.LCFI3:
+ 101 0060 03AF     		add	r7, sp, #12
+ 102              	.LCFI4:
+ 165:main.c        ****   tU8 error;
+ 166:main.c        ****   tU8 pid;
+ 167:main.c        **** 
+ 168:main.c        ****   void initLightSwitchPins();
+ 169:main.c        ****   //FÖR LJUSSENSORN:
+ 170:main.c        ****    IODIR |= P06; // Sätter P0.6 till output
+ 103              		.loc 2 170 0
+ 104 0062 2649     		ldr	r1, .L7
+ 105 0064 254B     		ldr	r3, .L7
+ 106 0066 1A68     		ldr	r2, [r3]
+ 107 0068 4023     		mov	r3, #64
+ 108 006a 1343     		orr	r3, r3, r2
+ 109 006c 0B60     		str	r3, [r1]
+ 171:main.c        ****    IODIR &= ~P029; // Sätter P029 till input
+ 110              		.loc 2 171 0
+ 111 006e 2349     		ldr	r1, .L7
+ 112 0070 224B     		ldr	r3, .L7
+ 113 0072 1A68     		ldr	r2, [r3]
+ 114 0074 224B     		ldr	r3, .L7+4
+ 115 0076 1340     		and	r3, r3, r2
+ 116 0078 0B60     		str	r3, [r1]
+ 172:main.c        ****    IOSET = P06; //Sätter p06 hög
+ 117              		.loc 2 172 0
+ 118 007a 224A     		ldr	r2, .L7+8
+ 119 007c 4023     		mov	r3, #64
+ 120 007e 1360     		str	r3, [r2]
+ 173:main.c        **** 
+ 174:main.c        ****   //För LJUSSENSOR+Digital Switch
+ 175:main.c        ****    PINSEL1 |= 0x05080000;	 //set AIN1 = P0.28, set AIN2 = P0.29,set Aout (DAC) = P0.25
+ 121              		.loc 2 175 0
+ 122 0080 2149     		ldr	r1, .L7+12
+ 123 0082 214B     		ldr	r3, .L7+12
+ 124 0084 1A68     		ldr	r2, [r3]
+ 125 0086 A123     		mov	r3, #161
+ 126 0088 DB04     		lsl	r3, r3, #19
+ 127 008a 1343     		orr	r3, r3, r2
+ 128 008c 0B60     		str	r3, [r1]
+ 176:main.c        **** 
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccTeZdSV.s 			page 7
+
+
+ 177:main.c        ****    // FÖR DIGITALSWITCH:
+ 178:main.c        ****    IODIR &= ~P028; // sätter P0.28 till input
+ 129              		.loc 2 178 0
+ 130 008e 1B49     		ldr	r1, .L7
+ 131 0090 1A4B     		ldr	r3, .L7
+ 132 0092 1A68     		ldr	r2, [r3]
+ 133 0094 1D4B     		ldr	r3, .L7+16
+ 134 0096 1340     		and	r3, r3, r2
+ 135 0098 0B60     		str	r3, [r1]
+ 179:main.c        **** 
+ 180:main.c        **** 
+ 181:main.c        ****   osInit();
+ 136              		.loc 2 181 0
+ 137 009a FFF7FEFF 		bl	osInit
+ 182:main.c        **** 
+ 183:main.c        ****   init_LCD();
+ 138              		.loc 2 183 0
+ 139 009e FFF7FEFF 		bl	init_LCD
+ 184:main.c        ****   delay(delaylong);
+ 140              		.loc 2 184 0
+ 141 00a2 1B4B     		ldr	r3, .L7+20
+ 142 00a4 1B68     		ldr	r3, [r3]
+ 143 00a6 181C     		mov	r0, r3
+ 144 00a8 FFF7FEFF 		bl	delay
+ 185:main.c        ****   send_instruction(0xC);  //släck cursorn
+ 145              		.loc 2 185 0
+ 146 00ac 0C20     		mov	r0, #12
+ 147 00ae FFF7FEFF 		bl	send_instruction
+ 186:main.c        **** 
+ 187:main.c        ****   // init PWM variables
+ 188:main.c        ****   //initPwmVars();
+ 189:main.c        **** 
+ 190:main.c        ****   //initialize PWM unit
+ 191:main.c        ****   //initPwm(freq);
+ 192:main.c        **** 
+ 193:main.c        ****  // Här kan diverse initeringar läggas
+ 194:main.c        ****  // Alternativt gör detta i initieringprocessen
+ 195:main.c        ****  // Lägg märke till att avbrott inte bör enablas för än när alla processer startats
+ 196:main.c        **** 
+ 197:main.c        **** //  osInit();
+ 198:main.c        **** 
+ 199:main.c        ****   osCreateProcess(initProc, initStack, INIT_STACK_SIZE, &pid, 1, NULL, &error);
+ 148              		.loc 2 199 0
+ 149 00b2 1849     		ldr	r1, .L7+24
+ 150 00b4 184C     		ldr	r4, .L7+28
+ 151 00b6 8022     		mov	r2, #128
+ 152 00b8 D200     		lsl	r2, r2, #3
+ 153 00ba BD1C     		add	r5, r7, #2
+ 154 00bc 0123     		mov	r3, #1
+ 155 00be 0093     		str	r3, [sp]
+ 156 00c0 EC46     		mov	ip, sp
+ 157 00c2 0023     		mov	r3, #0
+ 158 00c4 6046     		mov	r0, ip
+ 159 00c6 4360     		str	r3, [r0, #4]
+ 160 00c8 FB1C     		add	r3, r7, #3
+ 161 00ca EC46     		mov	ip, sp
+ 162 00cc 6046     		mov	r0, ip
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccTeZdSV.s 			page 8
+
+
+ 163 00ce 8360     		str	r3, [r0, #8]
+ 164 00d0 081C     		mov	r0, r1
+ 165 00d2 211C     		mov	r1, r4
+ 166 00d4 2B1C     		mov	r3, r5
+ 167 00d6 FFF7FEFF 		bl	osCreateProcess
+ 200:main.c        ****   osStartProcess(pid, &error);
+ 168              		.loc 2 200 0
+ 169 00da BB1C     		add	r3, r7, #2
+ 170 00dc 1B78     		ldrb	r3, [r3]
+ 171 00de FA1C     		add	r2, r7, #3
+ 172 00e0 181C     		mov	r0, r3
+ 173 00e2 111C     		mov	r1, r2
+ 174 00e4 FFF7FEFF 		bl	osStartProcess
+ 201:main.c        **** 
+ 202:main.c        ****   osStart();
+ 175              		.loc 2 202 0
+ 176 00e8 FFF7FEFF 		bl	osStart
+ 203:main.c        ****   return 0;
+ 177              		.loc 2 203 0
+ 178 00ec 0023     		mov	r3, #0
+ 204:main.c        **** }
+ 179              		.loc 2 204 0
+ 180 00ee 181C     		mov	r0, r3
+ 181 00f0 BD46     		mov	sp, r7
+ 182 00f2 01B0     		add	sp, sp, #4
+ 183              		@ sp needed for prologue
+ 184 00f4 B0BC     		pop	{r4, r5, r7}
+ 185 00f6 02BC     		pop	{r1}
+ 186 00f8 0847     		bx	r1
+ 187              	.L8:
+ 188 00fa 0000     		.align	2
+ 189              	.L7:
+ 190 00fc 088002E0 		.word	-536707064
+ 191 0100 FFFFFFDF 		.word	-536870913
+ 192 0104 048002E0 		.word	-536707068
+ 193 0108 04C002E0 		.word	-536690684
+ 194 010c FFFFFFEF 		.word	-268435457
+ 195 0110 00000000 		.word	delaylong
+ 196 0114 00000000 		.word	initProc
+ 197 0118 000C0000 		.word	initStack
+ 198              	.LFE3:
+ 199              		.size	main, .-main
+ 200              		.align	2
+ 201              		.code 16
+ 202              		.thumb_func
+ 203              		.type	procStackUsage, %function
+ 204              	procStackUsage:
+ 205              	.LFB4:
+ 205:main.c        **** 
+ 206:main.c        **** //void initPwmVars(void) {
+ 207:main.c        **** //
+ 208:main.c        **** //	  // REMARK: make other inits here (or remove this method)
+ 209:main.c        **** //}
+ 210:main.c        **** 
+ 211:main.c        **** 
+ 212:main.c        **** 
+ 213:main.c        **** 
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccTeZdSV.s 			page 9
+
+
+ 214:main.c        **** 
+ 215:main.c        **** /*****************************************************************************
+ 216:main.c        ****  *
+ 217:main.c        ****  *  Denna process kan användas för att kolla hur mycket stort utrymme
+ 218:main.c        ****  *  som stacken använder
+ 219:main.c        ****  *  Ta bort kommateringen av printf-raden och sätt in rätt pid för processen som
+ 220:main.c        ****  *  skall kollas
+ 221:main.c        ****  *
+ 222:main.c        ****  ****************************************************************************/
+ 223:main.c        **** static void
+ 224:main.c        **** procStackUsage(void* arg)
+ 225:main.c        **** {
+ 206              		.loc 2 225 0
+ 207 011c 80B5     		push	{r7, lr}
+ 208              	.LCFI5:
+ 209 011e 81B0     		sub	sp, sp, #4
+ 210              	.LCFI6:
+ 211 0120 00AF     		add	r7, sp, #0
+ 212              	.LCFI7:
+ 213 0122 3B1C     		mov	r3, r7
+ 214 0124 1860     		str	r0, [r3]
+ 215              	.L10:
+ 226:main.c        ****   for(;;)
+ 227:main.c        ****   {
+ 228:main.c        ****     osSleep(5500);
+ 216              		.loc 2 228 0
+ 217 0126 024B     		ldr	r3, .L12
+ 218 0128 181C     		mov	r0, r3
+ 219 012a FFF7FEFF 		bl	osSleep
+ 229:main.c        **** //    printf("Stack usage: %d %%\n", osStackUsage(pidEx1));
+ 230:main.c        ****   }
+ 220              		.loc 2 230 0
+ 221 012e FAE7     		b	.L10
+ 222              	.L13:
+ 223              		.align	2
+ 224              	.L12:
+ 225 0130 7C150000 		.word	5500
+ 226              	.LFE4:
+ 227              		.size	procStackUsage, .-procStackUsage
+ 228              		.section	.rodata
+ 229              		.align	2
+ 230              	.LC3:
+ 231 0008 52544F53 		.ascii	"RTOS startar \012\000"
+ 231      20737461 
+ 231      72746172 
+ 231      200A00
+ 232 0017 00       		.text
+ 233              		.align	2
+ 234              		.code 16
+ 235              		.thumb_func
+ 236              		.type	initProc, %function
+ 237              	initProc:
+ 238              	.LFB5:
+ 231:main.c        **** }
+ 232:main.c        **** /*****************************************************************************
+ 233:main.c        ****  *
+ 234:main.c        ****  * Initieringprocessen som startar upp de andra processerna
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccTeZdSV.s 			page 10
+
+
+ 235:main.c        ****  * Här är lämpligt att tex initiera avbrott. Initeringar kan alternativt läggas i main()
+ 236:main.c        ****  * Men enabla inte avbrotten förrän på slutet av denna process
+ 237:main.c        ****  * när alla andra processerna startat
+ 238:main.c        ****  *
+ 239:main.c        ****  * Som exempel visas avbrottet för att sampla ljud
+ 240:main.c        ****  *
+ 241:main.c        ****  ****************************************************************************/
+ 242:main.c        **** static void
+ 243:main.c        **** initProc(void* arg)
+ 244:main.c        **** {
+ 239              		.loc 2 244 0
+ 240 0134 B0B5     		push	{r4, r5, r7, lr}
+ 241              	.LCFI8:
+ 242 0136 85B0     		sub	sp, sp, #20
+ 243              	.LCFI9:
+ 244 0138 03AF     		add	r7, sp, #12
+ 245              	.LCFI10:
+ 246 013a 3B1C     		mov	r3, r7
+ 247 013c 1860     		str	r0, [r3]
+ 245:main.c        ****   tU8 error;
+ 246:main.c        **** 
+ 247:main.c        ****   eaInit();
+ 248              		.loc 2 247 0
+ 249 013e FFF7FEFF 		bl	eaInit
+ 248:main.c        **** 
+ 249:main.c        ****   printf("RTOS startar \n");
+ 250              		.loc 2 249 0
+ 251 0142 554B     		ldr	r3, .L19
+ 252 0144 181C     		mov	r0, r3
+ 253 0146 FFF7FEFF 		bl	simplePrintf
+ 250:main.c        **** 
+ 251:main.c        ****  // Initiering av semaforerna. Alla ges värdet 1 från början
+ 252:main.c        ****   osSemInit(&mutexLCD, 1);
+ 254              		.loc 2 252 0
+ 255 014a 544B     		ldr	r3, .L19+4
+ 256 014c 181C     		mov	r0, r3
+ 257 014e 0121     		mov	r1, #1
+ 258 0150 FFF7FEFF 		bl	osSemInit
+ 253:main.c        **** 
+ 254:main.c        **** 
+ 255:main.c        ****   osCreateProcess(procEx1, procEx1Stack, PROC_Ex1_STACK_SIZE, &pidEx1, 3, NULL, &error);
+ 259              		.loc 2 255 0
+ 260 0154 5249     		ldr	r1, .L19+8
+ 261 0156 534C     		ldr	r4, .L19+12
+ 262 0158 8022     		mov	r2, #128
+ 263 015a D200     		lsl	r2, r2, #3
+ 264 015c 524D     		ldr	r5, .L19+16
+ 265 015e 0323     		mov	r3, #3
+ 266 0160 0093     		str	r3, [sp]
+ 267 0162 EC46     		mov	ip, sp
+ 268 0164 0023     		mov	r3, #0
+ 269 0166 6046     		mov	r0, ip
+ 270 0168 4360     		str	r3, [r0, #4]
+ 271 016a FB1D     		add	r3, r7, #7
+ 272 016c EC46     		mov	ip, sp
+ 273 016e 6046     		mov	r0, ip
+ 274 0170 8360     		str	r3, [r0, #8]
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccTeZdSV.s 			page 11
+
+
+ 275 0172 081C     		mov	r0, r1
+ 276 0174 211C     		mov	r1, r4
+ 277 0176 2B1C     		mov	r3, r5
+ 278 0178 FFF7FEFF 		bl	osCreateProcess
+ 256:main.c        ****   osStartProcess(pidEx1, &error);
+ 279              		.loc 2 256 0
+ 280 017c 4A4B     		ldr	r3, .L19+16
+ 281 017e 1B78     		ldrb	r3, [r3]
+ 282 0180 FA1D     		add	r2, r7, #7
+ 283 0182 181C     		mov	r0, r3
+ 284 0184 111C     		mov	r1, r2
+ 285 0186 FFF7FEFF 		bl	osStartProcess
+ 257:main.c        **** 
+ 258:main.c        ****   osCreateProcess(procEx2, procEx2Stack, PROC_Ex2_STACK_SIZE, &pidEx2, 3, NULL, &error);
+ 286              		.loc 2 258 0
+ 287 018a 4849     		ldr	r1, .L19+20
+ 288 018c 484C     		ldr	r4, .L19+24
+ 289 018e 8022     		mov	r2, #128
+ 290 0190 D200     		lsl	r2, r2, #3
+ 291 0192 484D     		ldr	r5, .L19+28
+ 292 0194 0323     		mov	r3, #3
+ 293 0196 0093     		str	r3, [sp]
+ 294 0198 EC46     		mov	ip, sp
+ 295 019a 0023     		mov	r3, #0
+ 296 019c 6046     		mov	r0, ip
+ 297 019e 4360     		str	r3, [r0, #4]
+ 298 01a0 FB1D     		add	r3, r7, #7
+ 299 01a2 EC46     		mov	ip, sp
+ 300 01a4 6046     		mov	r0, ip
+ 301 01a6 8360     		str	r3, [r0, #8]
+ 302 01a8 081C     		mov	r0, r1
+ 303 01aa 211C     		mov	r1, r4
+ 304 01ac 2B1C     		mov	r3, r5
+ 305 01ae FFF7FEFF 		bl	osCreateProcess
+ 259:main.c        ****   osStartProcess(pidEx2, &error);
+ 306              		.loc 2 259 0
+ 307 01b2 404B     		ldr	r3, .L19+28
+ 308 01b4 1B78     		ldrb	r3, [r3]
+ 309 01b6 FA1D     		add	r2, r7, #7
+ 310 01b8 181C     		mov	r0, r3
+ 311 01ba 111C     		mov	r1, r2
+ 312 01bc FFF7FEFF 		bl	osStartProcess
+ 260:main.c        **** 
+ 261:main.c        ****   osCreateProcess(procEx3, procEx3Stack, PROC_Ex3_STACK_SIZE, &pidEx3, 3, NULL, &error);
+ 313              		.loc 2 261 0
+ 314 01c0 3D49     		ldr	r1, .L19+32
+ 315 01c2 3E4C     		ldr	r4, .L19+36
+ 316 01c4 8022     		mov	r2, #128
+ 317 01c6 D200     		lsl	r2, r2, #3
+ 318 01c8 3D4D     		ldr	r5, .L19+40
+ 319 01ca 0323     		mov	r3, #3
+ 320 01cc 0093     		str	r3, [sp]
+ 321 01ce EC46     		mov	ip, sp
+ 322 01d0 0023     		mov	r3, #0
+ 323 01d2 6046     		mov	r0, ip
+ 324 01d4 4360     		str	r3, [r0, #4]
+ 325 01d6 FB1D     		add	r3, r7, #7
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccTeZdSV.s 			page 12
+
+
+ 326 01d8 EC46     		mov	ip, sp
+ 327 01da 6046     		mov	r0, ip
+ 328 01dc 8360     		str	r3, [r0, #8]
+ 329 01de 081C     		mov	r0, r1
+ 330 01e0 211C     		mov	r1, r4
+ 331 01e2 2B1C     		mov	r3, r5
+ 332 01e4 FFF7FEFF 		bl	osCreateProcess
+ 262:main.c        ****   osStartProcess(pidEx3, &error);
+ 333              		.loc 2 262 0
+ 334 01e8 354B     		ldr	r3, .L19+40
+ 335 01ea 1B78     		ldrb	r3, [r3]
+ 336 01ec FA1D     		add	r2, r7, #7
+ 337 01ee 181C     		mov	r0, r3
+ 338 01f0 111C     		mov	r1, r2
+ 339 01f2 FFF7FEFF 		bl	osStartProcess
+ 263:main.c        **** 
+ 264:main.c        **** 
+ 265:main.c        ****   osCreateProcess(procStackUsage, procStUsStack, PROC_ST_US_STACK_SIZE, &pidStUs, 4, NULL, &error);
+ 340              		.loc 2 265 0
+ 341 01f6 3349     		ldr	r1, .L19+44
+ 342 01f8 334C     		ldr	r4, .L19+48
+ 343 01fa 8022     		mov	r2, #128
+ 344 01fc D200     		lsl	r2, r2, #3
+ 345 01fe 334D     		ldr	r5, .L19+52
+ 346 0200 0423     		mov	r3, #4
+ 347 0202 0093     		str	r3, [sp]
+ 348 0204 EC46     		mov	ip, sp
+ 349 0206 0023     		mov	r3, #0
+ 350 0208 6046     		mov	r0, ip
+ 351 020a 4360     		str	r3, [r0, #4]
+ 352 020c FB1D     		add	r3, r7, #7
+ 353 020e EC46     		mov	ip, sp
+ 354 0210 6046     		mov	r0, ip
+ 355 0212 8360     		str	r3, [r0, #8]
+ 356 0214 081C     		mov	r0, r1
+ 357 0216 211C     		mov	r1, r4
+ 358 0218 2B1C     		mov	r3, r5
+ 359 021a FFF7FEFF 		bl	osCreateProcess
+ 266:main.c        ****   osStartProcess(pidStUs, &error);
+ 360              		.loc 2 266 0
+ 361 021e 2B4B     		ldr	r3, .L19+52
+ 362 0220 1B78     		ldrb	r3, [r3]
+ 363 0222 FA1D     		add	r2, r7, #7
+ 364 0224 181C     		mov	r0, r3
+ 365 0226 111C     		mov	r1, r2
+ 366 0228 FFF7FEFF 		bl	osStartProcess
+ 267:main.c        **** 
+ 268:main.c        **** 
+ 269:main.c        **** 
+ 270:main.c        **** 
+ 271:main.c        ****  /****************************************************************************************
+ 272:main.c        ****   * Detta är ett exempel på avbrottshantering
+ 273:main.c        ****   * Kod för initiering av AD och DA-omvandlare och Timer 1 som skall ge avbrott (8 KHz)
+ 274:main.c        ****   */
+ 275:main.c        **** 
+ 276:main.c        ****   //set AIN1 = P0.28
+ 277:main.c        ****  // PINSEL1 |= 0x01080000;
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccTeZdSV.s 			page 13
+
+
+ 278:main.c        **** 
+ 279:main.c        ****  //initialize ADC (fel i beräkningen av divisionsfaktorn i EA-kod, rättat här)
+ 280:main.c        ****    ADCR = (1 << 0)                             |  //SEL = 1, dummy channel #1
+ 367              		.loc 2 280 0
+ 368 022c 284A     		ldr	r2, .L19+56
+ 369 022e 294B     		ldr	r3, .L19+60
+ 370 0230 1360     		str	r3, [r2]
+ 281:main.c        ****           ((CRYSTAL_FREQUENCY *
+ 282:main.c        ****             PLL_FACTOR /
+ 283:main.c        ****             VPBDIV_FACTOR) / 4500000) << 8 |  //set clock division factor, so ADC clock is 4.5MHz
+ 284:main.c        ****           (0 << 16)                            |  //BURST = 0, conversions are SW controlled
+ 285:main.c        ****           (0 << 17)                            |  //CLKS  = 0, 11 clocks = 10-bit result
+ 286:main.c        ****           (1 << 21)                            |  //PDN   = 1, ADC is active
+ 287:main.c        ****           (1 << 24)                            |  //START = 1, start a conversion now
+ 288:main.c        ****           (0 << 27);							                 //EDGE  = 0, not relevant when start=1
+ 289:main.c        **** 
+ 290:main.c        ****    while((ADDR & 0x80000000) == 0)
+ 371              		.loc 2 290 0
+ 372 0232 02E0     		b	.L15
+ 373              	.L16:
+ 291:main.c        **** 
+ 292:main.c        **** 
+ 293:main.c        **** 
+ 294:main.c        ****  // Initiera timer 1 (som skall sköta avbrottet)
+ 295:main.c        **** 
+ 296:main.c        ****   TIMER1_TCR = 0x02;          //stop and reset timer
+ 374              		.loc 2 296 0
+ 375 0234 284A     		ldr	r2, .L19+64
+ 376 0236 0223     		mov	r3, #2
+ 377 0238 1360     		str	r3, [r2]
+ 378              	.L15:
+ 379              		.loc 2 290 0
+ 380 023a 284B     		ldr	r3, .L19+68
+ 381 023c 1B68     		ldr	r3, [r3]
+ 382 023e 002B     		cmp	r3, #0
+ 383 0240 F8DA     		bge	.L16
+ 297:main.c        ****   TIMER1_PR  = 0x00;          //set prescaler to zero
+ 384              		.loc 2 297 0
+ 385 0242 274A     		ldr	r2, .L19+72
+ 386 0244 0023     		mov	r3, #0
+ 387 0246 1360     		str	r3, [r2]
+ 298:main.c        ****   TIMER1_MCR = 0x03;		  //ställ up matchregister 0 för avbrott och reset av timer 0
+ 388              		.loc 2 298 0
+ 389 0248 264A     		ldr	r2, .L19+76
+ 390 024a 0323     		mov	r3, #3
+ 391 024c 1360     		str	r3, [r2]
+ 299:main.c        ****   TIMER1_MR0 = 7500;		  //Detta värde avgör sampletiden, här 0.125 ms  (8000 Hz)
+ 392              		.loc 2 299 0
+ 393 024e 264A     		ldr	r2, .L19+80
+ 394 0250 264B     		ldr	r3, .L19+84
+ 395 0252 1360     		str	r3, [r2]
+ 300:main.c        ****   TIMER1_IR  = 0xff;          //reset all interrrupt flags
+ 396              		.loc 2 300 0
+ 397 0254 264A     		ldr	r2, .L19+88
+ 398 0256 FF23     		mov	r3, #255
+ 399 0258 1360     		str	r3, [r2]
+ 301:main.c        ****   TIMER1_TCR = 0x01;          //start timer
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccTeZdSV.s 			page 14
+
+
+ 400              		.loc 2 301 0
+ 401 025a 1F4A     		ldr	r2, .L19+64
+ 402 025c 0123     		mov	r3, #1
+ 403 025e 1360     		str	r3, [r2]
+ 302:main.c        **** 
+ 303:main.c        **** 
+ 304:main.c        ****   //Initiera avbrott vid match på MR0
+ 305:main.c        ****   // Numret på VICVectCntl och VICVectAddr bestämmer prioriteten
+ 306:main.c        **** 
+ 307:main.c        ****   VICIntSelect&=~0x000000020;		//IRQ, inte FIQ-avbrott
+ 404              		.loc 2 307 0
+ 405 0260 2449     		ldr	r1, .L19+92
+ 406 0262 244B     		ldr	r3, .L19+92
+ 407 0264 1A68     		ldr	r2, [r3]
+ 408 0266 2023     		mov	r3, #32
+ 409 0268 101C     		mov	r0, r2
+ 410 026a 9843     		bic	r0, r0, r3
+ 411 026c 031C     		mov	r3, r0
+ 412 026e 0B60     		str	r3, [r1]
+ 308:main.c        ****   VICVectCntl7  =  0x00000025; //Enabla interuptchannel 5 (Timer1)
+ 413              		.loc 2 308 0
+ 414 0270 214A     		ldr	r2, .L19+96
+ 415 0272 2523     		mov	r3, #37
+ 416 0274 1360     		str	r3, [r2]
+ 309:main.c        ****   VICVectAddr7  =  (tU32)Timer1ISRirq; //adressen till avbrottsrutinen
+ 417              		.loc 2 309 0
+ 418 0276 214A     		ldr	r2, .L19+100
+ 419 0278 214B     		ldr	r3, .L19+104
+ 420 027a 1360     		str	r3, [r2]
+ 310:main.c        **** 
+ 311:main.c        **** 
+ 312:main.c        **** // enabla interrupt
+ 313:main.c        **** 
+ 314:main.c        ****   VICIntEnable|=0x000000020;		//Enabla Timer1 som irqavbrott
+ 421              		.loc 2 314 0
+ 422 027c 2149     		ldr	r1, .L19+108
+ 423 027e 214B     		ldr	r3, .L19+108
+ 424 0280 1A68     		ldr	r2, [r3]
+ 425 0282 2023     		mov	r3, #32
+ 426 0284 1343     		orr	r3, r3, r2
+ 427 0286 0B60     		str	r3, [r1]
+ 315:main.c        **** 
+ 316:main.c        **** //*************slut ljudavbrottsinitering****************
+ 317:main.c        **** 
+ 318:main.c        **** 
+ 319:main.c        **** 
+ 320:main.c        **** 
+ 321:main.c        **** 
+ 322:main.c        ****   osDeleteProcess();
+ 428              		.loc 2 322 0
+ 429 0288 FFF7FEFF 		bl	osDeleteProcess
+ 323:main.c        **** }
+ 430              		.loc 2 323 0
+ 431 028c BD46     		mov	sp, r7
+ 432 028e 02B0     		add	sp, sp, #8
+ 433              		@ sp needed for prologue
+ 434 0290 B0BC     		pop	{r4, r5, r7}
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccTeZdSV.s 			page 15
+
+
+ 435 0292 01BC     		pop	{r0}
+ 436 0294 0047     		bx	r0
+ 437              	.L20:
+ 438 0296 0000     		.align	2
+ 439              	.L19:
+ 440 0298 08000000 		.word	.LC3
+ 441 029c 00000000 		.word	mutexLCD
+ 442 02a0 00000000 		.word	procEx1
+ 443 02a4 00000000 		.word	procEx1Stack
+ 444 02a8 00140000 		.word	pidEx1
+ 445 02ac 00000000 		.word	procEx2
+ 446 02b0 00040000 		.word	procEx2Stack
+ 447 02b4 01140000 		.word	pidEx2
+ 448 02b8 00000000 		.word	procEx3
+ 449 02bc 00080000 		.word	procEx3Stack
+ 450 02c0 02140000 		.word	pidEx3
+ 451 02c4 00000000 		.word	procStackUsage
+ 452 02c8 00100000 		.word	procStUsStack
+ 453 02cc 03140000 		.word	pidStUs
+ 454 02d0 004003E0 		.word	-536657920
+ 455 02d4 010D2001 		.word	18877697
+ 456 02d8 048000E0 		.word	-536838140
+ 457 02dc 044003E0 		.word	-536657916
+ 458 02e0 0C8000E0 		.word	-536838132
+ 459 02e4 148000E0 		.word	-536838124
+ 460 02e8 188000E0 		.word	-536838120
+ 461 02ec 4C1D0000 		.word	7500
+ 462 02f0 008000E0 		.word	-536838144
+ 463 02f4 0CF0FFFF 		.word	-4084
+ 464 02f8 1CF2FFFF 		.word	-3556
+ 465 02fc 1CF1FFFF 		.word	-3812
+ 466 0300 00000000 		.word	Timer1ISRirq
+ 467 0304 10F0FFFF 		.word	-4080
+ 468              	.LFE5:
+ 469              		.size	initProc, .-initProc
+ 470              		.align	2
+ 471              		.global	appTick
+ 472              		.code 16
+ 473              		.thumb_func
+ 474              		.type	appTick, %function
+ 475              	appTick:
+ 476              	.LFB6:
+ 324:main.c        **** 
+ 325:main.c        **** /*****************************************************************************
+ 326:main.c        ****  *
+ 327:main.c        ****  * Description:
+ 328:main.c        ****  *    The timer tick entry function that is called once every timer tick
+ 329:main.c        ****  *    interrupt in the RTOS. Observe that any processing in this
+ 330:main.c        ****  *    function must be kept as short as possible since this function
+ 331:main.c        ****  *    execute in interrupt context.
+ 332:main.c        ****  *
+ 333:main.c        ****  * Params:
+ 334:main.c        ****  *    [in] elapsedTime - The number of elapsed milliseconds since last call.
+ 335:main.c        ****  *
+ 336:main.c        ****  ****************************************************************************/
+ 337:main.c        **** void
+ 338:main.c        **** appTick(tU32 elapsedTime)
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccTeZdSV.s 			page 16
+
+
+ 339:main.c        **** {
+ 477              		.loc 2 339 0
+ 478 0308 80B5     		push	{r7, lr}
+ 479              	.LCFI11:
+ 480 030a 81B0     		sub	sp, sp, #4
+ 481              	.LCFI12:
+ 482 030c 00AF     		add	r7, sp, #0
+ 483              	.LCFI13:
+ 484 030e 3B1C     		mov	r3, r7
+ 485 0310 1860     		str	r0, [r3]
+ 340:main.c        **** }
+ 486              		.loc 2 340 0
+ 487 0312 BD46     		mov	sp, r7
+ 488 0314 01B0     		add	sp, sp, #4
+ 489              		@ sp needed for prologue
+ 490 0316 80BC     		pop	{r7}
+ 491 0318 01BC     		pop	{r0}
+ 492 031a 0047     		bx	r0
+ 493              	.LFE6:
+ 494              		.size	appTick, .-appTick
+ 495              		.bss
+ 496              	procEx1Stack:
+ 497 0000 00000000 		.space	1024
+ 497      00000000 
+ 497      00000000 
+ 497      00000000 
+ 497      00000000 
+ 498              	procEx2Stack:
+ 499 0400 00000000 		.space	1024
+ 499      00000000 
+ 499      00000000 
+ 499      00000000 
+ 499      00000000 
+ 500              	procEx3Stack:
+ 501 0800 00000000 		.space	1024
+ 501      00000000 
+ 501      00000000 
+ 501      00000000 
+ 501      00000000 
+ 502              	initStack:
+ 503 0c00 00000000 		.space	1024
+ 503      00000000 
+ 503      00000000 
+ 503      00000000 
+ 503      00000000 
+ 504              	procStUsStack:
+ 505 1000 00000000 		.space	1024
+ 505      00000000 
+ 505      00000000 
+ 505      00000000 
+ 505      00000000 
+ 506              	pidEx1:
+ 507 1400 00       		.space	1
+ 508              	pidEx2:
+ 509 1401 00       		.space	1
+ 510              	pidEx3:
+ 511 1402 00       		.space	1
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccTeZdSV.s 			page 17
+
+
+ 512              	pidStUs:
+ 513 1403 00       		.space	1
+ 514              		.comm	mutexLCD,28,4
+ 515              		.section	.debug_frame,"",%progbits
+ 516              	.Lframe0:
+ 517 0000 0C000000 		.4byte	.LECIE0-.LSCIE0
+ 518              	.LSCIE0:
+ 519 0004 FFFFFFFF 		.4byte	0xffffffff
+ 520 0008 01       		.byte	0x1
+ 521 0009 00       		.ascii	"\000"
+ 522 000a 01       		.uleb128 0x1
+ 523 000b 7C       		.sleb128 -4
+ 524 000c 0E       		.byte	0xe
+ 525 000d 0C       		.byte	0xc
+ 526 000e 0D       		.uleb128 0xd
+ 527 000f 00       		.uleb128 0x0
+ 528              		.align	2
+ 529              	.LECIE0:
+ 530              	.LSFDE0:
+ 531 0010 18000000 		.4byte	.LEFDE0-.LASFDE0
+ 532              	.LASFDE0:
+ 533 0014 00000000 		.4byte	.Lframe0
+ 534 0018 00000000 		.4byte	.LFB2
+ 535 001c 5C000000 		.4byte	.LFE2-.LFB2
+ 536 0020 42       		.byte	0x4
+ 537              		.4byte	.LCFI0-.LFB2
+ 538 0021 0E       		.byte	0xe
+ 539 0022 08       		.uleb128 0x8
+ 540 0023 87       		.byte	0x87
+ 541 0024 02       		.uleb128 0x2
+ 542 0025 8E       		.byte	0x8e
+ 543 0026 01       		.uleb128 0x1
+ 544 0027 42       		.byte	0x4
+ 545              		.4byte	.LCFI1-.LCFI0
+ 546 0028 0C       		.byte	0xc
+ 547 0029 07       		.uleb128 0x7
+ 548 002a 00       		.uleb128 0x0
+ 549 002b 00       		.align	2
+ 550              	.LEFDE0:
+ 551              	.LSFDE2:
+ 552 002c 20000000 		.4byte	.LEFDE2-.LASFDE2
+ 553              	.LASFDE2:
+ 554 0030 00000000 		.4byte	.Lframe0
+ 555 0034 5C000000 		.4byte	.LFB3
+ 556 0038 C0000000 		.4byte	.LFE3-.LFB3
+ 557 003c 42       		.byte	0x4
+ 558              		.4byte	.LCFI2-.LFB3
+ 559 003d 0E       		.byte	0xe
+ 560 003e 10       		.uleb128 0x10
+ 561 003f 84       		.byte	0x84
+ 562 0040 04       		.uleb128 0x4
+ 563 0041 85       		.byte	0x85
+ 564 0042 03       		.uleb128 0x3
+ 565 0043 87       		.byte	0x87
+ 566 0044 02       		.uleb128 0x2
+ 567 0045 8E       		.byte	0x8e
+ 568 0046 01       		.uleb128 0x1
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccTeZdSV.s 			page 18
+
+
+ 569 0047 42       		.byte	0x4
+ 570              		.4byte	.LCFI3-.LCFI2
+ 571 0048 0E       		.byte	0xe
+ 572 0049 20       		.uleb128 0x20
+ 573 004a 42       		.byte	0x4
+ 574              		.4byte	.LCFI4-.LCFI3
+ 575 004b 0C       		.byte	0xc
+ 576 004c 07       		.uleb128 0x7
+ 577 004d 14       		.uleb128 0x14
+ 578 004e 0000     		.align	2
+ 579              	.LEFDE2:
+ 580              	.LSFDE4:
+ 581 0050 1C000000 		.4byte	.LEFDE4-.LASFDE4
+ 582              	.LASFDE4:
+ 583 0054 00000000 		.4byte	.Lframe0
+ 584 0058 1C010000 		.4byte	.LFB4
+ 585 005c 18000000 		.4byte	.LFE4-.LFB4
+ 586 0060 42       		.byte	0x4
+ 587              		.4byte	.LCFI5-.LFB4
+ 588 0061 0E       		.byte	0xe
+ 589 0062 08       		.uleb128 0x8
+ 590 0063 87       		.byte	0x87
+ 591 0064 02       		.uleb128 0x2
+ 592 0065 8E       		.byte	0x8e
+ 593 0066 01       		.uleb128 0x1
+ 594 0067 42       		.byte	0x4
+ 595              		.4byte	.LCFI6-.LCFI5
+ 596 0068 0E       		.byte	0xe
+ 597 0069 0C       		.uleb128 0xc
+ 598 006a 42       		.byte	0x4
+ 599              		.4byte	.LCFI7-.LCFI6
+ 600 006b 0D       		.byte	0xd
+ 601 006c 07       		.uleb128 0x7
+ 602 006d 000000   		.align	2
+ 603              	.LEFDE4:
+ 604              	.LSFDE6:
+ 605 0070 20000000 		.4byte	.LEFDE6-.LASFDE6
+ 606              	.LASFDE6:
+ 607 0074 00000000 		.4byte	.Lframe0
+ 608 0078 34010000 		.4byte	.LFB5
+ 609 007c D4010000 		.4byte	.LFE5-.LFB5
+ 610 0080 42       		.byte	0x4
+ 611              		.4byte	.LCFI8-.LFB5
+ 612 0081 0E       		.byte	0xe
+ 613 0082 10       		.uleb128 0x10
+ 614 0083 84       		.byte	0x84
+ 615 0084 04       		.uleb128 0x4
+ 616 0085 85       		.byte	0x85
+ 617 0086 03       		.uleb128 0x3
+ 618 0087 87       		.byte	0x87
+ 619 0088 02       		.uleb128 0x2
+ 620 0089 8E       		.byte	0x8e
+ 621 008a 01       		.uleb128 0x1
+ 622 008b 42       		.byte	0x4
+ 623              		.4byte	.LCFI9-.LCFI8
+ 624 008c 0E       		.byte	0xe
+ 625 008d 24       		.uleb128 0x24
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccTeZdSV.s 			page 19
+
+
+ 626 008e 42       		.byte	0x4
+ 627              		.4byte	.LCFI10-.LCFI9
+ 628 008f 0C       		.byte	0xc
+ 629 0090 07       		.uleb128 0x7
+ 630 0091 18       		.uleb128 0x18
+ 631 0092 0000     		.align	2
+ 632              	.LEFDE6:
+ 633              	.LSFDE8:
+ 634 0094 1C000000 		.4byte	.LEFDE8-.LASFDE8
+ 635              	.LASFDE8:
+ 636 0098 00000000 		.4byte	.Lframe0
+ 637 009c 08030000 		.4byte	.LFB6
+ 638 00a0 14000000 		.4byte	.LFE6-.LFB6
+ 639 00a4 42       		.byte	0x4
+ 640              		.4byte	.LCFI11-.LFB6
+ 641 00a5 0E       		.byte	0xe
+ 642 00a6 08       		.uleb128 0x8
+ 643 00a7 87       		.byte	0x87
+ 644 00a8 02       		.uleb128 0x2
+ 645 00a9 8E       		.byte	0x8e
+ 646 00aa 01       		.uleb128 0x1
+ 647 00ab 42       		.byte	0x4
+ 648              		.4byte	.LCFI12-.LCFI11
+ 649 00ac 0E       		.byte	0xe
+ 650 00ad 0C       		.uleb128 0xc
+ 651 00ae 42       		.byte	0x4
+ 652              		.4byte	.LCFI13-.LCFI12
+ 653 00af 0D       		.byte	0xd
+ 654 00b0 07       		.uleb128 0x7
+ 655 00b1 000000   		.align	2
+ 656              	.LEFDE8:
+ 657              		.file 3 "pre_emptive_os/api/osapi.h"
+ 658              		.file 4 "pre_emptive_os/api/../api/general.h"
+ 659              		.text
+ 660              	.Letext0:
+ 661              		.section	.debug_loc,"",%progbits
+ 662              	.Ldebug_loc0:
+ 663              	.LLST0:
+ 664 0000 00000000 		.4byte	.LFB2-.Ltext0
+ 665 0004 02000000 		.4byte	.LCFI0-.Ltext0
+ 666 0008 0100     		.2byte	0x1
+ 667 000a 5D       		.byte	0x5d
+ 668 000b 02000000 		.4byte	.LCFI0-.Ltext0
+ 669 000f 04000000 		.4byte	.LCFI1-.Ltext0
+ 670 0013 0200     		.2byte	0x2
+ 671 0015 7D       		.byte	0x7d
+ 672 0016 08       		.sleb128 8
+ 673 0017 04000000 		.4byte	.LCFI1-.Ltext0
+ 674 001b 5C000000 		.4byte	.LFE2-.Ltext0
+ 675 001f 0100     		.2byte	0x1
+ 676 0021 57       		.byte	0x57
+ 677 0022 00000000 		.4byte	0x0
+ 678 0026 00000000 		.4byte	0x0
+ 679              	.LLST1:
+ 680 002a 5C000000 		.4byte	.LFB3-.Ltext0
+ 681 002e 5E000000 		.4byte	.LCFI2-.Ltext0
+ 682 0032 0100     		.2byte	0x1
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccTeZdSV.s 			page 20
+
+
+ 683 0034 5D       		.byte	0x5d
+ 684 0035 5E000000 		.4byte	.LCFI2-.Ltext0
+ 685 0039 60000000 		.4byte	.LCFI3-.Ltext0
+ 686 003d 0200     		.2byte	0x2
+ 687 003f 7D       		.byte	0x7d
+ 688 0040 10       		.sleb128 16
+ 689 0041 60000000 		.4byte	.LCFI3-.Ltext0
+ 690 0045 62000000 		.4byte	.LCFI4-.Ltext0
+ 691 0049 0200     		.2byte	0x2
+ 692 004b 7D       		.byte	0x7d
+ 693 004c 20       		.sleb128 32
+ 694 004d 62000000 		.4byte	.LCFI4-.Ltext0
+ 695 0051 1C010000 		.4byte	.LFE3-.Ltext0
+ 696 0055 0200     		.2byte	0x2
+ 697 0057 77       		.byte	0x77
+ 698 0058 14       		.sleb128 20
+ 699 0059 00000000 		.4byte	0x0
+ 700 005d 00000000 		.4byte	0x0
+ 701              	.LLST2:
+ 702 0061 1C010000 		.4byte	.LFB4-.Ltext0
+ 703 0065 1E010000 		.4byte	.LCFI5-.Ltext0
+ 704 0069 0100     		.2byte	0x1
+ 705 006b 5D       		.byte	0x5d
+ 706 006c 1E010000 		.4byte	.LCFI5-.Ltext0
+ 707 0070 20010000 		.4byte	.LCFI6-.Ltext0
+ 708 0074 0200     		.2byte	0x2
+ 709 0076 7D       		.byte	0x7d
+ 710 0077 08       		.sleb128 8
+ 711 0078 20010000 		.4byte	.LCFI6-.Ltext0
+ 712 007c 22010000 		.4byte	.LCFI7-.Ltext0
+ 713 0080 0200     		.2byte	0x2
+ 714 0082 7D       		.byte	0x7d
+ 715 0083 0C       		.sleb128 12
+ 716 0084 22010000 		.4byte	.LCFI7-.Ltext0
+ 717 0088 34010000 		.4byte	.LFE4-.Ltext0
+ 718 008c 0200     		.2byte	0x2
+ 719 008e 77       		.byte	0x77
+ 720 008f 0C       		.sleb128 12
+ 721 0090 00000000 		.4byte	0x0
+ 722 0094 00000000 		.4byte	0x0
+ 723              	.LLST3:
+ 724 0098 34010000 		.4byte	.LFB5-.Ltext0
+ 725 009c 36010000 		.4byte	.LCFI8-.Ltext0
+ 726 00a0 0100     		.2byte	0x1
+ 727 00a2 5D       		.byte	0x5d
+ 728 00a3 36010000 		.4byte	.LCFI8-.Ltext0
+ 729 00a7 38010000 		.4byte	.LCFI9-.Ltext0
+ 730 00ab 0200     		.2byte	0x2
+ 731 00ad 7D       		.byte	0x7d
+ 732 00ae 10       		.sleb128 16
+ 733 00af 38010000 		.4byte	.LCFI9-.Ltext0
+ 734 00b3 3A010000 		.4byte	.LCFI10-.Ltext0
+ 735 00b7 0200     		.2byte	0x2
+ 736 00b9 7D       		.byte	0x7d
+ 737 00ba 24       		.sleb128 36
+ 738 00bb 3A010000 		.4byte	.LCFI10-.Ltext0
+ 739 00bf 08030000 		.4byte	.LFE5-.Ltext0
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccTeZdSV.s 			page 21
+
+
+ 740 00c3 0200     		.2byte	0x2
+ 741 00c5 77       		.byte	0x77
+ 742 00c6 18       		.sleb128 24
+ 743 00c7 00000000 		.4byte	0x0
+ 744 00cb 00000000 		.4byte	0x0
+ 745              	.LLST4:
+ 746 00cf 08030000 		.4byte	.LFB6-.Ltext0
+ 747 00d3 0A030000 		.4byte	.LCFI11-.Ltext0
+ 748 00d7 0100     		.2byte	0x1
+ 749 00d9 5D       		.byte	0x5d
+ 750 00da 0A030000 		.4byte	.LCFI11-.Ltext0
+ 751 00de 0C030000 		.4byte	.LCFI12-.Ltext0
+ 752 00e2 0200     		.2byte	0x2
+ 753 00e4 7D       		.byte	0x7d
+ 754 00e5 08       		.sleb128 8
+ 755 00e6 0C030000 		.4byte	.LCFI12-.Ltext0
+ 756 00ea 0E030000 		.4byte	.LCFI13-.Ltext0
+ 757 00ee 0200     		.2byte	0x2
+ 758 00f0 7D       		.byte	0x7d
+ 759 00f1 0C       		.sleb128 12
+ 760 00f2 0E030000 		.4byte	.LCFI13-.Ltext0
+ 761 00f6 1C030000 		.4byte	.LFE6-.Ltext0
+ 762 00fa 0200     		.2byte	0x2
+ 763 00fc 77       		.byte	0x77
+ 764 00fd 0C       		.sleb128 12
+ 765 00fe 00000000 		.4byte	0x0
+ 766 0102 00000000 		.4byte	0x0
+ 767              		.section	.debug_info
+ 768 0000 34050000 		.4byte	0x534
+ 769 0004 0200     		.2byte	0x2
+ 770 0006 00000000 		.4byte	.Ldebug_abbrev0
+ 771 000a 04       		.byte	0x4
+ 772 000b 01       		.uleb128 0x1
+ 773 000c 00000000 		.4byte	.Ldebug_line0
+ 774 0010 1C030000 		.4byte	.Letext0
+ 775 0014 00000000 		.4byte	.Ltext0
+ 776 0018 474E5520 		.ascii	"GNU C 4.1.1\000"
+ 776      4320342E 
+ 776      312E3100 
+ 777 0024 01       		.byte	0x1
+ 778 0025 6D61696E 		.ascii	"main.c\000"
+ 778      2E6300
+ 779 002c 2F637967 		.ascii	"/cygdrive/c/DropBox/armprojects/Projekt12Integratio"
+ 779      64726976 
+ 779      652F632F 
+ 779      44726F70 
+ 779      426F782F 
+ 780 005f 6E00     		.ascii	"n\000"
+ 781 0061 02       		.uleb128 0x2
+ 782 0062 74553800 		.ascii	"tU8\000"
+ 783 0066 04       		.byte	0x4
+ 784 0067 47       		.byte	0x47
+ 785 0068 6C000000 		.4byte	0x6c
+ 786 006c 03       		.uleb128 0x3
+ 787 006d 756E7369 		.ascii	"unsigned char\000"
+ 787      676E6564 
+ 787      20636861 
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccTeZdSV.s 			page 22
+
+
+ 787      7200
+ 788 007b 01       		.byte	0x1
+ 789 007c 08       		.byte	0x8
+ 790 007d 02       		.uleb128 0x2
+ 791 007e 74553136 		.ascii	"tU16\000"
+ 791      00
+ 792 0083 04       		.byte	0x4
+ 793 0084 48       		.byte	0x48
+ 794 0085 89000000 		.4byte	0x89
+ 795 0089 03       		.uleb128 0x3
+ 796 008a 73686F72 		.ascii	"short unsigned int\000"
+ 796      7420756E 
+ 796      7369676E 
+ 796      65642069 
+ 796      6E7400
+ 797 009d 02       		.byte	0x2
+ 798 009e 07       		.byte	0x7
+ 799 009f 02       		.uleb128 0x2
+ 800 00a0 74553332 		.ascii	"tU32\000"
+ 800      00
+ 801 00a5 04       		.byte	0x4
+ 802 00a6 49       		.byte	0x49
+ 803 00a7 AB000000 		.4byte	0xab
+ 804 00ab 03       		.uleb128 0x3
+ 805 00ac 756E7369 		.ascii	"unsigned int\000"
+ 805      676E6564 
+ 805      20696E74 
+ 805      00
+ 806 00b9 04       		.byte	0x4
+ 807 00ba 07       		.byte	0x7
+ 808 00bb 03       		.uleb128 0x3
+ 809 00bc 7369676E 		.ascii	"signed char\000"
+ 809      65642063 
+ 809      68617200 
+ 810 00c8 01       		.byte	0x1
+ 811 00c9 06       		.byte	0x6
+ 812 00ca 03       		.uleb128 0x3
+ 813 00cb 73686F72 		.ascii	"short int\000"
+ 813      7420696E 
+ 813      7400
+ 814 00d5 02       		.byte	0x2
+ 815 00d6 05       		.byte	0x5
+ 816 00d7 03       		.uleb128 0x3
+ 817 00d8 696E7400 		.ascii	"int\000"
+ 818 00dc 04       		.byte	0x4
+ 819 00dd 05       		.byte	0x5
+ 820 00de 04       		.uleb128 0x4
+ 821 00df F3010000 		.4byte	0x1f3
+ 822 00e3 5F744F53 		.ascii	"_tOSPCB__\000"
+ 822      5043425F 
+ 822      5F00
+ 823 00ed 28       		.byte	0x28
+ 824 00ee 03       		.byte	0x3
+ 825 00ef 58       		.byte	0x58
+ 826 00f0 05       		.uleb128 0x5
+ 827 00f1 7053746B 		.ascii	"pStk\000"
+ 827      00
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccTeZdSV.s 			page 23
+
+
+ 828 00f6 03       		.byte	0x3
+ 829 00f7 59       		.byte	0x59
+ 830 00f8 F3010000 		.4byte	0x1f3
+ 831 00fc 02       		.byte	0x2
+ 832 00fd 23       		.byte	0x23
+ 833 00fe 00       		.uleb128 0x0
+ 834 00ff 05       		.uleb128 0x5
+ 835 0100 704E6578 		.ascii	"pNextPrioQueueReady\000"
+ 835      74507269 
+ 835      6F517565 
+ 835      75655265 
+ 835      61647900 
+ 836 0114 03       		.byte	0x3
+ 837 0115 5A       		.byte	0x5a
+ 838 0116 F9010000 		.4byte	0x1f9
+ 839 011a 02       		.byte	0x2
+ 840 011b 23       		.byte	0x23
+ 841 011c 04       		.uleb128 0x4
+ 842 011d 05       		.uleb128 0x5
+ 843 011e 70507265 		.ascii	"pPrevPrioQueueReady\000"
+ 843      76507269 
+ 843      6F517565 
+ 843      75655265 
+ 843      61647900 
+ 844 0132 03       		.byte	0x3
+ 845 0133 5B       		.byte	0x5b
+ 846 0134 F9010000 		.4byte	0x1f9
+ 847 0138 02       		.byte	0x2
+ 848 0139 23       		.byte	0x23
+ 849 013a 08       		.uleb128 0x8
+ 850 013b 05       		.uleb128 0x5
+ 851 013c 704E6578 		.ascii	"pNextPrioQueueEvent\000"
+ 851      74507269 
+ 851      6F517565 
+ 851      75654576 
+ 851      656E7400 
+ 852 0150 03       		.byte	0x3
+ 853 0151 5C       		.byte	0x5c
+ 854 0152 F9010000 		.4byte	0x1f9
+ 855 0156 02       		.byte	0x2
+ 856 0157 23       		.byte	0x23
+ 857 0158 0C       		.uleb128 0xc
+ 858 0159 05       		.uleb128 0x5
+ 859 015a 70507265 		.ascii	"pPrevPrioQueueEvent\000"
+ 859      76507269 
+ 859      6F517565 
+ 859      75654576 
+ 859      656E7400 
+ 860 016e 03       		.byte	0x3
+ 861 016f 5D       		.byte	0x5d
+ 862 0170 F9010000 		.4byte	0x1f9
+ 863 0174 02       		.byte	0x2
+ 864 0175 23       		.byte	0x23
+ 865 0176 10       		.uleb128 0x10
+ 866 0177 05       		.uleb128 0x5
+ 867 0178 704E6578 		.ascii	"pNextTimeQueue\000"
+ 867      7454696D 
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccTeZdSV.s 			page 24
+
+
+ 867      65517565 
+ 867      756500
+ 868 0187 03       		.byte	0x3
+ 869 0188 5E       		.byte	0x5e
+ 870 0189 F9010000 		.4byte	0x1f9
+ 871 018d 02       		.byte	0x2
+ 872 018e 23       		.byte	0x23
+ 873 018f 14       		.uleb128 0x14
+ 874 0190 05       		.uleb128 0x5
+ 875 0191 70696400 		.ascii	"pid\000"
+ 876 0195 03       		.byte	0x3
+ 877 0196 5F       		.byte	0x5f
+ 878 0197 61000000 		.4byte	0x61
+ 879 019b 02       		.byte	0x2
+ 880 019c 23       		.byte	0x23
+ 881 019d 18       		.uleb128 0x18
+ 882 019e 05       		.uleb128 0x5
+ 883 019f 7072696F 		.ascii	"prio\000"
+ 883      00
+ 884 01a4 03       		.byte	0x3
+ 885 01a5 60       		.byte	0x60
+ 886 01a6 61000000 		.4byte	0x61
+ 887 01aa 02       		.byte	0x2
+ 888 01ab 23       		.byte	0x23
+ 889 01ac 19       		.uleb128 0x19
+ 890 01ad 05       		.uleb128 0x5
+ 891 01ae 666C6167 		.ascii	"flag\000"
+ 891      00
+ 892 01b3 03       		.byte	0x3
+ 893 01b4 61       		.byte	0x61
+ 894 01b5 61000000 		.4byte	0x61
+ 895 01b9 02       		.byte	0x2
+ 896 01ba 23       		.byte	0x23
+ 897 01bb 1A       		.uleb128 0x1a
+ 898 01bc 05       		.uleb128 0x5
+ 899 01bd 736C6565 		.ascii	"sleep\000"
+ 899      7000
+ 900 01c3 03       		.byte	0x3
+ 901 01c4 62       		.byte	0x62
+ 902 01c5 9F000000 		.4byte	0x9f
+ 903 01c9 02       		.byte	0x2
+ 904 01ca 23       		.byte	0x23
+ 905 01cb 1C       		.uleb128 0x1c
+ 906 01cc 05       		.uleb128 0x5
+ 907 01cd 7053746B 		.ascii	"pStkOrg\000"
+ 907      4F726700 
+ 908 01d5 03       		.byte	0x3
+ 909 01d6 65       		.byte	0x65
+ 910 01d7 F3010000 		.4byte	0x1f3
+ 911 01db 02       		.byte	0x2
+ 912 01dc 23       		.byte	0x23
+ 913 01dd 20       		.uleb128 0x20
+ 914 01de 05       		.uleb128 0x5
+ 915 01df 73746163 		.ascii	"stackSize\000"
+ 915      6B53697A 
+ 915      6500
+ 916 01e9 03       		.byte	0x3
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccTeZdSV.s 			page 25
+
+
+ 917 01ea 66       		.byte	0x66
+ 918 01eb 7D000000 		.4byte	0x7d
+ 919 01ef 02       		.byte	0x2
+ 920 01f0 23       		.byte	0x23
+ 921 01f1 24       		.uleb128 0x24
+ 922 01f2 00       		.byte	0x0
+ 923 01f3 06       		.uleb128 0x6
+ 924 01f4 04       		.byte	0x4
+ 925 01f5 61000000 		.4byte	0x61
+ 926 01f9 06       		.uleb128 0x6
+ 927 01fa 04       		.byte	0x4
+ 928 01fb DE000000 		.4byte	0xde
+ 929 01ff 02       		.uleb128 0x2
+ 930 0200 744F5350 		.ascii	"tOSPCB\000"
+ 930      434200
+ 931 0207 03       		.byte	0x3
+ 932 0208 68       		.byte	0x68
+ 933 0209 DE000000 		.4byte	0xde
+ 934 020d 04       		.uleb128 0x4
+ 935 020e 47020000 		.4byte	0x247
+ 936 0212 5F745072 		.ascii	"_tPrioQueue_\000"
+ 936      696F5175 
+ 936      6575655F 
+ 936      00
+ 937 021f 18       		.byte	0x18
+ 938 0220 03       		.byte	0x3
+ 939 0221 70       		.byte	0x70
+ 940 0222 05       		.uleb128 0x5
+ 941 0223 70507269 		.ascii	"pPrioList\000"
+ 941      6F4C6973 
+ 941      7400
+ 942 022d 03       		.byte	0x3
+ 943 022e 71       		.byte	0x71
+ 944 022f 47020000 		.4byte	0x247
+ 945 0233 02       		.byte	0x2
+ 946 0234 23       		.byte	0x23
+ 947 0235 00       		.uleb128 0x0
+ 948 0236 05       		.uleb128 0x5
+ 949 0237 70504342 		.ascii	"pPCBs\000"
+ 949      7300
+ 950 023d 03       		.byte	0x3
+ 951 023e 72       		.byte	0x72
+ 952 023f 6C020000 		.4byte	0x26c
+ 953 0243 02       		.byte	0x2
+ 954 0244 23       		.byte	0x23
+ 955 0245 14       		.uleb128 0x14
+ 956 0246 00       		.byte	0x0
+ 957 0247 07       		.uleb128 0x7
+ 958 0248 57020000 		.4byte	0x257
+ 959 024c 6C020000 		.4byte	0x26c
+ 960 0250 08       		.uleb128 0x8
+ 961 0251 57020000 		.4byte	0x257
+ 962 0255 04       		.byte	0x4
+ 963 0256 00       		.byte	0x0
+ 964 0257 03       		.uleb128 0x3
+ 965 0258 6C6F6E67 		.ascii	"long unsigned int\000"
+ 965      20756E73 
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccTeZdSV.s 			page 26
+
+
+ 965      69676E65 
+ 965      6420696E 
+ 965      7400
+ 966 026a 04       		.byte	0x4
+ 967 026b 07       		.byte	0x7
+ 968 026c 06       		.uleb128 0x6
+ 969 026d 04       		.byte	0x4
+ 970 026e FF010000 		.4byte	0x1ff
+ 971 0272 02       		.uleb128 0x2
+ 972 0273 74507269 		.ascii	"tPrioQueue\000"
+ 972      6F517565 
+ 972      756500
+ 973 027e 03       		.byte	0x3
+ 974 027f 73       		.byte	0x73
+ 975 0280 0D020000 		.4byte	0x20d
+ 976 0284 04       		.uleb128 0x4
+ 977 0285 A8020000 		.4byte	0x2a8
+ 978 0289 5F744F53 		.ascii	"_tOSEvent_\000"
+ 978      4576656E 
+ 978      745F00
+ 979 0294 18       		.byte	0x18
+ 980 0295 03       		.byte	0x3
+ 981 0296 76       		.byte	0x76
+ 982 0297 05       		.uleb128 0x5
+ 983 0298 77616974 		.ascii	"waitQ\000"
+ 983      5100
+ 984 029e 03       		.byte	0x3
+ 985 029f 77       		.byte	0x77
+ 986 02a0 72020000 		.4byte	0x272
+ 987 02a4 02       		.byte	0x2
+ 988 02a5 23       		.byte	0x23
+ 989 02a6 00       		.uleb128 0x0
+ 990 02a7 00       		.byte	0x0
+ 991 02a8 02       		.uleb128 0x2
+ 992 02a9 744F5345 		.ascii	"tOSEvent\000"
+ 992      76656E74 
+ 992      00
+ 993 02b2 03       		.byte	0x3
+ 994 02b3 78       		.byte	0x78
+ 995 02b4 84020000 		.4byte	0x284
+ 996 02b8 04       		.uleb128 0x4
+ 997 02b9 E6020000 		.4byte	0x2e6
+ 998 02bd 5F74436E 		.ascii	"_tCntSem_\000"
+ 998      7453656D 
+ 998      5F00
+ 999 02c7 1C       		.byte	0x1c
+ 1000 02c8 03       		.byte	0x3
+ 1001 02c9 7B       		.byte	0x7b
+ 1002 02ca 05       		.uleb128 0x5
+ 1003 02cb 657600   		.ascii	"ev\000"
+ 1004 02ce 03       		.byte	0x3
+ 1005 02cf 7C       		.byte	0x7c
+ 1006 02d0 A8020000 		.4byte	0x2a8
+ 1007 02d4 02       		.byte	0x2
+ 1008 02d5 23       		.byte	0x23
+ 1009 02d6 00       		.uleb128 0x0
+ 1010 02d7 05       		.uleb128 0x5
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccTeZdSV.s 			page 27
+
+
+ 1011 02d8 636E7400 		.ascii	"cnt\000"
+ 1012 02dc 03       		.byte	0x3
+ 1013 02dd 7D       		.byte	0x7d
+ 1014 02de 7D000000 		.4byte	0x7d
+ 1015 02e2 02       		.byte	0x2
+ 1016 02e3 23       		.byte	0x23
+ 1017 02e4 18       		.uleb128 0x18
+ 1018 02e5 00       		.byte	0x0
+ 1019 02e6 02       		.uleb128 0x2
+ 1020 02e7 74436E74 		.ascii	"tCntSem\000"
+ 1020      53656D00 
+ 1021 02ef 03       		.byte	0x3
+ 1022 02f0 7F       		.byte	0x7f
+ 1023 02f1 B8020000 		.4byte	0x2b8
+ 1024 02f5 09       		.uleb128 0x9
+ 1025 02f6 04       		.byte	0x4
+ 1026 02f7 0A       		.uleb128 0xa
+ 1027 02f8 01       		.byte	0x1
+ 1028 02f9 696E6974 		.ascii	"initLightSwitchPins\000"
+ 1028      4C696768 
+ 1028      74537769 
+ 1028      74636850 
+ 1028      696E7300 
+ 1029 030d 01       		.byte	0x1
+ 1030 030e 15       		.byte	0x15
+ 1031 030f 00000000 		.4byte	.LFB2
+ 1032 0313 5C000000 		.4byte	.LFE2
+ 1033 0317 00000000 		.4byte	.LLST0
+ 1034 031b 0B       		.uleb128 0xb
+ 1035 031c 58030000 		.4byte	0x358
+ 1036 0320 01       		.byte	0x1
+ 1037 0321 6D61696E 		.ascii	"main\000"
+ 1037      00
+ 1038 0326 02       		.byte	0x2
+ 1039 0327 A4       		.byte	0xa4
+ 1040 0328 01       		.byte	0x1
+ 1041 0329 D7000000 		.4byte	0xd7
+ 1042 032d 5C000000 		.4byte	.LFB3
+ 1043 0331 1C010000 		.4byte	.LFE3
+ 1044 0335 2A000000 		.4byte	.LLST1
+ 1045 0339 0C       		.uleb128 0xc
+ 1046 033a 6572726F 		.ascii	"error\000"
+ 1046      7200
+ 1047 0340 02       		.byte	0x2
+ 1048 0341 A5       		.byte	0xa5
+ 1049 0342 6C000000 		.4byte	0x6c
+ 1050 0346 02       		.byte	0x2
+ 1051 0347 91       		.byte	0x91
+ 1052 0348 6F       		.sleb128 -17
+ 1053 0349 0C       		.uleb128 0xc
+ 1054 034a 70696400 		.ascii	"pid\000"
+ 1055 034e 02       		.byte	0x2
+ 1056 034f A6       		.byte	0xa6
+ 1057 0350 6C000000 		.4byte	0x6c
+ 1058 0354 02       		.byte	0x2
+ 1059 0355 91       		.byte	0x91
+ 1060 0356 6E       		.sleb128 -18
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccTeZdSV.s 			page 28
+
+
+ 1061 0357 00       		.byte	0x0
+ 1062 0358 0D       		.uleb128 0xd
+ 1063 0359 8A030000 		.4byte	0x38a
+ 1064 035d 70726F63 		.ascii	"procStackUsage\000"
+ 1064      53746163 
+ 1064      6B557361 
+ 1064      676500
+ 1065 036c 02       		.byte	0x2
+ 1066 036d E1       		.byte	0xe1
+ 1067 036e 01       		.byte	0x1
+ 1068 036f 1C010000 		.4byte	.LFB4
+ 1069 0373 34010000 		.4byte	.LFE4
+ 1070 0377 61000000 		.4byte	.LLST2
+ 1071 037b 0E       		.uleb128 0xe
+ 1072 037c 61726700 		.ascii	"arg\000"
+ 1073 0380 02       		.byte	0x2
+ 1074 0381 E0       		.byte	0xe0
+ 1075 0382 F5020000 		.4byte	0x2f5
+ 1076 0386 02       		.byte	0x2
+ 1077 0387 91       		.byte	0x91
+ 1078 0388 74       		.sleb128 -12
+ 1079 0389 00       		.byte	0x0
+ 1080 038a 0D       		.uleb128 0xd
+ 1081 038b C6030000 		.4byte	0x3c6
+ 1082 038f 696E6974 		.ascii	"initProc\000"
+ 1082      50726F63 
+ 1082      00
+ 1083 0398 02       		.byte	0x2
+ 1084 0399 F4       		.byte	0xf4
+ 1085 039a 01       		.byte	0x1
+ 1086 039b 34010000 		.4byte	.LFB5
+ 1087 039f 08030000 		.4byte	.LFE5
+ 1088 03a3 98000000 		.4byte	.LLST3
+ 1089 03a7 0E       		.uleb128 0xe
+ 1090 03a8 61726700 		.ascii	"arg\000"
+ 1091 03ac 02       		.byte	0x2
+ 1092 03ad F3       		.byte	0xf3
+ 1093 03ae F5020000 		.4byte	0x2f5
+ 1094 03b2 02       		.byte	0x2
+ 1095 03b3 91       		.byte	0x91
+ 1096 03b4 68       		.sleb128 -24
+ 1097 03b5 0C       		.uleb128 0xc
+ 1098 03b6 6572726F 		.ascii	"error\000"
+ 1098      7200
+ 1099 03bc 02       		.byte	0x2
+ 1100 03bd F5       		.byte	0xf5
+ 1101 03be 6C000000 		.4byte	0x6c
+ 1102 03c2 02       		.byte	0x2
+ 1103 03c3 91       		.byte	0x91
+ 1104 03c4 6F       		.sleb128 -17
+ 1105 03c5 00       		.byte	0x0
+ 1106 03c6 0F       		.uleb128 0xf
+ 1107 03c7 FC030000 		.4byte	0x3fc
+ 1108 03cb 01       		.byte	0x1
+ 1109 03cc 61707054 		.ascii	"appTick\000"
+ 1109      69636B00 
+ 1110 03d4 02       		.byte	0x2
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccTeZdSV.s 			page 29
+
+
+ 1111 03d5 5301     		.2byte	0x153
+ 1112 03d7 01       		.byte	0x1
+ 1113 03d8 08030000 		.4byte	.LFB6
+ 1114 03dc 1C030000 		.4byte	.LFE6
+ 1115 03e0 CF000000 		.4byte	.LLST4
+ 1116 03e4 10       		.uleb128 0x10
+ 1117 03e5 656C6170 		.ascii	"elapsedTime\000"
+ 1117      73656454 
+ 1117      696D6500 
+ 1118 03f1 02       		.byte	0x2
+ 1119 03f2 5201     		.2byte	0x152
+ 1120 03f4 AB000000 		.4byte	0xab
+ 1121 03f8 02       		.byte	0x2
+ 1122 03f9 91       		.byte	0x91
+ 1123 03fa 74       		.sleb128 -12
+ 1124 03fb 00       		.byte	0x0
+ 1125 03fc 07       		.uleb128 0x7
+ 1126 03fd 0D040000 		.4byte	0x40d
+ 1127 0401 6C000000 		.4byte	0x6c
+ 1128 0405 11       		.uleb128 0x11
+ 1129 0406 57020000 		.4byte	0x257
+ 1130 040a FF03     		.2byte	0x3ff
+ 1131 040c 00       		.byte	0x0
+ 1132 040d 0C       		.uleb128 0xc
+ 1133 040e 70726F63 		.ascii	"procEx1Stack\000"
+ 1133      45783153 
+ 1133      7461636B 
+ 1133      00
+ 1134 041b 02       		.byte	0x2
+ 1135 041c 39       		.byte	0x39
+ 1136 041d FC030000 		.4byte	0x3fc
+ 1137 0421 05       		.byte	0x5
+ 1138 0422 03       		.byte	0x3
+ 1139 0423 00000000 		.4byte	procEx1Stack
+ 1140 0427 0C       		.uleb128 0xc
+ 1141 0428 70726F63 		.ascii	"procEx2Stack\000"
+ 1141      45783253 
+ 1141      7461636B 
+ 1141      00
+ 1142 0435 02       		.byte	0x2
+ 1143 0436 3A       		.byte	0x3a
+ 1144 0437 FC030000 		.4byte	0x3fc
+ 1145 043b 05       		.byte	0x5
+ 1146 043c 03       		.byte	0x3
+ 1147 043d 00040000 		.4byte	procEx2Stack
+ 1148 0441 0C       		.uleb128 0xc
+ 1149 0442 70726F63 		.ascii	"procEx3Stack\000"
+ 1149      45783353 
+ 1149      7461636B 
+ 1149      00
+ 1150 044f 02       		.byte	0x2
+ 1151 0450 3B       		.byte	0x3b
+ 1152 0451 FC030000 		.4byte	0x3fc
+ 1153 0455 05       		.byte	0x5
+ 1154 0456 03       		.byte	0x3
+ 1155 0457 00080000 		.4byte	procEx3Stack
+ 1156 045b 0C       		.uleb128 0xc
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccTeZdSV.s 			page 30
+
+
+ 1157 045c 696E6974 		.ascii	"initStack\000"
+ 1157      53746163 
+ 1157      6B00
+ 1158 0466 02       		.byte	0x2
+ 1159 0467 3D       		.byte	0x3d
+ 1160 0468 FC030000 		.4byte	0x3fc
+ 1161 046c 05       		.byte	0x5
+ 1162 046d 03       		.byte	0x3
+ 1163 046e 000C0000 		.4byte	initStack
+ 1164 0472 0C       		.uleb128 0xc
+ 1165 0473 70726F63 		.ascii	"procStUsStack\000"
+ 1165      53745573 
+ 1165      53746163 
+ 1165      6B00
+ 1166 0481 02       		.byte	0x2
+ 1167 0482 3E       		.byte	0x3e
+ 1168 0483 FC030000 		.4byte	0x3fc
+ 1169 0487 05       		.byte	0x5
+ 1170 0488 03       		.byte	0x3
+ 1171 0489 00100000 		.4byte	procStUsStack
+ 1172 048d 0C       		.uleb128 0xc
+ 1173 048e 70696445 		.ascii	"pidEx1\000"
+ 1173      783100
+ 1174 0495 02       		.byte	0x2
+ 1175 0496 40       		.byte	0x40
+ 1176 0497 6C000000 		.4byte	0x6c
+ 1177 049b 05       		.byte	0x5
+ 1178 049c 03       		.byte	0x3
+ 1179 049d 00140000 		.4byte	pidEx1
+ 1180 04a1 0C       		.uleb128 0xc
+ 1181 04a2 70696445 		.ascii	"pidEx2\000"
+ 1181      783200
+ 1182 04a9 02       		.byte	0x2
+ 1183 04aa 41       		.byte	0x41
+ 1184 04ab 6C000000 		.4byte	0x6c
+ 1185 04af 05       		.byte	0x5
+ 1186 04b0 03       		.byte	0x3
+ 1187 04b1 01140000 		.4byte	pidEx2
+ 1188 04b5 0C       		.uleb128 0xc
+ 1189 04b6 70696445 		.ascii	"pidEx3\000"
+ 1189      783300
+ 1190 04bd 02       		.byte	0x2
+ 1191 04be 42       		.byte	0x42
+ 1192 04bf 6C000000 		.4byte	0x6c
+ 1193 04c3 05       		.byte	0x5
+ 1194 04c4 03       		.byte	0x3
+ 1195 04c5 02140000 		.4byte	pidEx3
+ 1196 04c9 0C       		.uleb128 0xc
+ 1197 04ca 70696453 		.ascii	"pidStUs\000"
+ 1197      74557300 
+ 1198 04d2 02       		.byte	0x2
+ 1199 04d3 44       		.byte	0x44
+ 1200 04d4 6C000000 		.4byte	0x6c
+ 1201 04d8 05       		.byte	0x5
+ 1202 04d9 03       		.byte	0x3
+ 1203 04da 03140000 		.4byte	pidStUs
+ 1204 04de 12       		.uleb128 0x12
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccTeZdSV.s 			page 31
+
+
+ 1205 04df 64656C61 		.ascii	"delayshort\000"
+ 1205      7973686F 
+ 1205      727400
+ 1206 04ea 02       		.byte	0x2
+ 1207 04eb 63       		.byte	0x63
+ 1208 04ec F7040000 		.4byte	0x4f7
+ 1209 04f0 01       		.byte	0x1
+ 1210 04f1 05       		.byte	0x5
+ 1211 04f2 03       		.byte	0x3
+ 1212 04f3 00000000 		.4byte	delayshort
+ 1213 04f7 13       		.uleb128 0x13
+ 1214 04f8 FC040000 		.4byte	0x4fc
+ 1215 04fc 03       		.uleb128 0x3
+ 1216 04fd 6C6F6E67 		.ascii	"long int\000"
+ 1216      20696E74 
+ 1216      00
+ 1217 0506 04       		.byte	0x4
+ 1218 0507 05       		.byte	0x5
+ 1219 0508 12       		.uleb128 0x12
+ 1220 0509 64656C61 		.ascii	"delaylong\000"
+ 1220      796C6F6E 
+ 1220      6700
+ 1221 0513 02       		.byte	0x2
+ 1222 0514 64       		.byte	0x64
+ 1223 0515 F7040000 		.4byte	0x4f7
+ 1224 0519 01       		.byte	0x1
+ 1225 051a 05       		.byte	0x5
+ 1226 051b 03       		.byte	0x3
+ 1227 051c 00000000 		.4byte	delaylong
+ 1228 0520 12       		.uleb128 0x12
+ 1229 0521 6D757465 		.ascii	"mutexLCD\000"
+ 1229      784C4344 
+ 1229      00
+ 1230 052a 02       		.byte	0x2
+ 1231 052b 74       		.byte	0x74
+ 1232 052c E6020000 		.4byte	0x2e6
+ 1233 0530 01       		.byte	0x1
+ 1234 0531 05       		.byte	0x5
+ 1235 0532 03       		.byte	0x3
+ 1236 0533 00000000 		.4byte	mutexLCD
+ 1237 0537 00       		.byte	0x0
+ 1238              		.section	.debug_abbrev
+ 1239 0000 01       		.uleb128 0x1
+ 1240 0001 11       		.uleb128 0x11
+ 1241 0002 01       		.byte	0x1
+ 1242 0003 10       		.uleb128 0x10
+ 1243 0004 06       		.uleb128 0x6
+ 1244 0005 12       		.uleb128 0x12
+ 1245 0006 01       		.uleb128 0x1
+ 1246 0007 11       		.uleb128 0x11
+ 1247 0008 01       		.uleb128 0x1
+ 1248 0009 25       		.uleb128 0x25
+ 1249 000a 08       		.uleb128 0x8
+ 1250 000b 13       		.uleb128 0x13
+ 1251 000c 0B       		.uleb128 0xb
+ 1252 000d 03       		.uleb128 0x3
+ 1253 000e 08       		.uleb128 0x8
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccTeZdSV.s 			page 32
+
+
+ 1254 000f 1B       		.uleb128 0x1b
+ 1255 0010 08       		.uleb128 0x8
+ 1256 0011 00       		.byte	0x0
+ 1257 0012 00       		.byte	0x0
+ 1258 0013 02       		.uleb128 0x2
+ 1259 0014 16       		.uleb128 0x16
+ 1260 0015 00       		.byte	0x0
+ 1261 0016 03       		.uleb128 0x3
+ 1262 0017 08       		.uleb128 0x8
+ 1263 0018 3A       		.uleb128 0x3a
+ 1264 0019 0B       		.uleb128 0xb
+ 1265 001a 3B       		.uleb128 0x3b
+ 1266 001b 0B       		.uleb128 0xb
+ 1267 001c 49       		.uleb128 0x49
+ 1268 001d 13       		.uleb128 0x13
+ 1269 001e 00       		.byte	0x0
+ 1270 001f 00       		.byte	0x0
+ 1271 0020 03       		.uleb128 0x3
+ 1272 0021 24       		.uleb128 0x24
+ 1273 0022 00       		.byte	0x0
+ 1274 0023 03       		.uleb128 0x3
+ 1275 0024 08       		.uleb128 0x8
+ 1276 0025 0B       		.uleb128 0xb
+ 1277 0026 0B       		.uleb128 0xb
+ 1278 0027 3E       		.uleb128 0x3e
+ 1279 0028 0B       		.uleb128 0xb
+ 1280 0029 00       		.byte	0x0
+ 1281 002a 00       		.byte	0x0
+ 1282 002b 04       		.uleb128 0x4
+ 1283 002c 13       		.uleb128 0x13
+ 1284 002d 01       		.byte	0x1
+ 1285 002e 01       		.uleb128 0x1
+ 1286 002f 13       		.uleb128 0x13
+ 1287 0030 03       		.uleb128 0x3
+ 1288 0031 08       		.uleb128 0x8
+ 1289 0032 0B       		.uleb128 0xb
+ 1290 0033 0B       		.uleb128 0xb
+ 1291 0034 3A       		.uleb128 0x3a
+ 1292 0035 0B       		.uleb128 0xb
+ 1293 0036 3B       		.uleb128 0x3b
+ 1294 0037 0B       		.uleb128 0xb
+ 1295 0038 00       		.byte	0x0
+ 1296 0039 00       		.byte	0x0
+ 1297 003a 05       		.uleb128 0x5
+ 1298 003b 0D       		.uleb128 0xd
+ 1299 003c 00       		.byte	0x0
+ 1300 003d 03       		.uleb128 0x3
+ 1301 003e 08       		.uleb128 0x8
+ 1302 003f 3A       		.uleb128 0x3a
+ 1303 0040 0B       		.uleb128 0xb
+ 1304 0041 3B       		.uleb128 0x3b
+ 1305 0042 0B       		.uleb128 0xb
+ 1306 0043 49       		.uleb128 0x49
+ 1307 0044 13       		.uleb128 0x13
+ 1308 0045 38       		.uleb128 0x38
+ 1309 0046 0A       		.uleb128 0xa
+ 1310 0047 00       		.byte	0x0
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccTeZdSV.s 			page 33
+
+
+ 1311 0048 00       		.byte	0x0
+ 1312 0049 06       		.uleb128 0x6
+ 1313 004a 0F       		.uleb128 0xf
+ 1314 004b 00       		.byte	0x0
+ 1315 004c 0B       		.uleb128 0xb
+ 1316 004d 0B       		.uleb128 0xb
+ 1317 004e 49       		.uleb128 0x49
+ 1318 004f 13       		.uleb128 0x13
+ 1319 0050 00       		.byte	0x0
+ 1320 0051 00       		.byte	0x0
+ 1321 0052 07       		.uleb128 0x7
+ 1322 0053 01       		.uleb128 0x1
+ 1323 0054 01       		.byte	0x1
+ 1324 0055 01       		.uleb128 0x1
+ 1325 0056 13       		.uleb128 0x13
+ 1326 0057 49       		.uleb128 0x49
+ 1327 0058 13       		.uleb128 0x13
+ 1328 0059 00       		.byte	0x0
+ 1329 005a 00       		.byte	0x0
+ 1330 005b 08       		.uleb128 0x8
+ 1331 005c 21       		.uleb128 0x21
+ 1332 005d 00       		.byte	0x0
+ 1333 005e 49       		.uleb128 0x49
+ 1334 005f 13       		.uleb128 0x13
+ 1335 0060 2F       		.uleb128 0x2f
+ 1336 0061 0B       		.uleb128 0xb
+ 1337 0062 00       		.byte	0x0
+ 1338 0063 00       		.byte	0x0
+ 1339 0064 09       		.uleb128 0x9
+ 1340 0065 0F       		.uleb128 0xf
+ 1341 0066 00       		.byte	0x0
+ 1342 0067 0B       		.uleb128 0xb
+ 1343 0068 0B       		.uleb128 0xb
+ 1344 0069 00       		.byte	0x0
+ 1345 006a 00       		.byte	0x0
+ 1346 006b 0A       		.uleb128 0xa
+ 1347 006c 2E       		.uleb128 0x2e
+ 1348 006d 00       		.byte	0x0
+ 1349 006e 3F       		.uleb128 0x3f
+ 1350 006f 0C       		.uleb128 0xc
+ 1351 0070 03       		.uleb128 0x3
+ 1352 0071 08       		.uleb128 0x8
+ 1353 0072 3A       		.uleb128 0x3a
+ 1354 0073 0B       		.uleb128 0xb
+ 1355 0074 3B       		.uleb128 0x3b
+ 1356 0075 0B       		.uleb128 0xb
+ 1357 0076 11       		.uleb128 0x11
+ 1358 0077 01       		.uleb128 0x1
+ 1359 0078 12       		.uleb128 0x12
+ 1360 0079 01       		.uleb128 0x1
+ 1361 007a 40       		.uleb128 0x40
+ 1362 007b 06       		.uleb128 0x6
+ 1363 007c 00       		.byte	0x0
+ 1364 007d 00       		.byte	0x0
+ 1365 007e 0B       		.uleb128 0xb
+ 1366 007f 2E       		.uleb128 0x2e
+ 1367 0080 01       		.byte	0x1
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccTeZdSV.s 			page 34
+
+
+ 1368 0081 01       		.uleb128 0x1
+ 1369 0082 13       		.uleb128 0x13
+ 1370 0083 3F       		.uleb128 0x3f
+ 1371 0084 0C       		.uleb128 0xc
+ 1372 0085 03       		.uleb128 0x3
+ 1373 0086 08       		.uleb128 0x8
+ 1374 0087 3A       		.uleb128 0x3a
+ 1375 0088 0B       		.uleb128 0xb
+ 1376 0089 3B       		.uleb128 0x3b
+ 1377 008a 0B       		.uleb128 0xb
+ 1378 008b 27       		.uleb128 0x27
+ 1379 008c 0C       		.uleb128 0xc
+ 1380 008d 49       		.uleb128 0x49
+ 1381 008e 13       		.uleb128 0x13
+ 1382 008f 11       		.uleb128 0x11
+ 1383 0090 01       		.uleb128 0x1
+ 1384 0091 12       		.uleb128 0x12
+ 1385 0092 01       		.uleb128 0x1
+ 1386 0093 40       		.uleb128 0x40
+ 1387 0094 06       		.uleb128 0x6
+ 1388 0095 00       		.byte	0x0
+ 1389 0096 00       		.byte	0x0
+ 1390 0097 0C       		.uleb128 0xc
+ 1391 0098 34       		.uleb128 0x34
+ 1392 0099 00       		.byte	0x0
+ 1393 009a 03       		.uleb128 0x3
+ 1394 009b 08       		.uleb128 0x8
+ 1395 009c 3A       		.uleb128 0x3a
+ 1396 009d 0B       		.uleb128 0xb
+ 1397 009e 3B       		.uleb128 0x3b
+ 1398 009f 0B       		.uleb128 0xb
+ 1399 00a0 49       		.uleb128 0x49
+ 1400 00a1 13       		.uleb128 0x13
+ 1401 00a2 02       		.uleb128 0x2
+ 1402 00a3 0A       		.uleb128 0xa
+ 1403 00a4 00       		.byte	0x0
+ 1404 00a5 00       		.byte	0x0
+ 1405 00a6 0D       		.uleb128 0xd
+ 1406 00a7 2E       		.uleb128 0x2e
+ 1407 00a8 01       		.byte	0x1
+ 1408 00a9 01       		.uleb128 0x1
+ 1409 00aa 13       		.uleb128 0x13
+ 1410 00ab 03       		.uleb128 0x3
+ 1411 00ac 08       		.uleb128 0x8
+ 1412 00ad 3A       		.uleb128 0x3a
+ 1413 00ae 0B       		.uleb128 0xb
+ 1414 00af 3B       		.uleb128 0x3b
+ 1415 00b0 0B       		.uleb128 0xb
+ 1416 00b1 27       		.uleb128 0x27
+ 1417 00b2 0C       		.uleb128 0xc
+ 1418 00b3 11       		.uleb128 0x11
+ 1419 00b4 01       		.uleb128 0x1
+ 1420 00b5 12       		.uleb128 0x12
+ 1421 00b6 01       		.uleb128 0x1
+ 1422 00b7 40       		.uleb128 0x40
+ 1423 00b8 06       		.uleb128 0x6
+ 1424 00b9 00       		.byte	0x0
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccTeZdSV.s 			page 35
+
+
+ 1425 00ba 00       		.byte	0x0
+ 1426 00bb 0E       		.uleb128 0xe
+ 1427 00bc 05       		.uleb128 0x5
+ 1428 00bd 00       		.byte	0x0
+ 1429 00be 03       		.uleb128 0x3
+ 1430 00bf 08       		.uleb128 0x8
+ 1431 00c0 3A       		.uleb128 0x3a
+ 1432 00c1 0B       		.uleb128 0xb
+ 1433 00c2 3B       		.uleb128 0x3b
+ 1434 00c3 0B       		.uleb128 0xb
+ 1435 00c4 49       		.uleb128 0x49
+ 1436 00c5 13       		.uleb128 0x13
+ 1437 00c6 02       		.uleb128 0x2
+ 1438 00c7 0A       		.uleb128 0xa
+ 1439 00c8 00       		.byte	0x0
+ 1440 00c9 00       		.byte	0x0
+ 1441 00ca 0F       		.uleb128 0xf
+ 1442 00cb 2E       		.uleb128 0x2e
+ 1443 00cc 01       		.byte	0x1
+ 1444 00cd 01       		.uleb128 0x1
+ 1445 00ce 13       		.uleb128 0x13
+ 1446 00cf 3F       		.uleb128 0x3f
+ 1447 00d0 0C       		.uleb128 0xc
+ 1448 00d1 03       		.uleb128 0x3
+ 1449 00d2 08       		.uleb128 0x8
+ 1450 00d3 3A       		.uleb128 0x3a
+ 1451 00d4 0B       		.uleb128 0xb
+ 1452 00d5 3B       		.uleb128 0x3b
+ 1453 00d6 05       		.uleb128 0x5
+ 1454 00d7 27       		.uleb128 0x27
+ 1455 00d8 0C       		.uleb128 0xc
+ 1456 00d9 11       		.uleb128 0x11
+ 1457 00da 01       		.uleb128 0x1
+ 1458 00db 12       		.uleb128 0x12
+ 1459 00dc 01       		.uleb128 0x1
+ 1460 00dd 40       		.uleb128 0x40
+ 1461 00de 06       		.uleb128 0x6
+ 1462 00df 00       		.byte	0x0
+ 1463 00e0 00       		.byte	0x0
+ 1464 00e1 10       		.uleb128 0x10
+ 1465 00e2 05       		.uleb128 0x5
+ 1466 00e3 00       		.byte	0x0
+ 1467 00e4 03       		.uleb128 0x3
+ 1468 00e5 08       		.uleb128 0x8
+ 1469 00e6 3A       		.uleb128 0x3a
+ 1470 00e7 0B       		.uleb128 0xb
+ 1471 00e8 3B       		.uleb128 0x3b
+ 1472 00e9 05       		.uleb128 0x5
+ 1473 00ea 49       		.uleb128 0x49
+ 1474 00eb 13       		.uleb128 0x13
+ 1475 00ec 02       		.uleb128 0x2
+ 1476 00ed 0A       		.uleb128 0xa
+ 1477 00ee 00       		.byte	0x0
+ 1478 00ef 00       		.byte	0x0
+ 1479 00f0 11       		.uleb128 0x11
+ 1480 00f1 21       		.uleb128 0x21
+ 1481 00f2 00       		.byte	0x0
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccTeZdSV.s 			page 36
+
+
+ 1482 00f3 49       		.uleb128 0x49
+ 1483 00f4 13       		.uleb128 0x13
+ 1484 00f5 2F       		.uleb128 0x2f
+ 1485 00f6 05       		.uleb128 0x5
+ 1486 00f7 00       		.byte	0x0
+ 1487 00f8 00       		.byte	0x0
+ 1488 00f9 12       		.uleb128 0x12
+ 1489 00fa 34       		.uleb128 0x34
+ 1490 00fb 00       		.byte	0x0
+ 1491 00fc 03       		.uleb128 0x3
+ 1492 00fd 08       		.uleb128 0x8
+ 1493 00fe 3A       		.uleb128 0x3a
+ 1494 00ff 0B       		.uleb128 0xb
+ 1495 0100 3B       		.uleb128 0x3b
+ 1496 0101 0B       		.uleb128 0xb
+ 1497 0102 49       		.uleb128 0x49
+ 1498 0103 13       		.uleb128 0x13
+ 1499 0104 3F       		.uleb128 0x3f
+ 1500 0105 0C       		.uleb128 0xc
+ 1501 0106 02       		.uleb128 0x2
+ 1502 0107 0A       		.uleb128 0xa
+ 1503 0108 00       		.byte	0x0
+ 1504 0109 00       		.byte	0x0
+ 1505 010a 13       		.uleb128 0x13
+ 1506 010b 26       		.uleb128 0x26
+ 1507 010c 00       		.byte	0x0
+ 1508 010d 49       		.uleb128 0x49
+ 1509 010e 13       		.uleb128 0x13
+ 1510 010f 00       		.byte	0x0
+ 1511 0110 00       		.byte	0x0
+ 1512 0111 00       		.byte	0x0
+ 1513              		.section	.debug_pubnames,"",%progbits
+ 1514 0000 65000000 		.4byte	0x65
+ 1515 0004 0200     		.2byte	0x2
+ 1516 0006 00000000 		.4byte	.Ldebug_info0
+ 1517 000a 38050000 		.4byte	0x538
+ 1518 000e F7020000 		.4byte	0x2f7
+ 1519 0012 696E6974 		.ascii	"initLightSwitchPins\000"
+ 1519      4C696768 
+ 1519      74537769 
+ 1519      74636850 
+ 1519      696E7300 
+ 1520 0026 1B030000 		.4byte	0x31b
+ 1521 002a 6D61696E 		.ascii	"main\000"
+ 1521      00
+ 1522 002f C6030000 		.4byte	0x3c6
+ 1523 0033 61707054 		.ascii	"appTick\000"
+ 1523      69636B00 
+ 1524 003b DE040000 		.4byte	0x4de
+ 1525 003f 64656C61 		.ascii	"delayshort\000"
+ 1525      7973686F 
+ 1525      727400
+ 1526 004a 08050000 		.4byte	0x508
+ 1527 004e 64656C61 		.ascii	"delaylong\000"
+ 1527      796C6F6E 
+ 1527      6700
+ 1528 0058 20050000 		.4byte	0x520
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccTeZdSV.s 			page 37
+
+
+ 1529 005c 6D757465 		.ascii	"mutexLCD\000"
+ 1529      784C4344 
+ 1529      00
+ 1530 0065 00000000 		.4byte	0x0
+ 1531              		.section	.debug_aranges,"",%progbits
+ 1532 0000 1C000000 		.4byte	0x1c
+ 1533 0004 0200     		.2byte	0x2
+ 1534 0006 00000000 		.4byte	.Ldebug_info0
+ 1535 000a 04       		.byte	0x4
+ 1536 000b 00       		.byte	0x0
+ 1537 000c 0000     		.2byte	0x0
+ 1538 000e 0000     		.2byte	0x0
+ 1539 0010 00000000 		.4byte	.Ltext0
+ 1540 0014 1C030000 		.4byte	.Letext0-.Ltext0
+ 1541 0018 00000000 		.4byte	0x0
+ 1542 001c 00000000 		.4byte	0x0
+ 1543              		.ident	"GCC: (GNU) 4.1.1"
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccTeZdSV.s 			page 38
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 main.c
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccTeZdSV.s:1      .text:00000000 $t
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccTeZdSV.s:16     .text:00000000 initLightSwitchPins
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccTeZdSV.s:67     .text:00000048 $d
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccTeZdSV.s:79     .rodata:00000000 delayshort
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccTeZdSV.s:80     .rodata:00000000 $d
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccTeZdSV.s:85     .rodata:00000004 delaylong
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccTeZdSV.s:93     .text:0000005c main
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccTeZdSV.s:90     .text:0000005c $t
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccTeZdSV.s:190    .text:000000fc $d
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccTeZdSV.s:237    .text:00000134 initProc
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccTeZdSV.s:502    .bss:00000c00 initStack
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccTeZdSV.s:201    .text:0000011c $t
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccTeZdSV.s:204    .text:0000011c procStackUsage
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccTeZdSV.s:225    .text:00000130 $d
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccTeZdSV.s:234    .text:00000134 $t
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccTeZdSV.s:440    .text:00000298 $d
+                            *COM*:0000001c mutexLCD
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccTeZdSV.s:496    .bss:00000000 procEx1Stack
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccTeZdSV.s:506    .bss:00001400 pidEx1
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccTeZdSV.s:498    .bss:00000400 procEx2Stack
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccTeZdSV.s:508    .bss:00001401 pidEx2
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccTeZdSV.s:500    .bss:00000800 procEx3Stack
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccTeZdSV.s:510    .bss:00001402 pidEx3
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccTeZdSV.s:504    .bss:00001000 procStUsStack
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccTeZdSV.s:512    .bss:00001403 pidStUs
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccTeZdSV.s:475    .text:00000308 appTick
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccTeZdSV.s:472    .text:00000308 $t
+                             .bss:00000000 $d
+
+UNDEFINED SYMBOLS
+osInit
+init_LCD
+delay
+send_instruction
+osCreateProcess
+osStartProcess
+osStart
+osSleep
+eaInit
+simplePrintf
+osSemInit
+osDeleteProcess
+procEx1
+procEx2
+procEx3
+Timer1ISRirq
