@@ -1,0 +1,471 @@
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccWdoZQB.s 			page 1
+
+
+   1              		.file	"interrupt.c"
+   2              		.section	.debug_abbrev,"",%progbits
+   3              	.Ldebug_abbrev0:
+   4              		.section	.debug_info,"",%progbits
+   5              	.Ldebug_info0:
+   6              		.section	.debug_line,"",%progbits
+   7              	.Ldebug_line0:
+   8 0000 47000000 		.text
+   8      02002200 
+   8      00000201 
+   8      FB0E0D00 
+   8      01010101 
+   9              	.Ltext0:
+  10              		.section	.rodata.str1.4,"aMS",%progbits,1
+  11              		.align	2
+  12              	.LC0:
+  13 0000 20256420 		.ascii	" %d \012\000"
+  13      0A00
+  14 0006 0000     		.text
+  15              		.align	2
+  16              		.global	Timer1ISRirq
+  17              		.type	Timer1ISRirq, %function
+  18              	Timer1ISRirq:
+  19              	.LFB2:
+  20              		.file 1 "interrupt.c"
+   1:interrupt.c   **** /*
+   2:interrupt.c   ****  * interrupt.c
+   3:interrupt.c   ****  *
+   4:interrupt.c   ****  *  Created on: 2011
+   5:interrupt.c   ****  *      Author: Tommy
+   6:interrupt.c   ****  */
+   7:interrupt.c   **** 
+   8:interrupt.c   **** /******************************************************************************
+   9:interrupt.c   ****  * Includes
+  10:interrupt.c   ****  *****************************************************************************/
+  11:interrupt.c   **** #include "../general.h"
+  12:interrupt.c   **** #include "../startup/lpc2xxx.h"
+  13:interrupt.c   **** #include "../startup/framework.h"
+  14:interrupt.c   **** #include "../startup/config.h"
+  15:interrupt.c   **** #include "../startup/printf_P.h"
+  16:interrupt.c   **** 
+  17:interrupt.c   **** 
+  18:interrupt.c   **** 
+  19:interrupt.c   **** 
+  20:interrupt.c   **** 
+  21:interrupt.c   **** 
+  22:interrupt.c   **** 
+  23:interrupt.c   **** 
+  24:interrupt.c   **** 
+  25:interrupt.c   **** 
+  26:interrupt.c   **** 
+  27:interrupt.c   **** 
+  28:interrupt.c   **** 
+  29:interrupt.c   **** 
+  30:interrupt.c   **** 
+  31:interrupt.c   **** /*****************************************************************************
+  32:interrupt.c   ****  * Exempel på Avbrottsrutin (ljudsamling)
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccWdoZQB.s 			page 2
+
+
+  33:interrupt.c   ****  *
+  34:interrupt.c   ****  ****************************************************************************/
+  35:interrupt.c   **** 
+  36:interrupt.c   **** 
+  37:interrupt.c   **** 
+  38:interrupt.c   **** 
+  39:interrupt.c   **** 
+  40:interrupt.c   **** void Timer1ISRirq (void)
+  41:interrupt.c   **** {
+  21              		.loc 1 41 0
+  22              		@ Function supports interworking.
+  23              		@ args = 0, pretend = 0, frame = 0
+  24              		@ frame_needed = 0, uses_anonymous_args = 0
+  42:interrupt.c   ****  tU16 ADvalue, DAvalue, lastRead;
+  43:interrupt.c   **** 
+  44:interrupt.c   **** // printf("TEST-Interrupt1\n");
+  45:interrupt.c   **** 
+  46:interrupt.c   **** /* AD-omvandling av AIN1 (P0.28)  */
+  47:interrupt.c   **** 
+  48:interrupt.c   **** 
+  49:interrupt.c   **** 
+  50:interrupt.c   **** 
+  51:interrupt.c   ****  	  //get AIN1 (P0.28)or AIN2 (P0.29)
+  52:interrupt.c   **** 	//start conversion now (for selected channel)
+  53:interrupt.c   ****  	 // Denna rad har vi lagt till.
+  54:interrupt.c   **** 	ADCR = (ADCR & 0xFFFFFF00) | (1 << 1) | (1 << 24);
+  25              		.loc 1 54 0
+  26 0000 6C209FE5 		ldr	r2, .L9
+  27 0004 003092E5 		ldr	r3, [r2, #0]
+  28              		.loc 1 41 0
+  29 0008 04E02DE5 		str	lr, [sp, #-4]!
+  30              	.LCFI0:
+  31              		.loc 1 54 0
+  32 000c FF30C3E3 		bic	r3, r3, #255
+  33 0010 013483E3 		orr	r3, r3, #16777216
+  34 0014 023083E3 		orr	r3, r3, #2
+  35 0018 003082E5 		str	r3, [r2, #0]
+  36              	.L2:
+  55:interrupt.c   **** 
+  56:interrupt.c   **** 	// printf("TEST-Interrupt2\n");
+  57:interrupt.c   **** 	while((ADDR & 0x80000000) == 0);  //vänta till AD-omvandlaren är klar
+  37              		.loc 1 57 0
+  38 001c 50209FE5 		ldr	r2, .L9
+  39 0020 043092E5 		ldr	r3, [r2, #4]
+  40 0024 000053E3 		cmp	r3, #0
+  41 0028 FBFFFFAA 		bge	.L2
+  58:interrupt.c   **** 	// printf("TEST-Interrupt3\n");
+  59:interrupt.c   **** // Ovanstående är egentligen lite farligt, om AD-omvandlaren lägger av hänger sig allt!
+  60:interrupt.c   **** 
+  61:interrupt.c   **** //Hämta 16-bitar, skifta till 8-bit integer
+  62:interrupt.c   **** 	ADvalue=(ADDR>>8) & 0xFF;
+  42              		.loc 1 62 0
+  43 002c 043092E5 		ldr	r3, [r2, #4]
+  44 0030 2334A0E1 		mov	r3, r3, lsr #8
+  45 0034 FF1003E2 		and	r1, r3, #255
+  46              	.LVL0:
+  47              	.LVL1:
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccWdoZQB.s 			page 3
+
+
+  63:interrupt.c   **** 	// printf("TEST-Interrupt4\n");
+  64:interrupt.c   **** 
+  65:interrupt.c   **** 
+  66:interrupt.c   **** 
+  67:interrupt.c   **** //Test, vi gör inget. Lägger ut samma värde som kom in
+  68:interrupt.c   **** 
+  69:interrupt.c   **** 	lastRead = DAvalue;
+  70:interrupt.c   **** 	DAvalue = ADvalue;
+  71:interrupt.c   **** 	// printf("TEST-Interrupt5\n");
+  72:interrupt.c   **** //
+  73:interrupt.c   **** 
+  74:interrupt.c   **** 
+  75:interrupt.c   **** 
+  76:interrupt.c   **** /* DA-omvandling     */
+  77:interrupt.c   **** 	DAvalue=DAvalue & 0xFF;	//maska ut 8 bitar för säkerhets skull
+  78:interrupt.c   **** 	// printf("TEST-Interrupt6\n");
+  79:interrupt.c   **** 	DACR=DAvalue<<8;			//skifta 8 bitar, nolla i bit 16 -> snabb mode
+  80:interrupt.c   **** //	 printf("TEST-Interrupt7\n");
+  81:interrupt.c   **** 
+  82:interrupt.c   **** 	//Skriv ut resultat i terminal
+  83:interrupt.c   **** 	if( DAvalue != lastRead )
+  48              		.loc 1 83 0
+  49 0038 030051E1 		cmp	r1, r3
+  50              		.loc 1 79 0
+  51 003c 34309FE5 		ldr	r3, .L9+4
+  52              	.LVL2:
+  53 0040 0124A0E1 		mov	r2, r1, asl #8
+  54 0044 002083E5 		str	r2, [r3, #0]
+  55              		.loc 1 83 0
+  84:interrupt.c   **** 		printf(" %d \n",DAvalue);
+  56              		.loc 1 84 0
+  57 0048 2C009F15 		ldrne	r0, .L9+8
+  58 004c FEFFFF1B 		blne	simplePrintf
+  59              	.LVL3:
+  60              	.L4:
+  85:interrupt.c   **** 
+  86:interrupt.c   **** //	 printf("TEST-Interrupt8\n");
+  87:interrupt.c   **** 	//lastRead=DAvalue;
+  88:interrupt.c   **** 
+  89:interrupt.c   **** 
+  90:interrupt.c   **** //Återställ interruptflaggor
+  91:interrupt.c   **** 	TIMER1_IR |= 0x00000001;          //reseta interrrupt flaggan för MR0
+  61              		.loc 1 91 0
+  62 0050 28209FE5 		ldr	r2, .L9+12
+  63 0054 003092E5 		ldr	r3, [r2, #0]
+  64 0058 013083E3 		orr	r3, r3, #1
+  65 005c 003082E5 		str	r3, [r2, #0]
+  92:interrupt.c   **** 	VICVectAddr = 0x00;        			//dummy write to VIC to signal end of interrupt
+  66              		.loc 1 92 0
+  67 0060 0020A0E3 		mov	r2, #0
+  68 0064 0030E0E3 		mvn	r3, #0
+  69 0068 CF2F03E5 		str	r2, [r3, #-4047]
+  93:interrupt.c   **** 
+  94:interrupt.c   **** 
+  95:interrupt.c   **** 
+  96:interrupt.c   **** 
+  97:interrupt.c   **** }
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccWdoZQB.s 			page 4
+
+
+  70              		.loc 1 97 0
+  71 006c 04E09DE4 		ldr	lr, [sp], #4
+  72 0070 1EFF2FE1 		bx	lr
+  73              	.L10:
+  74              		.align	2
+  75              	.L9:
+  76 0074 004003E0 		.word	-536657920
+  77 0078 00C006E0 		.word	-536428544
+  78 007c 00000000 		.word	.LC0
+  79 0080 008000E0 		.word	-536838144
+  80              	.LFE2:
+  81              		.size	Timer1ISRirq, .-Timer1ISRirq
+  82              		.section	.debug_frame,"",%progbits
+  83              	.Lframe0:
+  84 0000 0C000000 		.4byte	.LECIE0-.LSCIE0
+  85              	.LSCIE0:
+  86 0004 FFFFFFFF 		.4byte	0xffffffff
+  87 0008 01       		.byte	0x1
+  88 0009 00       		.ascii	"\000"
+  89 000a 01       		.uleb128 0x1
+  90 000b 7C       		.sleb128 -4
+  91 000c 0E       		.byte	0xe
+  92 000d 0C       		.byte	0xc
+  93 000e 0D       		.uleb128 0xd
+  94 000f 00       		.uleb128 0x0
+  95              		.align	2
+  96              	.LECIE0:
+  97              	.LSFDE0:
+  98 0010 14000000 		.4byte	.LEFDE0-.LASFDE0
+  99              	.LASFDE0:
+ 100 0014 00000000 		.4byte	.Lframe0
+ 101 0018 00000000 		.4byte	.LFB2
+ 102 001c 84000000 		.4byte	.LFE2-.LFB2
+ 103 0020 4C       		.byte	0x4
+ 104              		.4byte	.LCFI0-.LFB2
+ 105 0021 0E       		.byte	0xe
+ 106 0022 04       		.uleb128 0x4
+ 107 0023 8E       		.byte	0x8e
+ 108 0024 01       		.uleb128 0x1
+ 109 0025 000000   		.align	2
+ 110              	.LEFDE0:
+ 111              		.text
+ 112              	.Letext0:
+ 113              		.section	.debug_loc,"",%progbits
+ 114              	.Ldebug_loc0:
+ 115              	.LLST0:
+ 116 0000 00000000 		.4byte	.LFB2-.Ltext0
+ 117 0004 0C000000 		.4byte	.LCFI0-.Ltext0
+ 118 0008 0100     		.2byte	0x1
+ 119 000a 5D       		.byte	0x5d
+ 120 000b 0C000000 		.4byte	.LCFI0-.Ltext0
+ 121 000f 84000000 		.4byte	.LFE2-.Ltext0
+ 122 0013 0200     		.2byte	0x2
+ 123 0015 7D       		.byte	0x7d
+ 124 0016 04       		.sleb128 4
+ 125 0017 00000000 		.4byte	0x0
+ 126 001b 00000000 		.4byte	0x0
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccWdoZQB.s 			page 5
+
+
+ 127              	.LLST1:
+ 128 001f 38000000 		.4byte	.LVL0-.Ltext0
+ 129 0023 50000000 		.4byte	.LVL3-.Ltext0
+ 130 0027 0100     		.2byte	0x1
+ 131 0029 51       		.byte	0x51
+ 132 002a 50000000 		.4byte	.LVL3-.Ltext0
+ 133 002e 84000000 		.4byte	.LFE2-.Ltext0
+ 134 0032 0100     		.2byte	0x1
+ 135 0034 51       		.byte	0x51
+ 136 0035 00000000 		.4byte	0x0
+ 137 0039 00000000 		.4byte	0x0
+ 138              	.LLST2:
+ 139 003d 38000000 		.4byte	.LVL1-.Ltext0
+ 140 0041 40000000 		.4byte	.LVL2-.Ltext0
+ 141 0045 0100     		.2byte	0x1
+ 142 0047 53       		.byte	0x53
+ 143 0048 00000000 		.4byte	0x0
+ 144 004c 00000000 		.4byte	0x0
+ 145              		.section	.debug_info
+ 146 0000 6C000000 		.4byte	0x6c
+ 147 0004 0200     		.2byte	0x2
+ 148 0006 00000000 		.4byte	.Ldebug_abbrev0
+ 149 000a 04       		.byte	0x4
+ 150 000b 01       		.uleb128 0x1
+ 151 000c 00000000 		.4byte	.Ldebug_line0
+ 152 0010 84000000 		.4byte	.Letext0
+ 153 0014 00000000 		.4byte	.Ltext0
+ 154 0018 61000000 		.4byte	.LASF3
+ 155 001c 01       		.byte	0x1
+ 156 001d 20000000 		.4byte	.LASF4
+ 157 0021 2C000000 		.4byte	.LASF5
+ 158 0025 02       		.uleb128 0x2
+ 159 0026 68000000 		.4byte	0x68
+ 160 002a 01       		.byte	0x1
+ 161 002b 00000000 		.4byte	.LASF6
+ 162 002f 01       		.byte	0x1
+ 163 0030 29       		.byte	0x29
+ 164 0031 01       		.byte	0x1
+ 165 0032 00000000 		.4byte	.LFB2
+ 166 0036 84000000 		.4byte	.LFE2
+ 167 003a 00000000 		.4byte	.LLST0
+ 168 003e 03       		.uleb128 0x3
+ 169 003f 75000000 		.4byte	.LASF0
+ 170 0043 01       		.byte	0x1
+ 171 0044 2A       		.byte	0x2a
+ 172 0045 68000000 		.4byte	0x68
+ 173 0049 1F000000 		.4byte	.LLST1
+ 174 004d 03       		.uleb128 0x3
+ 175 004e 6D000000 		.4byte	.LASF1
+ 176 0052 01       		.byte	0x1
+ 177 0053 2A       		.byte	0x2a
+ 178 0054 68000000 		.4byte	0x68
+ 179 0058 3D000000 		.4byte	.LLST2
+ 180 005c 04       		.uleb128 0x4
+ 181 005d 7D000000 		.4byte	.LASF2
+ 182 0061 01       		.byte	0x1
+ 183 0062 2A       		.byte	0x2a
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccWdoZQB.s 			page 6
+
+
+ 184 0063 68000000 		.4byte	0x68
+ 185 0067 00       		.byte	0x0
+ 186 0068 05       		.uleb128 0x5
+ 187 0069 0D000000 		.4byte	.LASF7
+ 188 006d 02       		.byte	0x2
+ 189 006e 07       		.byte	0x7
+ 190 006f 00       		.byte	0x0
+ 191              		.section	.debug_abbrev
+ 192 0000 01       		.uleb128 0x1
+ 193 0001 11       		.uleb128 0x11
+ 194 0002 01       		.byte	0x1
+ 195 0003 10       		.uleb128 0x10
+ 196 0004 06       		.uleb128 0x6
+ 197 0005 12       		.uleb128 0x12
+ 198 0006 01       		.uleb128 0x1
+ 199 0007 11       		.uleb128 0x11
+ 200 0008 01       		.uleb128 0x1
+ 201 0009 25       		.uleb128 0x25
+ 202 000a 0E       		.uleb128 0xe
+ 203 000b 13       		.uleb128 0x13
+ 204 000c 0B       		.uleb128 0xb
+ 205 000d 03       		.uleb128 0x3
+ 206 000e 0E       		.uleb128 0xe
+ 207 000f 1B       		.uleb128 0x1b
+ 208 0010 0E       		.uleb128 0xe
+ 209 0011 00       		.byte	0x0
+ 210 0012 00       		.byte	0x0
+ 211 0013 02       		.uleb128 0x2
+ 212 0014 2E       		.uleb128 0x2e
+ 213 0015 01       		.byte	0x1
+ 214 0016 01       		.uleb128 0x1
+ 215 0017 13       		.uleb128 0x13
+ 216 0018 3F       		.uleb128 0x3f
+ 217 0019 0C       		.uleb128 0xc
+ 218 001a 03       		.uleb128 0x3
+ 219 001b 0E       		.uleb128 0xe
+ 220 001c 3A       		.uleb128 0x3a
+ 221 001d 0B       		.uleb128 0xb
+ 222 001e 3B       		.uleb128 0x3b
+ 223 001f 0B       		.uleb128 0xb
+ 224 0020 27       		.uleb128 0x27
+ 225 0021 0C       		.uleb128 0xc
+ 226 0022 11       		.uleb128 0x11
+ 227 0023 01       		.uleb128 0x1
+ 228 0024 12       		.uleb128 0x12
+ 229 0025 01       		.uleb128 0x1
+ 230 0026 40       		.uleb128 0x40
+ 231 0027 06       		.uleb128 0x6
+ 232 0028 00       		.byte	0x0
+ 233 0029 00       		.byte	0x0
+ 234 002a 03       		.uleb128 0x3
+ 235 002b 34       		.uleb128 0x34
+ 236 002c 00       		.byte	0x0
+ 237 002d 03       		.uleb128 0x3
+ 238 002e 0E       		.uleb128 0xe
+ 239 002f 3A       		.uleb128 0x3a
+ 240 0030 0B       		.uleb128 0xb
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccWdoZQB.s 			page 7
+
+
+ 241 0031 3B       		.uleb128 0x3b
+ 242 0032 0B       		.uleb128 0xb
+ 243 0033 49       		.uleb128 0x49
+ 244 0034 13       		.uleb128 0x13
+ 245 0035 02       		.uleb128 0x2
+ 246 0036 06       		.uleb128 0x6
+ 247 0037 00       		.byte	0x0
+ 248 0038 00       		.byte	0x0
+ 249 0039 04       		.uleb128 0x4
+ 250 003a 34       		.uleb128 0x34
+ 251 003b 00       		.byte	0x0
+ 252 003c 03       		.uleb128 0x3
+ 253 003d 0E       		.uleb128 0xe
+ 254 003e 3A       		.uleb128 0x3a
+ 255 003f 0B       		.uleb128 0xb
+ 256 0040 3B       		.uleb128 0x3b
+ 257 0041 0B       		.uleb128 0xb
+ 258 0042 49       		.uleb128 0x49
+ 259 0043 13       		.uleb128 0x13
+ 260 0044 00       		.byte	0x0
+ 261 0045 00       		.byte	0x0
+ 262 0046 05       		.uleb128 0x5
+ 263 0047 24       		.uleb128 0x24
+ 264 0048 00       		.byte	0x0
+ 265 0049 03       		.uleb128 0x3
+ 266 004a 0E       		.uleb128 0xe
+ 267 004b 0B       		.uleb128 0xb
+ 268 004c 0B       		.uleb128 0xb
+ 269 004d 3E       		.uleb128 0x3e
+ 270 004e 0B       		.uleb128 0xb
+ 271 004f 00       		.byte	0x0
+ 272 0050 00       		.byte	0x0
+ 273 0051 00       		.byte	0x0
+ 274              		.section	.debug_pubnames,"",%progbits
+ 275 0000 1F000000 		.4byte	0x1f
+ 276 0004 0200     		.2byte	0x2
+ 277 0006 00000000 		.4byte	.Ldebug_info0
+ 278 000a 70000000 		.4byte	0x70
+ 279 000e 25000000 		.4byte	0x25
+ 280 0012 54696D65 		.ascii	"Timer1ISRirq\000"
+ 280      72314953 
+ 280      52697271 
+ 280      00
+ 281 001f 00000000 		.4byte	0x0
+ 282              		.section	.debug_aranges,"",%progbits
+ 283 0000 1C000000 		.4byte	0x1c
+ 284 0004 0200     		.2byte	0x2
+ 285 0006 00000000 		.4byte	.Ldebug_info0
+ 286 000a 04       		.byte	0x4
+ 287 000b 00       		.byte	0x0
+ 288 000c 0000     		.2byte	0x0
+ 289 000e 0000     		.2byte	0x0
+ 290 0010 00000000 		.4byte	.Ltext0
+ 291 0014 84000000 		.4byte	.Letext0-.Ltext0
+ 292 0018 00000000 		.4byte	0x0
+ 293 001c 00000000 		.4byte	0x0
+ 294              		.section	.debug_str,"MS",%progbits,1
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccWdoZQB.s 			page 8
+
+
+ 295              	.LASF6:
+ 296 0000 54696D65 		.ascii	"Timer1ISRirq\000"
+ 296      72314953 
+ 296      52697271 
+ 296      00
+ 297              	.LASF7:
+ 298 000d 73686F72 		.ascii	"short unsigned int\000"
+ 298      7420756E 
+ 298      7369676E 
+ 298      65642069 
+ 298      6E7400
+ 299              	.LASF4:
+ 300 0020 696E7465 		.ascii	"interrupt.c\000"
+ 300      72727570 
+ 300      742E6300 
+ 301              	.LASF5:
+ 302 002c 2F637967 		.ascii	"/cygdrive/c/DropBox/LEGO Projekt/Project12/interrup"
+ 302      64726976 
+ 302      652F632F 
+ 302      44726F70 
+ 302      426F782F 
+ 303 005f 7400     		.ascii	"t\000"
+ 304              	.LASF3:
+ 305 0061 474E5520 		.ascii	"GNU C 4.1.1\000"
+ 305      4320342E 
+ 305      312E3100 
+ 306              	.LASF1:
+ 307 006d 44417661 		.ascii	"DAvalue\000"
+ 307      6C756500 
+ 308              	.LASF0:
+ 309 0075 41447661 		.ascii	"ADvalue\000"
+ 309      6C756500 
+ 310              	.LASF2:
+ 311 007d 6C617374 		.ascii	"lastRead\000"
+ 311      52656164 
+ 311      00
+ 312              		.ident	"GCC: (GNU) 4.1.1"
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccWdoZQB.s 			page 9
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 interrupt.c
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccWdoZQB.s:18     .text:00000000 Timer1ISRirq
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccWdoZQB.s:26     .text:00000000 $a
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccWdoZQB.s:76     .text:00000074 $d
+
+UNDEFINED SYMBOLS
+simplePrintf

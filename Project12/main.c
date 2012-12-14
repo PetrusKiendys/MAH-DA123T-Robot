@@ -48,6 +48,10 @@
 #define INIT_STACK_SIZE  1024
 #define PROC_ST_US_STACK_SIZE  1024
 
+#define P06 0x00000040	// Output Ljussensor
+#define P029 0x20000000 // Input Ljussensor
+#define P028 0x10000000 // Output Switch
+
 
 static tU8 procEx1Stack[PROC_Ex1_STACK_SIZE];
 static tU8 procEx2Stack[PROC_Ex2_STACK_SIZE];
@@ -63,6 +67,7 @@ static tU8 pidEx3;
 static tU8 pidStUs;
 
 
+static tU16 getAnalogueInput(tU8 channel);
 
 void procEx1(void* arg);
 void procEx2(void* arg);
@@ -118,6 +123,21 @@ main(void)
   delay(delaylong);
   send_instruction(0xC);  //släck cursorn
 
+ // IODIR |= 0x20000000;
+ // IODIR &= 0xFFFFFFBF;
+
+  //FÖR LJUSSENSORN:
+  IODIR |= P06; // Sätter P0.6 till output
+  IODIR &= ~P029; // Sätter P029 till input
+  // TODO: IODIR set P0.29 as output
+  IOSET = P06;
+  //set AIN1 = P0.28, set AIN2 = P0.29,set Aout (DAC) = P0.25
+   	  PINSEL1 |= 0x05080000;
+
+   	  // FÖR DIGITALSWITCH:
+   	  IODIR &= ~P028; // sätter P0.28 till input
+   	 // PINSEL1 |=
+
  // Här kan diverse initeringar läggas
  // Alternativt gör detta i initieringprocessen
  // Lägg märke till att avbrott inte bör enablas för än när alla processer startats
@@ -165,6 +185,8 @@ procStackUsage(void* arg)
 static void
 initProc(void* arg)
 {
+
+
   tU8 error;
 
   eaInit();
@@ -197,7 +219,7 @@ initProc(void* arg)
   */
 
   //set AIN1 = P0.28
-  PINSEL1 |= 0x01080000;
+  //PINSEL1  = 0x01080000;
 
  //initialize ADC (fel i beräkningen av divisionsfaktorn i EA-kod, rättat här)
    ADCR = (1 << 0)                             |  //SEL = 1, dummy channel #1
@@ -210,7 +232,11 @@ initProc(void* arg)
           (1 << 24)                            |  //START = 1, start a conversion now
           (0 << 27);							                 //EDGE  = 0, not relevant when start=1
 
+//		integerResult = getAnalogueInput(AIN1);
+//	    printf("integerResult: %d \n", integerResult);
+
    while((ADDR & 0x80000000) == 0)
+
 
 
 
@@ -261,3 +287,9 @@ void
 appTick(tU32 elapsedTime)
 {
 }
+
+
+
+
+
+
