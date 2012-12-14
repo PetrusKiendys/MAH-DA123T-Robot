@@ -48,21 +48,15 @@
 
 
 /*****************************************************************************
- * Public function prototypes
- ****************************************************************************/
-int main(void);
-
-/*****************************************************************************
- * Local function prototypes
+ * Function prototypes
  ****************************************************************************/
 static void initPwm(tU32 initialFreqValue);
 static void setPwmDutyPercent1(tU32 dutyValue1);
 static void setPwmDutyPercent2(tU32 dutyValue2);
-static void setPwmDuty1(tU32 dutyValue1);
-static void setPwmDuty2(tU32 dutyValue2);
 static void delayMs(tU16 delayInMs);
 void setMode1();
 void setMode2();
+void dev_run(tU32 duty1, tU32 duty2);
 
 /*****************************************************************************
  * Implementation of local functions
@@ -127,34 +121,6 @@ setPwmDutyPercent2(tU32 dutyValue2)
 /*****************************************************************************
  *
  * Description:
- *    Update the duty cycle value of the PWM signal.
- *
- * Params:
- *    [in] dutyValue - the new duty cycle value. Value calculated as:
- *    (crystal frequency * PLL multiplication factor)
- *    ----------------------------------------------- * duty cycle in percent
- *           (VPBDIV factor * PWM frequency)
- *
- *                    or
- *
- *    value in MR0 register * duty cycle in percent
- *
- ****************************************************************************/
-static void
-setPwmDuty1(tU32 dutyValue1)
-{
-  PWM_MR2 = dutyValue1;    //update duty cycle
-  PWM_LER = 0x04;         //latch new values for MR2
-}
-static void
-setPwmDuty2(tU32 dutyValue2)
-{
-  PWM_MR5 = dutyValue2;    //update duty cycle
-  PWM_LER = 0x20;         //latch new values for MR5
-}
-/*****************************************************************************
- *
- * Description:
  *    Delay execution by a specified number of milliseconds by using
  *    timer #1. A polled implementation.
  *
@@ -210,12 +176,12 @@ void initPins() {
 	  	   */
 
 	  PINSEL1 &= ~0x00000c00; //clear bits related to P0.21
-	  PINSEL1 |= 0x00000100; //connect signal PWM5 to P0.21 (second alternative function)
+	  PINSEL1 |= 0x00000400; //connect signal PWM5 to P0.21 (second alternative function)
 
 	  PINSEL1 &= ~0x0000c000; //set P0.23 to GPIO
 
-	  PINSEL1 &= ~0xc0000000;  //set P0.31 to GPIO
-	  PINSEL1 |= 0x80000100;
+	  PINSEL1 &= ~0xc0000000;  //set P0.31 to GPO Port only
+	  //PINSEL1 |= 0x80000000;
 }
 
 void setMode1() {
@@ -370,9 +336,14 @@ runPwm()
   setMode1();
   setMode2();
 
+  dev_run(duty1, duty2);
 
-  while(1)
-  {
+  return 0;
+}
+
+// dev function - not used in release
+void dev_run(tU32 duty1, tU32 duty2) {
+	while (1) {
 		//set frequency value
 		setPwmDutyPercent1(duty1);
 		setPwmDutyPercent2(duty2);
@@ -393,9 +364,10 @@ runPwm()
 
 		else if (TASK == 2) {
 			duty1 = 0;
-			duty2 = 7000;
+			duty2 = 8500;
+							// COMMENT: slowest speed = 8500 duty
+							//			fastest speed = 0	 duty
 		}
 
 	}
-  return 0;
 }
