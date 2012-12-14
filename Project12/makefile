@@ -61,7 +61,7 @@ SUBDIRS = startup \
           interrupt
 		  
 		  
-# REMARK: LIBS is referring to .a files that do not exist
+
 # List additional libraries to link with
 LIBS    = startup/libea_startup_thumb.a \
 		  pre_emptive_os/pre_emptive_os.a \

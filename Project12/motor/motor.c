@@ -35,7 +35,7 @@
 #define	P23 (1 << 23)
 #define	P31 (1 << 31)
 
-#define TASK		1	// task 1 - use circulary loop
+#define TASK		2	// task 1 - use circulary loop
 						// task 2 - use constant PWM signal
 #define MODE_IN1	1	// mode 1 - Forward, Fast Current-Decay Mode
 						// mode 2 - Forward, Slow Current-Decay Mode
@@ -44,7 +44,7 @@
 						// mode 5 - Brake, Fast Current-Decay Mode
 						// mode 6 - Brake, No Current Control
 						// REMARK: only use "fast" modes
-#define MODE_IN2	3		// see above description..
+#define MODE_IN2	1		// see above description..
 
 
 /*****************************************************************************
@@ -56,8 +56,10 @@ int runPwm(void);
  * Local function prototypes
  ****************************************************************************/
 static void initPwm(tU32 initialFreqValue);
-static void setPwmDutyPercent(tU32 dutyValue);
-static void setPwmDuty(tU32 dutyValue);
+static void setPwmDutyPercent1(tU32 dutyValue1);
+static void setPwmDutyPercent2(tU32 dutyValue2);
+static void setPwmDuty1(tU32 dutyValue1);
+static void setPwmDuty2(tU32 dutyValue2);
 static void delayMs(tU16 delayInMs);
 void setModeIn1();
 void setModeIn2();
@@ -91,8 +93,9 @@ initPwm(tU32 initialFreqValue)
   PWM_MCR = 0x0002;                 //counter resets on MR0 match (period time)
   PWM_MR0 = initialFreqValue;       //MR0 = period cycle time
   PWM_MR2 = 0;                      //MR2 = duty cycle control, initial = 0%
-  PWM_LER = 0x05;                   //latch new values for MR0 and MR2
-  PWM_PCR = 0x0400;                 //enable PWM2 in single edge control mode
+  PWM_MR5 = 0;                      //MR5 = duty cycle control, initial = 0%
+  PWM_LER = 0x25;                   //latch new values for MR0 and MR2 and MR5
+  PWM_PCR = 0x2400;                 //enable PWM2 and PWM5 in single edge control mode
   PWM_TCR = 0x09;                   //enable PWM and Counter
 
 
@@ -109,12 +112,18 @@ initPwm(tU32 initialFreqValue)
  *
  ****************************************************************************/
 static void
-setPwmDutyPercent(tU32 dutyValue)
+setPwmDutyPercent1(tU32 dutyValue1)
 {
-  PWM_MR2 = (PWM_MR0 * dutyValue) / 10000;  //update duty cycle
+  PWM_MR2 = (PWM_MR0 * dutyValue1) / 10000;  //update duty cycle
   PWM_LER = 0x04;                           //latch new values for MR2
 }
 
+static void
+setPwmDutyPercent2(tU32 dutyValue2)
+{
+  PWM_MR5 = (PWM_MR0 * dutyValue2) / 10000;  //update duty cycle
+  PWM_LER = 0x20;         //latch new values for MR5
+}
 /*****************************************************************************
  *
  * Description:
@@ -132,10 +141,16 @@ setPwmDutyPercent(tU32 dutyValue)
  *
  ****************************************************************************/
 static void
-setPwmDuty(tU32 dutyValue)
+setPwmDuty1(tU32 dutyValue1)
 {
-  PWM_MR2 = dutyValue;    //update duty cycle
+  PWM_MR2 = dutyValue1;    //update duty cycle
   PWM_LER = 0x04;         //latch new values for MR2
+}
+static void
+setPwmDuty2(tU32 dutyValue2)
+{
+  PWM_MR5 = dutyValue2;    //update duty cycle
+  PWM_LER = 0x20;         //latch new values for MR5
 }
 /*****************************************************************************
  *
@@ -338,7 +353,8 @@ void setModeIn2() {
 int
 runPwm()
 {
-  tU32 duty;
+  tU32 duty1;
+  tU32 duty2;
   tU32 freq;
 
   //set frequency to 1000 Hz (1 kHz)
@@ -350,7 +366,9 @@ runPwm()
   initPins();
 
   //vary duty cycle
-  duty = 0;
+  duty1 = 0;
+
+  duty2 = 9999;
 
   setModeIn1();
   setModeIn2();
@@ -359,7 +377,8 @@ runPwm()
   while(1)
   {
 		//set frequency value
-		setPwmDutyPercent(duty);
+		setPwmDutyPercent1(duty1);
+		setPwmDutyPercent2(duty2);
 
 		//wait 10 ms
 		delayMs(10);
@@ -370,13 +389,14 @@ runPwm()
 
 		if (TASK == 1) {
 			//update duty cycle (0.00 - 100.00%, in steps of 0.10%)
-			duty += 10;
-			if (duty > 10000)
-				duty = 0;
+			duty1 += 10;
+			if (duty1 > 10000)
+				duty1 = 0;
 		}
 
 		else if (TASK == 2) {
-			duty = 0;
+			duty1 = 0;
+			duty2 = 9999;
 		}
 
 	}
