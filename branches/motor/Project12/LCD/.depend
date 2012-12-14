@@ -1,1 +1,0 @@
-LCD.o: LCD.c ../startup/lpc2xxx.h
