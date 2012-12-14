@@ -25,9 +25,19 @@
 extern long const delayshort;
 extern long const delaylong;
 
+// TODO: temporary extern declarations.. (make these local later if possible)
+extern tU32 freq;
+extern tU32 duty;
+
 extern tCntSem mutexLCD;
 
+/*****************************************************************************
+ * Function prototypes
+ ****************************************************************************/
+static void setPwmDutyPercent(tU32 dutyValue);
+static void setPwmDuty(tU32 dutyValue);
 
+/****************************************************************************/
 
 void
 procEx1(void* arg)
@@ -44,19 +54,67 @@ procEx1(void* arg)
 	send_instruction(1);	//cleara displayen
 	delay(delaylong);
 	send_instruction(2);  //cursorn till första positionen
-	delay(delaylong);
-    send_character('E');
-    delay(delayshort);
-    send_character('x');
-    delay(delayshort);
 
-    send_character('1');
+	//vary duty cycle
+	  duty = 0;
 
-    osSleep(300);		// för att infon säkert skall hinna synas
+	  while(1)
+	  {
+	    //set frequency value
+	    setPwmDutyPercent(duty);
+
+	    //wait 10 ms
+	    delay_millis(10);
+
+	    //update duty cycle (0.00 - 100.00%, in steps of 0.10%)
+	    duty += 10;
+	    if (duty > 10000)
+	      duty = 0;
+	  }
 
     osSemGive(&mutexLCD, &error);
 
 
     osSleep(1000);
   }
+}
+
+/*****************************************************************************
+ *
+ * Description:
+ *    Update the duty cycle value of the PWM signal.
+ *
+ * Params:
+ *    [in] dutyValue - the new duty cycle value in percent in increments
+ *                     of 0.01% (i.e., 10% = 1000).
+ *
+ ****************************************************************************/
+static void
+setPwmDutyPercent(tU32 dutyValue)
+{
+  PWM_MR2 = (PWM_MR0 * dutyValue) / 10000;  //update duty cycle
+  PWM_LER = 0x04;                           //latch new values for MR2
+}
+
+/*****************************************************************************
+ *
+ * Description:
+ *    Update the duty cycle value of the PWM signal.
+ *
+ * Params:
+ *    [in] dutyValue - the new duty cycle value. Value calculated as:
+ *    (crystal frequency * PLL multiplication factor)
+ *    ----------------------------------------------- * duty cycle in percent
+ *           (VPBDIV factor * PWM frequency)
+ *
+ *                    or
+ *
+ *    value in MR0 register * duty cycle in percent
+ *
+ ****************************************************************************/
+static void
+setPwmDuty(tU32 dutyValue)
+{
+  PWM_MR2 = dutyValue;    //update duty cycle
+  PWM_LER = 0x04;         //latch new values for MR2
 }
