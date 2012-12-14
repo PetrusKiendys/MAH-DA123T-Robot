@@ -20,7 +20,6 @@
 #include "../general.h"
 #include <lpc2xxx.h>
 #include "../startup/config.h"
-#include "../utils/lpc214x.h"
 
 
 /******************************************************************************
@@ -37,7 +36,7 @@
 #define	P23 (1 << 23)
 #define	P31 (1 << 31)
 
-#define TASK	2		// task 1 - use circulary loop
+#define TASK	5		// task 1 - use circulary loop
 						// task 2 - use constant PWM signal
 #define MODE	1		// mode 1 - Forward, Fast Current-Decay Mode
 						// mode 2 - Forward, Slow Current-Decay Mode
@@ -45,7 +44,7 @@
 						// mode 4 - Reverse, Slow Current-Decay Mode
 						// mode 5 - Brake, Fast Current-Decay Mode
 						// mode 6 - Brake, No Current Control
-#define MODE2	3
+#define MODE2	1
 
 
 /*****************************************************************************
@@ -369,6 +368,25 @@ void dev_run(tU32 duty1, tU32 duty2) {
 							// COMMENT: slowest speed = 8500 duty
 							//			fastest speed = 0	 duty
 		}
+		else if (TASK == 3) {//Vänster
+					duty1 = 7500;
+					duty2 = 8500;
+									// COMMENT: slowest speed = 8500 duty
+									//			fastest speed = 0	 duty
+				}
+		else if (TASK == 4) {//Höger
+						duty1 = 8500;
+						duty2 = 7500;
+										// COMMENT: slowest speed = 8500 duty
+										//			fastest speed = 0	 duty
+					}
 
+		else if (TASK == 5) {
+			duty1 = 0;
+			duty2 = 0;
+							// COMMENT: slowest speed = 8500 duty
+							//			fastest speed = 0	 duty
+		}
 	}
-}
+	}
+
