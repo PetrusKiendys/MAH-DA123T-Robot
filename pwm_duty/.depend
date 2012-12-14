@@ -1,0 +1,1 @@
+main.o: main.c general.h startup/lpc2xxx.h startup/config.h

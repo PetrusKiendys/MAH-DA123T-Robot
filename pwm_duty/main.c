@@ -14,6 +14,8 @@
  *
  *****************************************************************************/
 
+// TODO: make sure config/startup settings are adjusted for LPC2148
+
 /******************************************************************************
  * Includes
  *****************************************************************************/
@@ -79,7 +81,13 @@ initPwm(tU32 initialFreqValue)
    * connect signal PWM2 to pin P0.7
    */
   PINSEL0 &= ~0x0000c000;  //clear bits related to P0.7
+  	  	  	  	  	  	   //COMMENT: this operation is equivalent to:
+  	  	  	  	  	  	   //	PINSEL0 &= 0xFFFF3FFF
+  	  	  	  	  	  	   //for more info see p.75 of manualLPC2148.pdf
   PINSEL0 |=  0x00008000;  //connect signal PWM2 to P0.7 (second alternative function)
+  	  	  	  	  	  	   //for more info see p.75 of manualLPC2148.pdf
+
+  // QUESTION: no need to set P0.7 as an output (via IODIR)?
 }
 
 /*****************************************************************************
@@ -190,6 +198,10 @@ main(void)
     if (duty > 10000)
       duty = 0;
   }
+
+  // TODO: read the output of PWM2 on the oscilloscope (what's the most performance efficient way to do this?)
+  //	1. move value of P0.07 to P0.20? (assembly code)
+  //	2. if-else statements that set/clear P0.20 depending on the value of P0.07
 
   return 0;
 }

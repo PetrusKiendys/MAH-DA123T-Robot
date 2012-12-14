@@ -15,13 +15,15 @@
  * Defines, macros, and typedefs
  *****************************************************************************/
 
-#define FOSC 14745600                 /* External clock input frequency (must be between 10 MHz and 25 MHz) */
+// REMARK: changed values to match those of LPC2148
+// TODO: check if I missed something..
+#define FOSC 12000000                 /* External clock input frequency (must be between 10 MHz and 25 MHz) */
 
 #define USE_PLL 1                     /* 0 = do not use on-chip PLL,
                                          1 = use on-chip PLL) */
-#define PLL_MUL 4                     /* PLL multiplication factor (1 to 32) */
+#define PLL_MUL 5                     /* PLL multiplication factor (1 to 32) */
 #define PLL_DIV 2                     /* PLL division factor (1, 2, 4, or 8) */
-#define PBSD    4                     /* Peripheral bus speed divider (1, 2, or 4) */
+#define PBSD    1                     /* Peripheral bus speed divider (1, 2, or 4) */
 
 /* initialize the MAM (Memory Accelerator Module) */
 #if USE_PLL == 1
