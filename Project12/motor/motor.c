@@ -38,7 +38,7 @@
 
 #define TASK	5		// task 1 - use circulary loop
 						// task 2 - use constant PWM signal
-#define MODE	1		// mode 1 - Forward, Fast Current-Decay Mode
+#define MODE	3		// mode 1 - Forward, Fast Current-Decay Mode
 						// mode 2 - Forward, Slow Current-Decay Mode
 						// mode 3 - Reverse, Fast Current-Decay Mode
 						// mode 4 - Reverse, Slow Current-Decay Mode
@@ -88,8 +88,8 @@ initPwm(tU32 initialFreqValue)
   PWM_MR0 = initialFreqValue;       //MR0 = period cycle time
   PWM_MR2 = 0;      				//MR2 = duty cycle control, initial = 0%
   PWM_MR5 = 0;  					//MR5 = duty cycle control, initial = 0%
-  PWM_LER = 0x25;                   //latch new values for MR0 and MR2
-  PWM_PCR = 0x2400;                 //enable PWM2 in single edge control mode
+  PWM_LER = 0x25;                   //latch new values for MR0 and MR2 and MR5
+  PWM_PCR = 0x2400;                 //enable PWM2 and in single edge control mode
   PWM_TCR = 0x09;                   //enable PWM and Counter
 
 
@@ -167,10 +167,10 @@ void initPins() {
 	  PINSEL0 &= ~0x0000c000;  //clear bits related to P0.7
 	  PINSEL0 |=  0x00008000;  //connect signal PWM2 to P0.7 (second alternative function)
 
-	  PINSEL0 &= ~0xC0000000;	// set P0.15 to EINT2
+	  PINSEL0 &= ~0xc0000000;	// set P0.15 to EINT2
 	  PINSEL0 |=  0x80000000;
 
-	  PINSEL1 &= ~0x000C0000;	// set P0.25 to GPIO Port 0.25
+	  PINSEL1 &= ~0x000c0000;	// set P0.25 to GPIO Port 0.25
 	  /*
 	  	   * connect signal PWM5 to pin P0.21
 	  	   */
@@ -198,14 +198,7 @@ void setMode1() {
 	}
 	//LOOK AT MODE
 	else if (MODE == 2){ // MODE = Forward, Slow Current-Decay Mode
-		IODIR |= P07; // ENABLE (P0.7)
-		IOCLR = P07; // set to L
-
-		IODIR |= P15; // PHASE (P0.15)
-		IOSET = P15; // set to H
-
-		IODIR |= P25; // BRAKE (P0.25)
-		IOSET = P25; // set to H
+		// not implemented
 	}
 	else if (MODE == 3){ // Reverse, Fast Current-Decay Mode
 		IODIR |= P07; // ENABLE (P0.7)
@@ -218,14 +211,7 @@ void setMode1() {
 		IOSET = P25; // set to H
 	} //LOOK AT MODE
 	else if (MODE == 4){ // Reverse, Slow Current-Decay Mode
-		IODIR |= P07; // ENABLE (P0.7)
-		IOCLR = P07; // set to L
-
-		IODIR |= P15; // PHASE (P0.15)
-		IOCLR = P15; // set to L
-
-		IODIR |= P25; // BRAKE (P0.25)
-		IOSET = P25; // set to H
+		// not implemented
 	}
 	else if (MODE == 5){ // Brake, Fast Current-Decay Mode
 		IODIR |= P07; // ENABLE (P0.7)
@@ -238,14 +224,7 @@ void setMode1() {
 		IOCLR = P25; // set to L
 	}//LOOK AT MODE
 	else if (MODE == 6){ // Brake, No Current Control
-		IODIR |= P07; // ENABLE (P0.7)
-		IOCLR = P07; // set to L
-
-		IODIR |= P15; // PHASE (P0.15)
-		IOCLR = P15; // set to L
-
-		IODIR |= P25; // BRAKE (P0.25)
-		IOCLR = P25; // set to L
+		// not implemented
 	}
 
 }
@@ -263,14 +242,7 @@ void setMode2() {
 	}
 	//LOOK AT MODE
 	else if (MODE2 == 2){ // MODE = Forward, Slow Current-Decay Mode
-		IODIR |= P21; // ENABLE (P0.7)
-		IOCLR = P21; // set to L
-
-		IODIR |= P23; // PHASE (P0.15)
-		IOSET = P23; // set to H
-
-		IODIR |= P31; // BRAKE (P0.25)
-		IOSET = P31; // set to H
+		// not implemented
 	}
 	else if (MODE2 == 3){ // Reverse, Fast Current-Decay Mode
 		IODIR |= P21; // ENABLE (P0.7)
@@ -281,16 +253,10 @@ void setMode2() {
 
 		IODIR |= P31; // BRAKE (P0.25)
 		IOSET = P31; // set to H
-	} //LOOK AT MODE
+	}
+	//LOOK AT MODE
 	else if (MODE2 == 4){ // Reverse, Slow Current-Decay Mode
-		IODIR |= P21; // ENABLE (P0.7)
-		IOCLR = P21; // set to L
-
-		IODIR |= P23; // PHASE (P0.15)
-		IOCLR = P23; // set to L
-
-		IODIR |= P31; // BRAKE (P0.25)
-		IOSET = P31; // set to H
+		// not implemented
 	}
 	else if (MODE2 == 5){ // Brake, Fast Current-Decay Mode
 		IODIR |= P21; // ENABLE (P0.7)
@@ -303,14 +269,7 @@ void setMode2() {
 		IOCLR = P31; // set to L
 	}//LOOK AT MODE
 	else if (MODE2 == 6){ // Brake, No Current Control
-		IODIR |= P21; // ENABLE (P0.7)
-		IOCLR = P21; // set to L
-
-		IODIR |= P23; // PHASE (P0.15)
-		IOCLR = P23; // set to L
-
-		IODIR |= P31; // BRAKE (P0.25)
-		IOCLR = P31; // set to L
+		// not implemented
 	}
 
 }
@@ -356,7 +315,7 @@ void dev_run(tU32 duty1, tU32 duty2) {
 		// a higher value means a lower speed, conversely a low value means a higher speed
 
 		if (TASK == 1) {
-			//update duty cycle (0.00 - 100.00%, in steps of 0.10%)
+							//update duty cycle (0.00 - 100.00%, in steps of 0.10%)
 			duty1 += 10;
 			if (duty1 > 10000)
 				duty1 = 0;
@@ -368,25 +327,23 @@ void dev_run(tU32 duty1, tU32 duty2) {
 							// COMMENT: slowest speed = 8500 duty
 							//			fastest speed = 0	 duty
 		}
-		else if (TASK == 3) {//Vänster
+		else if (TASK == 3) { //Left
 					duty1 = 7500;
 					duty2 = 8500;
 									// COMMENT: slowest speed = 8500 duty
 									//			fastest speed = 0	 duty
 				}
-		else if (TASK == 4) {//Höger
+		else if (TASK == 4) { //Right
 						duty1 = 8500;
 						duty2 = 7500;
 										// COMMENT: slowest speed = 8500 duty
 										//			fastest speed = 0	 duty
 					}
-
-		else if (TASK == 5) {
-			duty1 = 0;
-			duty2 = 0;
-							// COMMENT: slowest speed = 8500 duty
-							//			fastest speed = 0	 duty
+		// Mode = 3!!
+		else if (TASK == 5) { // Bakåt
+								duty1 = 2000;
+								duty2 = 2000;
 		}
 	}
-	}
+}
 
