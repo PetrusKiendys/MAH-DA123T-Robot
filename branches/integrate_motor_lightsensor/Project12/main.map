@@ -72,221 +72,220 @@ LOAD /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a
 LOAD /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/../../../../arm-elf/lib/interwork/libc.a
 END GROUP
 
-.text           0x00000000     0x2714
+.text           0x00000000     0x269c
  *startup.o(.text)
  .text          0x00000000      0x1d8 startup/libea_startup_thumb.a(startup.o)
                 0x00000000                _startup
  *(.text)
- .text          0x000001d8      0x31c main.o
+ .text          0x000001d8      0x2d0 main.o
                 0x000001d8                initLightSwitchPins
-                0x000004e0                appTick
-                0x00000234                main
- .text          0x000004f4      0x3f4 proc1.o
-                0x00000794                runPwm
-                0x000006e0                setMode1
-                0x000008b4                initLCD
-                0x0000064c                initPins
-                0x000007d8                dev_run
-                0x00000738                setMode2
-                0x00000814                procEx1
- .text          0x000008e8       0xe4 proc2.o
-                0x000008e8                procEx2
- .text          0x000009cc       0xe8 proc3.o
-                0x000009cc                procEx3
- .text          0x00000ab4      0x3fc startup/libea_startup_thumb.a(consol.o)
-                0x00000ba8                consolSendCh
-                0x00000c18                consolSendNumber
-                0x00000b88                consolSendChar
-                0x00000d30                simplePrintf
-                0x00000bec                consolSendString
-                0x00000b38                consolInit
- .text          0x00000eb0      0x2c0 startup/libea_startup_thumb.a(framework.o)
-                0x00000fdc                eaInit
-                0x00000f28                lowLevelInit
-                0x00000eb0                exceptionHandlerInit
- .text          0x00001170      0x514 pre_emptive_os/pre_emptive_os.a(kernel.o)
-                0x000014c8                osTick
-                0x00001254                rmvFromRdyList
-                0x00001284                osGetHighPrioProc
-                0x000013c4                osSuspend
-                0x00001654                osInit
-                0x00001460                osDeleteProcess
-                0x00001170                osISREnter
-                0x000012ec                schedule
-                0x00001524                osCreateProcess
-                0x00001270                addToRdyList
-                0x00001190                addToTimeList
-                0x00001358                osResume
-                0x000012a0                osPid
-                0x00001490                osSleep
-                0x000015c0                osISRExit
-                0x00001628                osStart
-                0x0000120c                rmvFromTimeList
-                0x000013f8                osStartProcess
- .text          0x00001684       0xf4 pre_emptive_os/pre_emptive_os.a(prioqueue.o)
-                0x00001684                initPrioQueue
-                0x000016dc                rmvFromPrioQueue
-                0x00001694                addToPrioQueue
-                0x00001760                isEmptyPrioQueue
-                0x00001734                getHighPrioQueue
- .text          0x00001778      0x140 pre_emptive_os/pre_emptive_os.a(count_sem.o)
-                0x000017b8                osSemGive
-                0x00001778                osSemTryTake
-                0x000018a4                osSemInit
-                0x0000181c                osSemTake
- .text          0x000018b8      0x230 pre_emptive_os/pre_emptive_os.a(timer.o)
-                0x00001a60                timerTick
-                0x00001924                osInitTimers
-                0x000019c8                osDeleteTimer
-                0x00001a34                osCreateTimer
- .text          0x00001ae8       0xa8 pre_emptive_os/pre_emptive_os.a(stack_usage.o)
-                0x00001b48                osStackUsage
-                0x00001ae8                createStackPattern
-                0x00001b04                checkStackLimit
- .text          0x00001b90      0x1ec pre_emptive_os/pre_emptive_os.a(a7hal.o)
-                0x00001bc8                stkFrameInit_oshal
-                0x00001b90                timerIsr_oshal
-                0x00001ca8                halRestoreInterrupts_oshal
-                0x00001cb0                initTimer_oshal
-                0x00001c98                halEnableInterrupts_oshal
-                0x00001d48                handleIRQs_oshal
-                0x00001c78                halDisableInterrupts_oshal
- .text          0x00001d7c       0xc4 pre_emptive_os/pre_emptive_os.a(a7hal_a.o)
-                0x00001d88                startHighProc_oshal
-                0x00001db0                ctxSwitchIsr_oshal
-                0x00001d90                ctxSwitch_oshal
-                0x00001dd0                generalIRQ_oshal
- .text          0x00001e40       0xd4 pre_emptive_os/pre_emptive_os.a(event.o)
-                0x00001ecc                eventWait
-                0x00001f04                eventInit
-                0x00001e40                eventIsEmpty
-                0x00001e4c                eventWaitReturn
-                0x00001e7c                eventSignal
- .text          0x00001f14      0x328 LCD/lib_LCD.a(LCD.o)
-                0x00001fec                send_character
-                0x00002154                init_LCD
-                0x00002074                wait_BF
-                0x00001f14                delay
-                0x00001f3c                send_instruction
- .text          0x0000223c       0x80 interrupt/lib_interrupt.a(interrupt.o)
-                0x0000223c                Timer1ISRirq
- .text          0x000022bc      0x114 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_udivsi3.o)
-                0x000022bc                __udivsi3
-                0x000022bc                __aeabi_uidiv
-                0x000023b8                __aeabi_uidivmod
- .text          0x000023d0      0x144 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_divsi3.o)
-                0x000023d0                __aeabi_idiv
-                0x000023d0                __divsi3
-                0x000024fc                __aeabi_idivmod
- .text          0x00002514       0xd0 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_umodsi3.o)
-                0x00002514                __umodsi3
- .text          0x000025e4        0x4 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_dvmd_tls.o)
-                0x000025e4                __aeabi_ldiv0
-                0x000025e4                __div0
-                0x000025e4                __aeabi_idiv0
- .text          0x000025e8       0x9c /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/../../../../arm-elf/lib/interwork/libc.a(memcpy.o)
-                0x000025e8                memcpy
+                0x00000494                appTick
+                0x00000224                main
+ .text          0x000004a8      0x3dc proc1.o
+                0x00000748                runPwm
+                0x00000694                setMode1
+                0x00000850                initLCD
+                0x00000600                initPins
+                0x0000078c                dev_run
+                0x000006ec                setMode2
+                0x000007c8                procEx1
+ .text          0x00000884       0xe4 proc2.o
+                0x00000884                procEx2
+ .text          0x00000968       0xe8 proc3.o
+                0x00000968                procEx3
+ .text          0x00000a50      0x3fc startup/libea_startup_thumb.a(consol.o)
+                0x00000b44                consolSendCh
+                0x00000bb4                consolSendNumber
+                0x00000b24                consolSendChar
+                0x00000ccc                simplePrintf
+                0x00000b88                consolSendString
+                0x00000ad4                consolInit
+ .text          0x00000e4c      0x2c0 startup/libea_startup_thumb.a(framework.o)
+                0x00000f78                eaInit
+                0x00000ec4                lowLevelInit
+                0x00000e4c                exceptionHandlerInit
+ .text          0x0000110c      0x514 pre_emptive_os/pre_emptive_os.a(kernel.o)
+                0x00001464                osTick
+                0x000011f0                rmvFromRdyList
+                0x00001220                osGetHighPrioProc
+                0x00001360                osSuspend
+                0x000015f0                osInit
+                0x000013fc                osDeleteProcess
+                0x0000110c                osISREnter
+                0x00001288                schedule
+                0x000014c0                osCreateProcess
+                0x0000120c                addToRdyList
+                0x0000112c                addToTimeList
+                0x000012f4                osResume
+                0x0000123c                osPid
+                0x0000142c                osSleep
+                0x0000155c                osISRExit
+                0x000015c4                osStart
+                0x000011a8                rmvFromTimeList
+                0x00001394                osStartProcess
+ .text          0x00001620       0xf4 pre_emptive_os/pre_emptive_os.a(prioqueue.o)
+                0x00001620                initPrioQueue
+                0x00001678                rmvFromPrioQueue
+                0x00001630                addToPrioQueue
+                0x000016fc                isEmptyPrioQueue
+                0x000016d0                getHighPrioQueue
+ .text          0x00001714      0x140 pre_emptive_os/pre_emptive_os.a(count_sem.o)
+                0x00001754                osSemGive
+                0x00001714                osSemTryTake
+                0x00001840                osSemInit
+                0x000017b8                osSemTake
+ .text          0x00001854      0x230 pre_emptive_os/pre_emptive_os.a(timer.o)
+                0x000019fc                timerTick
+                0x000018c0                osInitTimers
+                0x00001964                osDeleteTimer
+                0x000019d0                osCreateTimer
+ .text          0x00001a84       0xa8 pre_emptive_os/pre_emptive_os.a(stack_usage.o)
+                0x00001ae4                osStackUsage
+                0x00001a84                createStackPattern
+                0x00001aa0                checkStackLimit
+ .text          0x00001b2c      0x1ec pre_emptive_os/pre_emptive_os.a(a7hal.o)
+                0x00001b64                stkFrameInit_oshal
+                0x00001b2c                timerIsr_oshal
+                0x00001c44                halRestoreInterrupts_oshal
+                0x00001c4c                initTimer_oshal
+                0x00001c34                halEnableInterrupts_oshal
+                0x00001ce4                handleIRQs_oshal
+                0x00001c14                halDisableInterrupts_oshal
+ .text          0x00001d18       0xc4 pre_emptive_os/pre_emptive_os.a(a7hal_a.o)
+                0x00001d24                startHighProc_oshal
+                0x00001d4c                ctxSwitchIsr_oshal
+                0x00001d2c                ctxSwitch_oshal
+                0x00001d6c                generalIRQ_oshal
+ .text          0x00001ddc       0xd4 pre_emptive_os/pre_emptive_os.a(event.o)
+                0x00001e68                eventWait
+                0x00001ea0                eventInit
+                0x00001ddc                eventIsEmpty
+                0x00001de8                eventWaitReturn
+                0x00001e18                eventSignal
+ .text          0x00001eb0      0x328 LCD/lib_LCD.a(LCD.o)
+                0x00001f88                send_character
+                0x000020f0                init_LCD
+                0x00002010                wait_BF
+                0x00001eb0                delay
+                0x00001ed8                send_instruction
+ .text          0x000021d8       0x6c interrupt/lib_interrupt.a(interrupt.o)
+                0x000021d8                Timer1ISRirq
+ .text          0x00002244      0x114 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_udivsi3.o)
+                0x00002244                __udivsi3
+                0x00002244                __aeabi_uidiv
+                0x00002340                __aeabi_uidivmod
+ .text          0x00002358      0x144 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_divsi3.o)
+                0x00002358                __aeabi_idiv
+                0x00002358                __divsi3
+                0x00002484                __aeabi_idivmod
+ .text          0x0000249c       0xd0 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_umodsi3.o)
+                0x0000249c                __umodsi3
+ .text          0x0000256c        0x4 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_dvmd_tls.o)
+                0x0000256c                __aeabi_ldiv0
+                0x0000256c                __div0
+                0x0000256c                __aeabi_idiv0
+ .text          0x00002570       0x9c /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/../../../../arm-elf/lib/interwork/libc.a(memcpy.o)
+                0x00002570                memcpy
  *(.glue_7)
- .glue_7        0x00002684        0x0 main.o
- .glue_7        0x00002684        0x0 proc1.o
- .glue_7        0x00002684        0x0 proc2.o
- .glue_7        0x00002684        0x0 proc3.o
- .glue_7        0x00002684        0x0 startup/libea_startup_thumb.a(consol.o)
- .glue_7        0x00002684        0x0 startup/libea_startup_thumb.a(framework.o)
- .glue_7        0x00002684        0x0 startup/libea_startup_thumb.a(startup.o)
- .glue_7        0x00002684        0x0 pre_emptive_os/pre_emptive_os.a(kernel.o)
- .glue_7        0x00002684        0x0 pre_emptive_os/pre_emptive_os.a(prioqueue.o)
- .glue_7        0x00002684        0x0 pre_emptive_os/pre_emptive_os.a(count_sem.o)
- .glue_7        0x00002684        0x0 pre_emptive_os/pre_emptive_os.a(timer.o)
- .glue_7        0x00002684        0x0 pre_emptive_os/pre_emptive_os.a(stack_usage.o)
- .glue_7        0x00002684        0x0 pre_emptive_os/pre_emptive_os.a(a7hal.o)
- .glue_7        0x00002684        0x0 pre_emptive_os/pre_emptive_os.a(a7hal_a.o)
- .glue_7        0x00002684        0x0 pre_emptive_os/pre_emptive_os.a(event.o)
- .glue_7        0x00002684        0x0 LCD/lib_LCD.a(LCD.o)
- .glue_7        0x00002684        0x0 interrupt/lib_interrupt.a(interrupt.o)
- .glue_7        0x00002684        0x0 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_udivsi3.o)
- .glue_7        0x00002684        0x0 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_divsi3.o)
- .glue_7        0x00002684        0x0 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_umodsi3.o)
- .glue_7        0x00002684        0x0 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_dvmd_tls.o)
- .glue_7        0x00002684       0x18 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/../../../../arm-elf/lib/interwork/libc.a(memcpy.o)
-                0x00002690                __osISRExit_from_arm
-                0x00002684                __osTick_from_arm
+ .glue_7        0x0000260c        0x0 main.o
+ .glue_7        0x0000260c        0x0 proc1.o
+ .glue_7        0x0000260c        0x0 proc2.o
+ .glue_7        0x0000260c        0x0 proc3.o
+ .glue_7        0x0000260c        0x0 startup/libea_startup_thumb.a(consol.o)
+ .glue_7        0x0000260c        0x0 startup/libea_startup_thumb.a(framework.o)
+ .glue_7        0x0000260c        0x0 startup/libea_startup_thumb.a(startup.o)
+ .glue_7        0x0000260c        0x0 pre_emptive_os/pre_emptive_os.a(kernel.o)
+ .glue_7        0x0000260c        0x0 pre_emptive_os/pre_emptive_os.a(prioqueue.o)
+ .glue_7        0x0000260c        0x0 pre_emptive_os/pre_emptive_os.a(count_sem.o)
+ .glue_7        0x0000260c        0x0 pre_emptive_os/pre_emptive_os.a(timer.o)
+ .glue_7        0x0000260c        0x0 pre_emptive_os/pre_emptive_os.a(stack_usage.o)
+ .glue_7        0x0000260c        0x0 pre_emptive_os/pre_emptive_os.a(a7hal.o)
+ .glue_7        0x0000260c        0x0 pre_emptive_os/pre_emptive_os.a(a7hal_a.o)
+ .glue_7        0x0000260c        0x0 pre_emptive_os/pre_emptive_os.a(event.o)
+ .glue_7        0x0000260c        0x0 LCD/lib_LCD.a(LCD.o)
+ .glue_7        0x0000260c        0x0 interrupt/lib_interrupt.a(interrupt.o)
+ .glue_7        0x0000260c        0x0 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_udivsi3.o)
+ .glue_7        0x0000260c        0x0 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_divsi3.o)
+ .glue_7        0x0000260c        0x0 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_umodsi3.o)
+ .glue_7        0x0000260c        0x0 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_dvmd_tls.o)
+ .glue_7        0x0000260c       0x18 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/../../../../arm-elf/lib/interwork/libc.a(memcpy.o)
+                0x00002618                __osISRExit_from_arm
+                0x0000260c                __osTick_from_arm
  *(.glue_7t)
- .glue_7t       0x0000269c        0x0 main.o
- .glue_7t       0x0000269c        0x0 proc1.o
- .glue_7t       0x0000269c        0x0 proc2.o
- .glue_7t       0x0000269c        0x0 proc3.o
- .glue_7t       0x0000269c        0x0 startup/libea_startup_thumb.a(consol.o)
- .glue_7t       0x0000269c        0x0 startup/libea_startup_thumb.a(framework.o)
- .glue_7t       0x0000269c        0x0 startup/libea_startup_thumb.a(startup.o)
- .glue_7t       0x0000269c        0x0 pre_emptive_os/pre_emptive_os.a(kernel.o)
- .glue_7t       0x0000269c        0x0 pre_emptive_os/pre_emptive_os.a(prioqueue.o)
- .glue_7t       0x0000269c        0x0 pre_emptive_os/pre_emptive_os.a(count_sem.o)
- .glue_7t       0x0000269c        0x0 pre_emptive_os/pre_emptive_os.a(timer.o)
- .glue_7t       0x0000269c        0x0 pre_emptive_os/pre_emptive_os.a(stack_usage.o)
- .glue_7t       0x0000269c        0x0 pre_emptive_os/pre_emptive_os.a(a7hal.o)
- .glue_7t       0x0000269c        0x0 pre_emptive_os/pre_emptive_os.a(a7hal_a.o)
- .glue_7t       0x0000269c        0x0 pre_emptive_os/pre_emptive_os.a(event.o)
- .glue_7t       0x0000269c        0x0 LCD/lib_LCD.a(LCD.o)
- .glue_7t       0x0000269c        0x0 interrupt/lib_interrupt.a(interrupt.o)
- .glue_7t       0x0000269c        0x0 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_udivsi3.o)
- .glue_7t       0x0000269c        0x0 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_divsi3.o)
- .glue_7t       0x0000269c        0x0 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_umodsi3.o)
- .glue_7t       0x0000269c        0x0 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_dvmd_tls.o)
- .glue_7t       0x0000269c       0x78 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/../../../../arm-elf/lib/interwork/libc.a(memcpy.o)
-                0x000026a4                __delay_from_thumb
-                0x000026ac                __send_instruction_from_thumb
-                0x000026dc                __halRestoreInterrupts_oshal_from_thumb
-                0x0000269c                __init_LCD_from_thumb
-                0x000026b0                __send_instruction_change_to_arm
-                0x000026e4                __ctxSwitch_oshal_from_thumb
-                0x000026f0                __stkFrameInit_oshal_change_to_arm
-                0x00002700                __initTimer_oshal_change_to_arm
-                0x00002704                __startHighProc_oshal_from_thumb
-                0x000026a0                __init_LCD_change_to_arm
-                0x000026c8                ____udivsi3_change_to_arm
-                0x00002708                __startHighProc_oshal_change_to_arm
-                0x000026f4                __ctxSwitchIsr_oshal_from_thumb
-                0x000026d0                __send_character_change_to_arm
-                0x000026e0                __halRestoreInterrupts_oshal_change_to_arm
-                0x000026c0                __simplePrintf_change_to_arm
-                0x0000270c                ____divsi3_from_thumb
-                0x000026a8                __delay_change_to_arm
-                0x000026cc                __send_character_from_thumb
-                0x000026e8                __ctxSwitch_oshal_change_to_arm
-                0x000026ec                __stkFrameInit_oshal_from_thumb
-                0x000026c4                ____udivsi3_from_thumb
-                0x000026b4                __eaInit_from_thumb
-                0x000026bc                __simplePrintf_from_thumb
-                0x000026fc                __initTimer_oshal_from_thumb
-                0x000026b8                __eaInit_change_to_arm
-                0x000026f8                __ctxSwitchIsr_oshal_change_to_arm
-                0x000026d8                __halDisableInterrupts_oshal_change_to_arm
-                0x000026d4                __halDisableInterrupts_oshal_from_thumb
-                0x00002710                ____divsi3_change_to_arm
-                0x00002714                . = ALIGN (0x4)
+ .glue_7t       0x00002624        0x0 main.o
+ .glue_7t       0x00002624        0x0 proc1.o
+ .glue_7t       0x00002624        0x0 proc2.o
+ .glue_7t       0x00002624        0x0 proc3.o
+ .glue_7t       0x00002624        0x0 startup/libea_startup_thumb.a(consol.o)
+ .glue_7t       0x00002624        0x0 startup/libea_startup_thumb.a(framework.o)
+ .glue_7t       0x00002624        0x0 startup/libea_startup_thumb.a(startup.o)
+ .glue_7t       0x00002624        0x0 pre_emptive_os/pre_emptive_os.a(kernel.o)
+ .glue_7t       0x00002624        0x0 pre_emptive_os/pre_emptive_os.a(prioqueue.o)
+ .glue_7t       0x00002624        0x0 pre_emptive_os/pre_emptive_os.a(count_sem.o)
+ .glue_7t       0x00002624        0x0 pre_emptive_os/pre_emptive_os.a(timer.o)
+ .glue_7t       0x00002624        0x0 pre_emptive_os/pre_emptive_os.a(stack_usage.o)
+ .glue_7t       0x00002624        0x0 pre_emptive_os/pre_emptive_os.a(a7hal.o)
+ .glue_7t       0x00002624        0x0 pre_emptive_os/pre_emptive_os.a(a7hal_a.o)
+ .glue_7t       0x00002624        0x0 pre_emptive_os/pre_emptive_os.a(event.o)
+ .glue_7t       0x00002624        0x0 LCD/lib_LCD.a(LCD.o)
+ .glue_7t       0x00002624        0x0 interrupt/lib_interrupt.a(interrupt.o)
+ .glue_7t       0x00002624        0x0 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_udivsi3.o)
+ .glue_7t       0x00002624        0x0 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_divsi3.o)
+ .glue_7t       0x00002624        0x0 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_umodsi3.o)
+ .glue_7t       0x00002624        0x0 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_dvmd_tls.o)
+ .glue_7t       0x00002624       0x78 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/../../../../arm-elf/lib/interwork/libc.a(memcpy.o)
+                0x0000262c                __delay_from_thumb
+                0x00002634                __send_instruction_from_thumb
+                0x00002664                __halRestoreInterrupts_oshal_from_thumb
+                0x00002624                __init_LCD_from_thumb
+                0x00002638                __send_instruction_change_to_arm
+                0x0000266c                __ctxSwitch_oshal_from_thumb
+                0x00002678                __stkFrameInit_oshal_change_to_arm
+                0x00002688                __initTimer_oshal_change_to_arm
+                0x0000268c                __startHighProc_oshal_from_thumb
+                0x00002628                __init_LCD_change_to_arm
+                0x00002650                ____udivsi3_change_to_arm
+                0x00002690                __startHighProc_oshal_change_to_arm
+                0x0000267c                __ctxSwitchIsr_oshal_from_thumb
+                0x00002658                __send_character_change_to_arm
+                0x00002668                __halRestoreInterrupts_oshal_change_to_arm
+                0x00002648                __simplePrintf_change_to_arm
+                0x00002694                ____divsi3_from_thumb
+                0x00002630                __delay_change_to_arm
+                0x00002654                __send_character_from_thumb
+                0x00002670                __ctxSwitch_oshal_change_to_arm
+                0x00002674                __stkFrameInit_oshal_from_thumb
+                0x0000264c                ____udivsi3_from_thumb
+                0x0000263c                __eaInit_from_thumb
+                0x00002644                __simplePrintf_from_thumb
+                0x00002684                __initTimer_oshal_from_thumb
+                0x00002640                __eaInit_change_to_arm
+                0x00002680                __ctxSwitchIsr_oshal_change_to_arm
+                0x00002660                __halDisableInterrupts_oshal_change_to_arm
+                0x0000265c                __halDisableInterrupts_oshal_from_thumb
+                0x00002698                ____divsi3_change_to_arm
+                0x0000269c                . = ALIGN (0x4)
 
-.rodata         0x00002714      0x13c
+.rodata         0x0000269c      0x158
  *(.rodata)
- .rodata        0x00002714       0x18 main.o
-                0x00002718                delaylong
-                0x00002714                delayshort
- .rodata        0x0000272c       0x20 proc1.o
- .rodata        0x0000274c       0x10 startup/libea_startup_thumb.a(consol.o)
+ .rodata        0x0000269c       0x18 main.o
+                0x000026a0                delaylong
+                0x0000269c                delayshort
+ .rodata        0x000026b4       0x10 startup/libea_startup_thumb.a(consol.o)
  *(.rodata*)
  .rodata.str1.4
-                0x0000275c       0x11 startup/libea_startup_thumb.a(consol.o)
+                0x000026c4       0x11 startup/libea_startup_thumb.a(consol.o)
                                  0x14 (size before relaxing)
- *fill*         0x0000276d        0x3 00
+ *fill*         0x000026d5        0x3 00
  .rodata.str1.4
-                0x00002770       0xd8 startup/libea_startup_thumb.a(framework.o)
+                0x000026d8       0xd8 startup/libea_startup_thumb.a(framework.o)
  .rodata.str1.4
-                0x00002848        0x8 interrupt/lib_interrupt.a(interrupt.o)
-                0x00002850                . = ALIGN (0x4)
-                0x00002850                _etext = .
-                0x00002850                PROVIDE (etext, .)
+                0x000027b0       0x44 interrupt/lib_interrupt.a(interrupt.o)
+                0x000027f4                . = ALIGN (0x4)
+                0x000027f4                _etext = .
+                0x000027f4                PROVIDE (etext, .)
 
-.data           0x40000280        0x0 load address 0x00002850
+.data           0x40000280        0x0 load address 0x000027f4
                 0x40000280                _data = .
  *(.data)
  .data          0x40000280        0x0 main.o
@@ -493,74 +492,74 @@ END GROUP
  .debug_pubnames
                 0x00000679       0x1d /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/../../../../arm-elf/lib/interwork/libc.a(memcpy.o)
 
-.debug_info     0x00000000     0x3445
+.debug_info     0x00000000     0x3448
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x00000000      0x538 main.o
- .debug_info    0x00000538      0x55a proc1.o
- .debug_info    0x00000a92      0x37f proc2.o
- .debug_info    0x00000e11      0x37f proc3.o
- .debug_info    0x00001190      0x3cc startup/libea_startup_thumb.a(consol.o)
- .debug_info    0x0000155c      0x1e5 startup/libea_startup_thumb.a(framework.o)
- .debug_info    0x00001741      0x62d pre_emptive_os/pre_emptive_os.a(kernel.o)
- .debug_info    0x00001d6e      0x2f6 pre_emptive_os/pre_emptive_os.a(prioqueue.o)
- .debug_info    0x00002064      0x345 pre_emptive_os/pre_emptive_os.a(count_sem.o)
- .debug_info    0x000023a9      0x4da pre_emptive_os/pre_emptive_os.a(timer.o)
- .debug_info    0x00002883      0x2e3 pre_emptive_os/pre_emptive_os.a(stack_usage.o)
- .debug_info    0x00002b66      0x189 pre_emptive_os/pre_emptive_os.a(a7hal.o)
- .debug_info    0x00002cef      0x308 pre_emptive_os/pre_emptive_os.a(event.o)
- .debug_info    0x00002ff7      0x147 LCD/lib_LCD.a(LCD.o)
- .debug_info    0x0000313e       0x5d interrupt/lib_interrupt.a(interrupt.o)
- .debug_info    0x0000319b       0x68 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_udivsi3.o)
- .debug_info    0x00003203       0x68 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_divsi3.o)
- .debug_info    0x0000326b       0x68 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_umodsi3.o)
- .debug_info    0x000032d3       0x68 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_dvmd_tls.o)
- .debug_info    0x0000333b      0x10a /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/../../../../arm-elf/lib/interwork/libc.a(memcpy.o)
+ .debug_info    0x00000000      0x53b main.o
+ .debug_info    0x0000053b      0x55a proc1.o
+ .debug_info    0x00000a95      0x37f proc2.o
+ .debug_info    0x00000e14      0x37f proc3.o
+ .debug_info    0x00001193      0x3cc startup/libea_startup_thumb.a(consol.o)
+ .debug_info    0x0000155f      0x1e5 startup/libea_startup_thumb.a(framework.o)
+ .debug_info    0x00001744      0x62d pre_emptive_os/pre_emptive_os.a(kernel.o)
+ .debug_info    0x00001d71      0x2f6 pre_emptive_os/pre_emptive_os.a(prioqueue.o)
+ .debug_info    0x00002067      0x345 pre_emptive_os/pre_emptive_os.a(count_sem.o)
+ .debug_info    0x000023ac      0x4da pre_emptive_os/pre_emptive_os.a(timer.o)
+ .debug_info    0x00002886      0x2e3 pre_emptive_os/pre_emptive_os.a(stack_usage.o)
+ .debug_info    0x00002b69      0x189 pre_emptive_os/pre_emptive_os.a(a7hal.o)
+ .debug_info    0x00002cf2      0x308 pre_emptive_os/pre_emptive_os.a(event.o)
+ .debug_info    0x00002ffa      0x147 LCD/lib_LCD.a(LCD.o)
+ .debug_info    0x00003141       0x5d interrupt/lib_interrupt.a(interrupt.o)
+ .debug_info    0x0000319e       0x68 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_udivsi3.o)
+ .debug_info    0x00003206       0x68 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_divsi3.o)
+ .debug_info    0x0000326e       0x68 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_umodsi3.o)
+ .debug_info    0x000032d6       0x68 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_dvmd_tls.o)
+ .debug_info    0x0000333e      0x10a /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/../../../../arm-elf/lib/interwork/libc.a(memcpy.o)
 
-.debug_abbrev   0x00000000     0x1196
+.debug_abbrev   0x00000000     0x11ba
  *(.debug_abbrev)
- .debug_abbrev  0x00000000      0x112 main.o
- .debug_abbrev  0x00000112      0x142 proc1.o
- .debug_abbrev  0x00000254       0xb9 proc2.o
- .debug_abbrev  0x0000030d       0xb9 proc3.o
- .debug_abbrev  0x000003c6      0x234 startup/libea_startup_thumb.a(consol.o)
- .debug_abbrev  0x000005fa       0xd0 startup/libea_startup_thumb.a(framework.o)
- .debug_abbrev  0x000006ca      0x1d8 pre_emptive_os/pre_emptive_os.a(kernel.o)
- .debug_abbrev  0x000008a2      0x14f pre_emptive_os/pre_emptive_os.a(prioqueue.o)
- .debug_abbrev  0x000009f1      0x10e pre_emptive_os/pre_emptive_os.a(count_sem.o)
- .debug_abbrev  0x00000aff      0x18e pre_emptive_os/pre_emptive_os.a(timer.o)
- .debug_abbrev  0x00000c8d      0x181 pre_emptive_os/pre_emptive_os.a(stack_usage.o)
- .debug_abbrev  0x00000e0e       0xf2 pre_emptive_os/pre_emptive_os.a(a7hal.o)
- .debug_abbrev  0x00000f00      0x103 pre_emptive_os/pre_emptive_os.a(event.o)
- .debug_abbrev  0x00001003       0x5a LCD/lib_LCD.a(LCD.o)
- .debug_abbrev  0x0000105d       0x43 interrupt/lib_interrupt.a(interrupt.o)
- .debug_abbrev  0x000010a0       0x14 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_udivsi3.o)
- .debug_abbrev  0x000010b4       0x14 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_divsi3.o)
- .debug_abbrev  0x000010c8       0x14 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_umodsi3.o)
- .debug_abbrev  0x000010dc       0x14 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_dvmd_tls.o)
- .debug_abbrev  0x000010f0       0xa6 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/../../../../arm-elf/lib/interwork/libc.a(memcpy.o)
+ .debug_abbrev  0x00000000      0x136 main.o
+ .debug_abbrev  0x00000136      0x142 proc1.o
+ .debug_abbrev  0x00000278       0xb9 proc2.o
+ .debug_abbrev  0x00000331       0xb9 proc3.o
+ .debug_abbrev  0x000003ea      0x234 startup/libea_startup_thumb.a(consol.o)
+ .debug_abbrev  0x0000061e       0xd0 startup/libea_startup_thumb.a(framework.o)
+ .debug_abbrev  0x000006ee      0x1d8 pre_emptive_os/pre_emptive_os.a(kernel.o)
+ .debug_abbrev  0x000008c6      0x14f pre_emptive_os/pre_emptive_os.a(prioqueue.o)
+ .debug_abbrev  0x00000a15      0x10e pre_emptive_os/pre_emptive_os.a(count_sem.o)
+ .debug_abbrev  0x00000b23      0x18e pre_emptive_os/pre_emptive_os.a(timer.o)
+ .debug_abbrev  0x00000cb1      0x181 pre_emptive_os/pre_emptive_os.a(stack_usage.o)
+ .debug_abbrev  0x00000e32       0xf2 pre_emptive_os/pre_emptive_os.a(a7hal.o)
+ .debug_abbrev  0x00000f24      0x103 pre_emptive_os/pre_emptive_os.a(event.o)
+ .debug_abbrev  0x00001027       0x5a LCD/lib_LCD.a(LCD.o)
+ .debug_abbrev  0x00001081       0x43 interrupt/lib_interrupt.a(interrupt.o)
+ .debug_abbrev  0x000010c4       0x14 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_udivsi3.o)
+ .debug_abbrev  0x000010d8       0x14 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_divsi3.o)
+ .debug_abbrev  0x000010ec       0x14 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_umodsi3.o)
+ .debug_abbrev  0x00001100       0x14 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_dvmd_tls.o)
+ .debug_abbrev  0x00001114       0xa6 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/../../../../arm-elf/lib/interwork/libc.a(memcpy.o)
 
-.debug_line     0x00000000      0xe35
+.debug_line     0x00000000      0xe2d
  *(.debug_line)
- .debug_line    0x00000000       0xf2 main.o
- .debug_line    0x000000f2      0x100 proc1.o
- .debug_line    0x000001f2       0x95 proc2.o
- .debug_line    0x00000287       0x95 proc3.o
- .debug_line    0x0000031c      0x11e startup/libea_startup_thumb.a(consol.o)
- .debug_line    0x0000043a       0xba startup/libea_startup_thumb.a(framework.o)
- .debug_line    0x000004f4      0x17a pre_emptive_os/pre_emptive_os.a(kernel.o)
- .debug_line    0x0000066e       0xb6 pre_emptive_os/pre_emptive_os.a(prioqueue.o)
- .debug_line    0x00000724       0xda pre_emptive_os/pre_emptive_os.a(count_sem.o)
- .debug_line    0x000007fe      0x10b pre_emptive_os/pre_emptive_os.a(timer.o)
- .debug_line    0x00000909       0x8f pre_emptive_os/pre_emptive_os.a(stack_usage.o)
- .debug_line    0x00000998       0x8c pre_emptive_os/pre_emptive_os.a(a7hal.o)
- .debug_line    0x00000a24       0xb2 pre_emptive_os/pre_emptive_os.a(event.o)
- .debug_line    0x00000ad6       0x6c LCD/lib_LCD.a(LCD.o)
- .debug_line    0x00000b42       0x4c interrupt/lib_interrupt.a(interrupt.o)
- .debug_line    0x00000b8e       0x84 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_udivsi3.o)
- .debug_line    0x00000c12       0x90 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_divsi3.o)
- .debug_line    0x00000ca2       0x6e /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_umodsi3.o)
- .debug_line    0x00000d10       0x5d /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_dvmd_tls.o)
- .debug_line    0x00000d6d       0xc8 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/../../../../arm-elf/lib/interwork/libc.a(memcpy.o)
+ .debug_line    0x00000000       0xf0 main.o
+ .debug_line    0x000000f0       0xfe proc1.o
+ .debug_line    0x000001ee       0x95 proc2.o
+ .debug_line    0x00000283       0x95 proc3.o
+ .debug_line    0x00000318      0x11e startup/libea_startup_thumb.a(consol.o)
+ .debug_line    0x00000436       0xba startup/libea_startup_thumb.a(framework.o)
+ .debug_line    0x000004f0      0x17a pre_emptive_os/pre_emptive_os.a(kernel.o)
+ .debug_line    0x0000066a       0xb6 pre_emptive_os/pre_emptive_os.a(prioqueue.o)
+ .debug_line    0x00000720       0xda pre_emptive_os/pre_emptive_os.a(count_sem.o)
+ .debug_line    0x000007fa      0x10b pre_emptive_os/pre_emptive_os.a(timer.o)
+ .debug_line    0x00000905       0x8f pre_emptive_os/pre_emptive_os.a(stack_usage.o)
+ .debug_line    0x00000994       0x8c pre_emptive_os/pre_emptive_os.a(a7hal.o)
+ .debug_line    0x00000a20       0xb2 pre_emptive_os/pre_emptive_os.a(event.o)
+ .debug_line    0x00000ad2       0x6c LCD/lib_LCD.a(LCD.o)
+ .debug_line    0x00000b3e       0x48 interrupt/lib_interrupt.a(interrupt.o)
+ .debug_line    0x00000b86       0x84 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_udivsi3.o)
+ .debug_line    0x00000c0a       0x90 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_divsi3.o)
+ .debug_line    0x00000c9a       0x6e /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_umodsi3.o)
+ .debug_line    0x00000d08       0x5d /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/interwork/libgcc.a(_dvmd_tls.o)
+ .debug_line    0x00000d65       0xc8 /cygdrive/c/program/gnuarm/bin/../lib/gcc/arm-elf/4.1.1/../../../../arm-elf/lib/interwork/libc.a(memcpy.o)
 
 .debug_frame    0x00000000      0xabc
  *(.debug_frame)
@@ -884,7 +883,6 @@ setMode1                                          proc1.o
 setMode2                                          proc1.o
 simplePrintf                                      startup/libea_startup_thumb.a(consol.o)
                                                   interrupt/lib_interrupt.a(interrupt.o)
-                                                  proc1.o
                                                   main.o
 startHighProc_oshal                               pre_emptive_os/pre_emptive_os.a(a7hal_a.o)
                                                   pre_emptive_os/pre_emptive_os.a(kernel.o)

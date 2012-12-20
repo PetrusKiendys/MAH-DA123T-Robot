@@ -1,4 +1,4 @@
-ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc7hCoC6.s 			page 1
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccGOTMzq.s 			page 1
 
 
    1              		.file	"LCD.c"
@@ -58,7 +58,7 @@ ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc7hCoC6.s 			page 1
   29              		.loc 1 22 0
   30 0014 010050E2 		wait:   SUBS R0, R0, #1
   23:LCD.c         **** 	asm("BNE wait");
-ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc7hCoC6.s 			page 2
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccGOTMzq.s 			page 2
 
 
   31              		.loc 1 23 0
@@ -118,7 +118,7 @@ ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc7hCoC6.s 			page 1
   69              		.loc 1 39 0
   70 0060 0E32A0E3 		mov	r3, #-536870912
   71 0064 0A3983E2 		add	r3, r3, #163840
-ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc7hCoC6.s 			page 3
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccGOTMzq.s 			page 3
 
 
   72 0068 143083E2 		add	r3, r3, #20
@@ -178,7 +178,7 @@ ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc7hCoC6.s 			page 1
  116              		@ args = 0, pretend = 0, frame = 4
  117              		@ frame_needed = 1, uses_anonymous_args = 0
  118 00d8 0DC0A0E1 		mov	ip, sp
-ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc7hCoC6.s 			page 4
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccGOTMzq.s 			page 4
 
 
  119              	.LCFI8:
@@ -238,7 +238,7 @@ ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc7hCoC6.s 			page 1
  167              	wait_BF:
  168              	.LFB5:
   56:LCD.c         **** 
-ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc7hCoC6.s 			page 5
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccGOTMzq.s 			page 5
 
 
   57:LCD.c         **** void wait_BF(void)
@@ -298,7 +298,7 @@ ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc7hCoC6.s 			page 1
  212 01d4 0A3983E2 		add	r3, r3, #163840
  213 01d8 103083E2 		add	r3, r3, #16
  214 01dc 003093E5 		ldr	r3, [r3, #0]
-ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc7hCoC6.s 			page 6
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccGOTMzq.s 			page 6
 
 
  215 01e0 023503E2 		and	r3, r3, #8388608
@@ -358,7 +358,7 @@ ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc7hCoC6.s 			page 1
   77:LCD.c         **** 	IODIR0 |= RW|backlight;
  260              		.loc 1 77 0
  261 024c 8E22A0E3 		mov	r2, #-536870904
-ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc7hCoC6.s 			page 7
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccGOTMzq.s 			page 7
 
 
  262 0250 0A2982E2 		add	r2, r2, #163840
@@ -418,7 +418,7 @@ ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc7hCoC6.s 			page 1
   86:LCD.c         **** 	send_instruction(0x0F);		//display on/off
  308              		.loc 1 86 0
  309 02e8 0F00A0E3 		mov	r0, #15
-ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc7hCoC6.s 			page 8
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccGOTMzq.s 			page 8
 
 
  310 02ec FEFFFFEB 		bl	send_instruction
@@ -478,7 +478,7 @@ ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc7hCoC6.s 			page 1
  358 0023 44       		.byte	0x4
  359              		.4byte	.LCFI1-.LCFI0
  360 0024 8E       		.byte	0x8e
-ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc7hCoC6.s 			page 9
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccGOTMzq.s 			page 9
 
 
  361 0025 02       		.uleb128 0x2
@@ -538,7 +538,7 @@ ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc7hCoC6.s 			page 1
  415 0069 04       		.uleb128 0x4
  416 006a 44       		.byte	0x4
  417              		.4byte	.LCFI10-.LCFI9
-ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc7hCoC6.s 			page 10
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccGOTMzq.s 			page 10
 
 
  418 006b 0C       		.byte	0xc
@@ -598,7 +598,7 @@ ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc7hCoC6.s 			page 1
  472              	.LEFDE8:
  473              		.text
  474              	.Letext0:
-ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc7hCoC6.s 			page 11
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccGOTMzq.s 			page 11
 
 
  475              		.section	.debug_loc,"",%progbits
@@ -658,7 +658,7 @@ ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc7hCoC6.s 			page 1
  529 0088 5D       		.byte	0x5d
  530 0089 64010000 		.4byte	.LCFI12-.Ltext0
  531 008d 6C010000 		.4byte	.LCFI14-.Ltext0
-ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc7hCoC6.s 			page 12
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccGOTMzq.s 			page 12
 
 
  532 0091 0100     		.2byte	0x1
@@ -718,7 +718,7 @@ ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc7hCoC6.s 			page 1
  577 0072 01       		.byte	0x1
  578 0073 00000000 		.4byte	.LFB2
  579 0077 28000000 		.4byte	.LFE2
-ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc7hCoC6.s 			page 13
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccGOTMzq.s 			page 13
 
 
  580 007b 00000000 		.4byte	.LLST0
@@ -778,7 +778,7 @@ ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc7hCoC6.s 			page 1
  622 00fa 54000000 		.4byte	.LLST2
  623 00fe 03       		.uleb128 0x3
  624 00ff 63686172 		.ascii	"character\000"
-ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc7hCoC6.s 			page 14
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccGOTMzq.s 			page 14
 
 
  624      61637465 
@@ -838,7 +838,7 @@ ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc7hCoC6.s 			page 1
  674 0016 01       		.uleb128 0x1
  675 0017 13       		.uleb128 0x13
  676 0018 3F       		.uleb128 0x3f
-ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc7hCoC6.s 			page 15
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccGOTMzq.s 			page 15
 
 
  677 0019 0C       		.uleb128 0xc
@@ -898,7 +898,7 @@ ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc7hCoC6.s 			page 1
  731 004f 27       		.uleb128 0x27
  732 0050 0C       		.uleb128 0xc
  733 0051 11       		.uleb128 0x11
-ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc7hCoC6.s 			page 16
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccGOTMzq.s 			page 16
 
 
  734 0052 01       		.uleb128 0x1
@@ -949,17 +949,17 @@ ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc7hCoC6.s 			page 1
  768 0018 00000000 		.4byte	0x0
  769 001c 00000000 		.4byte	0x0
  770              		.ident	"GCC: (GNU) 4.1.1"
-ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc7hCoC6.s 			page 17
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccGOTMzq.s 			page 17
 
 
 DEFINED SYMBOLS
                             *ABS*:00000000 LCD.c
-/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc7hCoC6.s:13     .text:00000000 delay
-/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc7hCoC6.s:20     .text:00000000 $a
-/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc7hCoC6.s:30     .text:00000014 wait
-/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc7hCoC6.s:42     .text:00000028 send_instruction
-/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc7hCoC6.s:112    .text:000000d8 send_character
-/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc7hCoC6.s:167    .text:00000160 wait_BF
-/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cc7hCoC6.s:248    .text:00000240 init_LCD
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccGOTMzq.s:13     .text:00000000 delay
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccGOTMzq.s:20     .text:00000000 $a
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccGOTMzq.s:30     .text:00000014 wait
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccGOTMzq.s:42     .text:00000028 send_instruction
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccGOTMzq.s:112    .text:000000d8 send_character
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccGOTMzq.s:167    .text:00000160 wait_BF
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccGOTMzq.s:248    .text:00000240 init_LCD
 
 NO UNDEFINED SYMBOLS
