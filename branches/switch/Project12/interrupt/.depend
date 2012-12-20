@@ -1,0 +1,3 @@
+interrupt.o: interrupt.c ../general.h ../startup/lpc2xxx.h \
+  ../startup/framework.h ../startup/config.h ../startup/config.h \
+  ../startup/printf_P.h ../startup/consol.h ../regulation/regulation.c
