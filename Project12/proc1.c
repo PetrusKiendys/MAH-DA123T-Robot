@@ -59,9 +59,9 @@ procEx1(void* arg)
 		    osSleep(300);
 
 
-printf("\n\nBEFORE GIVE\n\n");
+//printf("\n\nBEFORE GIVE\n\n");
 		osSemGive(&mutexLCD, &error);
-	printf("\n\nAFTER GIVE\n\n");
+//	printf("\n\nAFTER GIVE\n\n");
 		osSleep(1000);
 	}
 

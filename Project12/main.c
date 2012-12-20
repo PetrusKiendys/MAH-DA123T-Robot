@@ -32,7 +32,7 @@
 #include "startup/consol.h"
 #include "startup/config.h"
 #include "startup/framework.h"
-#include "lightSensorSwitch/initLightSwitch.c"
+#include "lightSensor/initLightSensor.c"
 
 #include "LCD/LCD.h"  //  Funktionsprototyper för LCD-rutinerna
 
@@ -165,17 +165,21 @@ main(void)
   tU8 error;
   tU8 pid;
 
-  void initLightSwitchPins();
+  //initLightSwitchPins();
+
   //FÖR LJUSSENSORN:
-   IODIR |= P06; // Sätter P0.6 till output
-   IODIR &= ~P029; // Sätter P029 till input
-   IOSET = P06; //Sätter p06 hög
+  //IODIR |= P06; // Sätter P0.6 till output
+  //ODIR &= ~P029; // Sätter P029 till input
+   //IOSET = P06; //Sätter p06 hög
 
   //För LJUSSENSOR+Digital Switch
-   PINSEL1 |= 0x05080000;	 //set AIN1 = P0.28, set AIN2 = P0.29,set Aout (DAC) = P0.25
+    //PINSEL1 |= 0x05080000;	 //set AIN1 = P0.28, set AIN2 = P0.29,set Aout (DAC) = P0.25
 
-   // FÖR DIGITALSWITCH:
-   IODIR &= ~P028; // sätter P0.28 till input
+    // New PINSEL1. Set AIN2 = P0.29, set Aout (DAC) = P0.25. DON'T Set AIN1 = P0.28!
+    PINSEL1 |= 0x04080000; //set AIN2 = P0.29,set Aout (DAC) = P0.25
+    // NOTE: Switchen är kopplad till P0.28. P0.28 använder Bit 24 och 25 i PINSEL1.
+    // Dessa bitar ska vara 0 för digital switch. Detta är de från början!
+
 
 
   osInit();
