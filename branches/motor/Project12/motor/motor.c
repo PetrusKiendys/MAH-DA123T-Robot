@@ -54,6 +54,8 @@
 #define BACKWARD	2
 #define BRAKE		3
 
+#define RUN_SETPWM_IN_LOOP	0	// dictates whether setPwmDutyPercentx(tU32) should be run outside the "TASK conditional statement"
+
 
 /*****************************************************************************
  * Function prototypes
@@ -64,7 +66,16 @@ static void setPwmDutyPercent2(tU32 dutyValue2);
 static void delayMs(tU16 delayInMs);
 void setMode1(short mode);
 void setMode2(short mode);
+void init_3953_io(void);
+
+//----------- DEV functions ------------------//
 void dev_run(tU32 duty1, tU32 duty2);
+void pwm_motor_init(void);
+void pwm_motor_run(tU32 duty1, tU32 duty2);
+void change_mode(short mode);
+//----------- end of DEV functions -----------//
+
+void delay_millis(long ms);
 
 /*****************************************************************************
  * Implementation of local functions
@@ -197,33 +208,33 @@ void initPins() {
 void setMode1(short mode) {
 
 	if (mode == 1) {	// MODE = Forward, Fast Current-Decay Mode
-		IODIR |= P07;	// ENABLE (P0.7)
+		//IODIR |= P07;	// ENABLE (P0.7)
 		IOCLR = P07;	// set to L
 
-		IODIR |= P12;	// PHASE (P0.12)
+		//IODIR |= P12;	// PHASE (P0.12)
 		IOSET = P12;	// set to H
 
-		IODIR |= P25;	// BRAKE (P0.25)
+		//IODIR |= P25;	// BRAKE (P0.25)
 		IOSET = P25;	// set to H
 	}
 	else if (mode == 2){ // Reverse, Fast Current-Decay Mode
-		IODIR |= P07; // ENABLE (P0.7)
+		//IODIR |= P07; // ENABLE (P0.7)
 		IOCLR = P07; // set to L
 
-		IODIR |= P12; // PHASE (P0.12)
+		//IODIR |= P12; // PHASE (P0.12)
 		IOCLR = P12; // set to L
 
-		IODIR |= P25; // BRAKE (P0.25)
+		//IODIR |= P25; // BRAKE (P0.25)
 		IOSET = P25; // set to H
 	}
 	else if (mode == 3){ // Brake, Fast Current-Decay Mode
-		IODIR |= P07; // ENABLE (P0.7)
+		//IODIR |= P07; // ENABLE (P0.7)
 		IOCLR = P07; // set to L
 
-		IODIR |= P12; // PHASE (P0.12)
+		//IODIR |= P12; // PHASE (P0.12)
 		IOCLR = P12; // set to L
 
-		IODIR |= P25; // BRAKE (P0.25)
+		//IODIR |= P25; // BRAKE (P0.25)
 		IOCLR = P25; // set to L
 	}
 
@@ -233,34 +244,34 @@ void setMode1(short mode) {
 void setMode2(short mode) {
 
 	if (mode == 1) {	// MODE = Forward, Fast Current-Decay Mode
-		IODIR |= P21;	// ENABLE (P0.21)
+		//IODIR |= P21;	// ENABLE (P0.21)
 		IOCLR = P21;	// set to L
 
-		IODIR |= P23;	// PHASE (P0.23)
+		//IODIR |= P23;	// PHASE (P0.23)
 		IOSET = P23;	// set to H
 
-		IODIR |= P31;	// BRAKE (P0.31)
+		//IODIR |= P31;	// BRAKE (P0.31)
 		IOSET = P31;	// set to H
 	}
 	else if (mode == 2){ // Reverse, Fast Current-Decay Mode
-		IODIR |= P21; // ENABLE (P0.21)
+		//IODIR |= P21; // ENABLE (P0.21)
 		IOCLR = P21; // set to L
 
-		IODIR |= P23; // PHASE (P0.23)
+		//IODIR |= P23; // PHASE (P0.23)
 		IOCLR = P23; // set to L
 
-		IODIR |= P31; // BRAKE (P0.31)
+		//IODIR |= P31; // BRAKE (P0.31)
 		IOSET = P31; // set to H
 	}
 
 	else if (mode == 3){ // Brake, Fast Current-Decay Mode
-		IODIR |= P21; // ENABLE (P0.21)
+		//IODIR |= P21; // ENABLE (P0.21)
 		IOCLR = P21; // set to L
 
-		IODIR |= P23; // PHASE (P0.23)
+		//IODIR |= P23; // PHASE (P0.23)
 		IOCLR = P23; // set to L
 
-		IODIR |= P31; // BRAKE (P0.31)
+		//IODIR |= P31; // BRAKE (P0.31)
 		IOCLR = P31; // set to L
 	}
 
@@ -285,15 +296,29 @@ runPwm()
   duty1 = 0;
   duty2 = 0;
 
+  init_3953_io();
+
   //set modes for UT1 and UT2
   setMode1(FORWARD);
-  setMode2(BACKWARD);
+  setMode2(FORWARD);
 
   dev_run(duty1, duty2);
 
   //while(1);
 
   return 0;
+}
+
+void init_3953_io() {
+	// UT1
+	IODIR |= P07;	// ENABLE (P0.7)
+	IODIR |= P12;	// PHASE (P0.12)
+	IODIR |= P25;	// BRAKE (P0.25)
+
+	// UT2
+	IODIR |= P21;	// ENABLE (P0.21)
+	IODIR |= P23;	// PHASE (P0.23)
+	IODIR |= P31;	// BRAKE (P0.31)
 }
 
 // dev function - not used in release
@@ -316,39 +341,47 @@ void dev_run(tU32 duty1, tU32 duty2) {
 	while (1) {
 
 		//set frequency value
-		setPwmDutyPercent1(duty1);
-		setPwmDutyPercent2(duty2);
+		if (RUN_SETPWM_IN_LOOP == 1) {
+			setPwmDutyPercent1(duty1);
+			setPwmDutyPercent2(duty2);
+		}
 
-		if (TASK == 1) {
+
+
+		switch (TASK) {
+		case 1: {
 			//update duty cycle (0.00 - 100.00%, in steps of 0.10%)
 			duty1 += 10;
 			if (duty1 > 10000)
 				duty1 = 0;
+			break;
 		}
-
-		else if (TASK == 2) {
+		case 2: {
 			duty1 = 0;
 			duty2 = 8500;
 			// COMMENT: slowest speed = 8500 duty
 			//			fastest speed = 0	 duty
-		} else if (TASK == 3) { //Left
+			break;
+		}
+		case 3: { // left
 			duty1 = 6000;
 			duty2 = 8000;
-		} else if (TASK == 4) { //Right
+			break;
+		}
+		case 4: { // right
 			duty1 = 8000;
 			duty2 = 6000;
+			break;
 		}
-		// Has to be mode = 3!!
-		else if (TASK == 5) { // Bakåt
-			duty1 = 2000;
-			duty2 = 2000;
-		} else if (TASK == 6) {
-			duty1 = 10000;
-			duty2 = 10000;
-		} else if (TASK == 7) {
-			short delay = 0;
+		case 5: {
+			duty1 = 6000;
+			duty2 = 6000;
+			break;
+		}
+		case 6: {
+			short delay = 1;
 			short duty_vals = 6000;
-			short section[3] = {1, 0, 0};
+			short section[3] = { 1, 0, 0 };
 
 			if (section[0] == 1) {
 				setMode1(FORWARD);
@@ -357,6 +390,7 @@ void dev_run(tU32 duty1, tU32 duty2) {
 				duty2 = duty_vals;
 				setPwmDutyPercent1(duty1);
 				setPwmDutyPercent2(duty2);
+				//delayMs(0);
 				delay_millis(delay);
 			}
 
@@ -377,8 +411,44 @@ void dev_run(tU32 duty1, tU32 duty2) {
 				setPwmDutyPercent2(duty2);
 				delay_millis(delay);
 			}
+			break;
+		}
+		case 7: {
+			pwm_motor_init();
+			duty1 = 6000;
+			duty2 = 6000;
+
+			delay_millis(10);
+
+			pwm_motor_run(duty1, duty2);
+			break;
+		}
 
 		}
 	}
 }
 
+void pwm_motor_init() {
+	setMode1(FORWARD);
+	setMode2(FORWARD);
+
+	delay_millis(200);
+}
+
+void pwm_motor_run(tU32 duty1, tU32 duty2) {
+	setPwmDutyPercent1(duty1);
+	setPwmDutyPercent2(duty2);
+
+	while(1) {
+		change_mode(FORWARD);
+		change_mode(BRAKE);
+		change_mode(BACKWARD);
+		change_mode(BRAKE);
+	}
+}
+
+void change_mode(short mode) {
+	setMode1(mode);
+	setMode2(mode);
+	delay_millis(200);
+}
