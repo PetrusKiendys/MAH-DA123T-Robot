@@ -1,4 +1,4 @@
-ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccz4ITac.s 			page 1
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccXERhbd.s 			page 1
 
 
    1              		.file	"interrupt.c"
@@ -8,41 +8,18 @@ ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccz4ITac.s 			page 1
    5              	.Ldebug_info0:
    6              		.section	.debug_line,"",%progbits
    7              	.Ldebug_line0:
-   8 0000 44000000 		.text
+   8 0000 64000000 		.text
    8      02002200 
    8      00000201 
    8      FB0E0D00 
    8      01010101 
    9              	.Ltext0:
-  10              		.section	.rodata.str1.4,"aMS",%progbits,1
-  11              		.align	2
-  12              	.LC0:
-  13 0000 4B6C6963 		.ascii	"Klickat p\345 switch ON\012\000"
-  13      6B617420 
-  13      70E52073 
-  13      77697463 
-  13      68204F4E 
-  14 0016 0000     		.align	2
-  15              	.LC1:
-  16 0018 494F5049 		.ascii	"IOPIN = %x\012\000"
-  16      4E203D20 
-  16      25780A00 
-  17              		.align	2
-  18              	.LC2:
-  19 0024 610A610A 		.ascii	"a\012a\012a\012a\012a\012a\012a\012a\012a\012a\012a"
-  19      610A610A 
-  19      610A610A 
-  19      610A610A 
-  19      610A610A 
-  20 0039 0A610A61 		.ascii	"\012a\012a\012a\012\000"
-  20      0A610A00 
-  21 0041 000000   		.text
-  22              		.align	2
-  23              		.global	Timer1ISRirq
-  24              		.type	Timer1ISRirq, %function
-  25              	Timer1ISRirq:
-  26              	.LFB2:
-  27              		.file 1 "interrupt.c"
+  10              		.align	2
+  11              		.global	Timer1ISRirq
+  12              		.type	Timer1ISRirq, %function
+  13              	Timer1ISRirq:
+  14              	.LFB2:
+  15              		.file 1 "interrupt.c"
    1:interrupt.c   **** /*
    2:interrupt.c   ****  * interrupt.c
    3:interrupt.c   ****  *
@@ -58,444 +35,531 @@ ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccz4ITac.s 			page 1
   13:interrupt.c   **** #include "../startup/framework.h"
   14:interrupt.c   **** #include "../startup/config.h"
   15:interrupt.c   **** #include "../startup/printf_P.h"
-ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccz4ITac.s 			page 2
-
-
   16:interrupt.c   **** //#include "../lightSensorSwitch/initLightSwitch.c"
   17:interrupt.c   **** #include  "../regulation/regulation.c"
   18:interrupt.c   **** 
-  19:interrupt.c   **** 
-  20:interrupt.c   **** #define P028   0x10000000			// Output Switch
-  21:interrupt.c   **** /// Från buttonledc
-  22:interrupt.c   **** #define led 0x00000800		//the led is connected to P0.11
-  23:interrupt.c   **** #define button 0x00010000	//the button is connected to P0.16
-  24:interrupt.c   **** 
-  25:interrupt.c   **** //#define PCB_PINSEL1_P028_MASK     ((unsigned int) 0x03000000)
-  26:interrupt.c   **** 
+  19:interrupt.c   **** //#include "../motor/motor.c"
+  20:interrupt.c   **** 
+  21:interrupt.c   **** 
+  22:interrupt.c   **** 
+  23:interrupt.c   **** #define P028   0x10000000			// Output Switch
+  24:interrupt.c   **** /// Från buttonledc
+  25:interrupt.c   **** #define led 0x00000800		//the led is connected to P0.11
+  26:interrupt.c   **** #define button 0x00010000	//the button is connected to P0.16
   27:interrupt.c   **** 
-  28:interrupt.c   **** 
+  28:interrupt.c   **** //#define PCB_PINSEL1_P028_MASK     ((unsigned int) 0x03000000)
   29:interrupt.c   **** 
-  30:interrupt.c   **** /*****************************************************************************
-  31:interrupt.c   ****  * Exempel på Avbrottsrutin (ljudsamling)
-  32:interrupt.c   ****  *
-  33:interrupt.c   ****  ****************************************************************************/
-  34:interrupt.c   **** 
-  35:interrupt.c   **** 
-  36:interrupt.c   **** 
+  30:interrupt.c   **** 
+  31:interrupt.c   **** 
+  32:interrupt.c   **** 
+  33:interrupt.c   **** /*****************************************************************************
+  34:interrupt.c   ****  * Exempel på Avbrottsrutin (ljudsamling)
+  35:interrupt.c   ****  *
+  36:interrupt.c   ****  ****************************************************************************/
   37:interrupt.c   **** 
   38:interrupt.c   **** 
-  39:interrupt.c   **** void Timer1ISRirq (void)
-  40:interrupt.c   **** {
-  28              		.loc 1 40 0
-  29              		@ Function supports interworking.
-  30              		@ args = 0, pretend = 0, frame = 0
-  31              		@ frame_needed = 0, uses_anonymous_args = 0
-  32 0000 10402DE9 		stmfd	sp!, {r4, lr}
-  33              	.LCFI0:
-  41:interrupt.c   ****  tU16 ADvalue, DAvalue;
-  42:interrupt.c   **** 
-  43:interrupt.c   ****  //long tempMask = IOPIN;
-  44:interrupt.c   ****  //tempMask &= ~PCB_PINSEL1_P028_MASK;
-  45:interrupt.c   **** 
-  46:interrupt.c   **** 
-  47:interrupt.c   **** 
-  48:interrupt.c   ****  	 // TEST AV SWITCH
-  49:interrupt.c   ****  	// IODIR &= ~P028; // sätter P0.28 till input
-  50:interrupt.c   ****  	// if (tempMask & P028) {	//is button 1 (not activated)
-  51:interrupt.c   **** 
-  52:interrupt.c   ****  //printf("IOPIN = %d\n", IOPIN);
-  53:interrupt.c   ****  //printf("P028 = %d\n", P028);
-  54:interrupt.c   **** 
-  55:interrupt.c   ****  /*unsigned long temp_a = IOPIN;
-  56:interrupt.c   ****  unsigned long temp_b = P028;
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccXERhbd.s 			page 2
+
+
+  39:interrupt.c   **** 
+  40:interrupt.c   **** 
+  41:interrupt.c   **** 
+  42:interrupt.c   **** void Timer1ISRirq (void)
+  43:interrupt.c   **** {
+  16              		.loc 1 43 0
+  17              		@ Function supports interworking.
+  18              		@ args = 0, pretend = 0, frame = 0
+  19              		@ frame_needed = 0, uses_anonymous_args = 0
+  44:interrupt.c   ****  tU16 ADvalue, DAvalue;
+  45:interrupt.c   ****  static tU16 lastSend = 0;
+  46:interrupt.c   ****  //int mode1 = 0;
+  47:interrupt.c   ****  //int mode2 = 0;
+  48:interrupt.c   **** 
+  49:interrupt.c   **** 
+  50:interrupt.c   **** 
+  51:interrupt.c   ****  /* STYR MOTOR MED SWITCH */
+  52:interrupt.c   ****  /*
+  53:interrupt.c   ****  static int mode1 = -1;
+  54:interrupt.c   ****  static int mode2 = -1;
+  55:interrupt.c   ****  static int testFlag = 0;
+  56:interrupt.c   ****  static int pulsFlag = 0;
   57:interrupt.c   **** 
-  58:interrupt.c   ****  if (temp_a != IOPIN)
-  59:interrupt.c   **** 	 printf("IOPIN changed!\n");
-  60:interrupt.c   ****  if (temp_b != P028)
-  61:interrupt.c   **** 	 printf("P0.28 changed!\n");
-  62:interrupt.c   **** */
-  63:interrupt.c   ****  //printf("IOPIN: %d\n", temp_a);
-  64:interrupt.c   ****  //printf("P0.28: %d\n", temp_b);
+  58:interrupt.c   ****  	 // Tryck på switch och text skrivs ut
+  59:interrupt.c   ****  	 if(IOPIN & P028){
+  60:interrupt.c   ****  		//printf("Klickat på switch ON\n");
+  61:interrupt.c   ****  	 		//printf("tempMask = %h. P028 = %h", tempMask, P028);
+  62:interrupt.c   ****  	 		 //IOSET = led;	//P0.8 = 1, led off
+  63:interrupt.c   ****  			//printf("IOPIN = %x\n", IOPIN);
+  64:interrupt.c   ****  		 testFlag = 1;
   65:interrupt.c   **** 
-  66:interrupt.c   **** 
-ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccz4ITac.s 			page 3
+  66:interrupt.c   ****  	 } else {
+  67:interrupt.c   ****     	 //IOCLR = led;	//led on
+  68:interrupt.c   ****  		 if( testFlag == 1 ) {
+  69:interrupt.c   **** 			 mode1 += 2;
+  70:interrupt.c   **** 			 mode2 += 2;
+  71:interrupt.c   **** 
+  72:interrupt.c   **** 			 if( mode1 == 5)
+  73:interrupt.c   **** 				 mode1 = 1;
+  74:interrupt.c   **** 			 if (mode2 == 5 )
+  75:interrupt.c   **** 				 mode2 = 1;
+  76:interrupt.c   **** 
+  77:interrupt.c   **** 			printf("mode1 = %d.\nmode2 = %d\n\n");
+  78:interrupt.c   **** 			setMode2( mode2 );
+  79:interrupt.c   **** 			setMode1( mode1 );
+  80:interrupt.c   **** 			testFlag = 0;
+  81:interrupt.c   ****  		 }
+  82:interrupt.c   ****  		//delay(1500);
+  83:interrupt.c   ****  //		delay_millis(1000);
+  84:interrupt.c   ****  		//printf("IOPIN = %d\n", IOPIN);
+  85:interrupt.c   ****  		//printf("tempMask = %d. P028 = %d", tempMask, P028);
+  86:interrupt.c   ****  	 }
+  87:interrupt.c   **** 
+  88:interrupt.c   **** 
+  89:interrupt.c   ****  */
+  90:interrupt.c   ****  /*S LUT STYR MOTOR MED SWITCH */
+  91:interrupt.c   **** 
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccXERhbd.s 			page 3
 
 
-  67:interrupt.c   ****  	 //if(!((IOPIN &= ~P028) & (P028))){
-  68:interrupt.c   ****  //	 IODIR |= led; // från buttonledc
-  69:interrupt.c   ****  	//IODIR &= ~P028; // sätter P0.28 till input
-  70:interrupt.c   ****  	 // Tryck på joystick-knappen och led lyser (Joystick fungerar ej här)
-  71:interrupt.c   ****  	/*if (IOPIN & button){	//is button 1 (not activated)
-  72:interrupt.c   ****  	     IOSET = led;	//P0.10 = 1, led off
-  73:interrupt.c   ****  	 } else {
-  74:interrupt.c   ****  		 IOCLR = led;	//led on
-  75:interrupt.c   ****  	 }
-  76:interrupt.c   ****  	 */
-  77:interrupt.c   ****  	//Tryck på switch och lampa lyser
-  78:interrupt.c   ****  /*	if (IOPIN & P028){	//is button 1 (not activated)
-  79:interrupt.c   ****  	 	IOSET = led;	//P0.10 = 1, led off
-  80:interrupt.c   ****  	 } else {
-  81:interrupt.c   ****  	 	IOCLR = led;	//led on
-  82:interrupt.c   ****  	 }
-  83:interrupt.c   **** */
-  84:interrupt.c   ****  // IODIR |= P028; // sätter P0.28 till output
-  85:interrupt.c   ****  // IODIR &= ~P028; // sätter P0.28 till input
-  86:interrupt.c   ****  	 // Tryck på switch och text skrivs ut
-  87:interrupt.c   ****  	 if(IOPIN & P028){
-  34              		.loc 1 87 0
-  35 0004 4C409FE5 		ldr	r4, .L6
-  36 0008 003094E5 		ldr	r3, [r4, #0]
-  37 000c 010213E3 		tst	r3, #268435456
-  88:interrupt.c   ****  		printf("Klickat på switch ON\n");
-  38              		.loc 1 88 0
-  39 0010 44009FE5 		ldr	r0, .L6+4
-  40              		.loc 1 87 0
-  41 0014 0400000A 		beq	.L2
-  42              		.loc 1 88 0
-  43 0018 FEFFFFEB 		bl	simplePrintf
-  89:interrupt.c   ****  	 		//printf("tempMask = %h. P028 = %h", tempMask, P028);
-  90:interrupt.c   ****  	 		 //IOSET = led;	//P0.8 = 1, led off
-  91:interrupt.c   ****  			printf("IOPIN = %x\n", IOPIN);
-  44              		.loc 1 91 0
-  45 001c 001094E5 		ldr	r1, [r4, #0]
-  46 0020 38009FE5 		ldr	r0, .L6+8
-  47 0024 FEFFFFEB 		bl	simplePrintf
-  48 0028 010000EA 		b	.L4
-  49              	.L2:
   92:interrupt.c   **** 
-  93:interrupt.c   ****  	 } else {
-  94:interrupt.c   ****     	 //IOCLR = led;	//led on
-  95:interrupt.c   ****  		printf("a\na\na\na\na\na\na\na\na\na\na\na\na\na\n");
-  50              		.loc 1 95 0
-  51 002c 30009FE5 		ldr	r0, .L6+12
-  52 0030 FEFFFFEB 		bl	simplePrintf
-  53              	.L4:
-  96:interrupt.c   ****  		//printf("IOPIN = %d\n", IOPIN);
-  97:interrupt.c   ****  		//printf("tempMask = %d. P028 = %d", tempMask, P028);
-  98:interrupt.c   ****  	 }
+  93:interrupt.c   **** 
+  94:interrupt.c   ****  // FÖR LJUSSENSOR
+  95:interrupt.c   ****  //printf("TEST-Interrupt1\n");
+  96:interrupt.c   **** 
+  97:interrupt.c   **** /* AD-omvandling av AIN1 (P0.28)  */
+  98:interrupt.c   **** 
   99:interrupt.c   **** 
  100:interrupt.c   **** 
- 101:interrupt.c   ****  // SLUT TEST AV SWITCH
- 102:interrupt.c   **** 
- 103:interrupt.c   **** 
-ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccz4ITac.s 			page 4
-
-
- 104:interrupt.c   **** 
- 105:interrupt.c   ****  // FÖR LJUSSENSOR
- 106:interrupt.c   ****  //printf("TEST-Interrupt1\n");
- 107:interrupt.c   **** 
- 108:interrupt.c   **** /* AD-omvandling av AIN1 (P0.28)  */
- 109:interrupt.c   **** 
- 110:interrupt.c   **** 
+ 101:interrupt.c   **** 
+ 102:interrupt.c   ****  	  //get AIN1 (P0.28)or AIN2 (P0.29)
+ 103:interrupt.c   **** 	//start conversion now (for selected channel)
+ 104:interrupt.c   ****  	 // Denna rad har vi lagt till.
+ 105:interrupt.c   **** 	ADCR = (ADCR & 0xFFFFFF00) | (1 << 2) | (1 << 24);
+  20              		.loc 1 105 0
+  21 0000 B8209FE5 		ldr	r2, .L15
+  22 0004 003092E5 		ldr	r3, [r2, #0]
+  23              		.loc 1 43 0
+  24 0008 10402DE9 		stmfd	sp!, {r4, lr}
+  25              	.LCFI0:
+  26              		.loc 1 105 0
+  27 000c FF30C3E3 		bic	r3, r3, #255
+  28 0010 013483E3 		orr	r3, r3, #16777216
+  29 0014 043083E3 		orr	r3, r3, #4
+  30 0018 003082E5 		str	r3, [r2, #0]
+  31              	.L2:
+ 106:interrupt.c   **** 
+ 107:interrupt.c   **** 	//printf("TEST-Interrupt2\n");
+ 108:interrupt.c   **** 	while((ADDR & 0x80000000) == 0);  //vänta till AD-omvandlaren är klar
+  32              		.loc 1 108 0
+  33 001c 9C209FE5 		ldr	r2, .L15
+  34 0020 043092E5 		ldr	r3, [r2, #4]
+  35 0024 000053E3 		cmp	r3, #0
+  36 0028 FBFFFFAA 		bge	.L2
+ 109:interrupt.c   **** 	// printf("TEST-Interrupt3\n");
+ 110:interrupt.c   **** // Ovanstående är egentligen lite farligt, om AD-omvandlaren lägger av hänger sig allt!
  111:interrupt.c   **** 
- 112:interrupt.c   **** /*
- 113:interrupt.c   ****  	  //get AIN1 (P0.28)or AIN2 (P0.29)
- 114:interrupt.c   **** 	//start conversion now (for selected channel)
- 115:interrupt.c   ****  	 // Denna rad har vi lagt till.
- 116:interrupt.c   **** 	ADCR = (ADCR & 0xFFFFFF00) | (1 << 2) | (1 << 24);
+ 112:interrupt.c   **** //Hämta 16-bitar, skifta till 8-bit integer
+ 113:interrupt.c   **** 	ADvalue=(ADDR>>8) & 0xFF;
+  37              		.loc 1 113 0
+  38 002c 043092E5 		ldr	r3, [r2, #4]
+ 114:interrupt.c   **** 	// printf("TEST-Interrupt4\n");
+ 115:interrupt.c   **** 
+ 116:interrupt.c   **** 
  117:interrupt.c   **** 
- 118:interrupt.c   **** 	//printf("TEST-Interrupt2\n");
- 119:interrupt.c   **** 	while((ADDR & 0x80000000) == 0);  //vänta till AD-omvandlaren är klar
- 120:interrupt.c   **** 	// printf("TEST-Interrupt3\n");
- 121:interrupt.c   **** // Ovanstående är egentligen lite farligt, om AD-omvandlaren lägger av hänger sig allt!
- 122:interrupt.c   **** 
- 123:interrupt.c   **** //Hämta 16-bitar, skifta till 8-bit integer
- 124:interrupt.c   **** 	ADvalue=(ADDR>>8) & 0xFF;
- 125:interrupt.c   **** 	// printf("TEST-Interrupt4\n");
- 126:interrupt.c   **** 
- 127:interrupt.c   **** 
- 128:interrupt.c   **** 
- 129:interrupt.c   **** //Test, vi gör inget. Lägger ut samma värde som kom in
- 130:interrupt.c   **** 
- 131:interrupt.c   **** 	DAvalue = ADvalue;
- 132:interrupt.c   **** 	// printf("TEST-Interrupt5\n");
- 133:interrupt.c   **** //
- 134:interrupt.c   **** 
- 135:interrupt.c   **** */
- 136:interrupt.c   **** 
- 137:interrupt.c   **** /* DA-omvandling     */
- 138:interrupt.c   **** 	/* DAvalue=DAvalue & 0xFF;	//maska ut 8 bitar för säkerhets skull
- 139:interrupt.c   **** 	// printf("TEST-Interrupt6\n");
- 140:interrupt.c   **** 	DACR=DAvalue<<8;			//skifta 8 bitar, nolla i bit 16 -> snabb mode
- 141:interrupt.c   **** 	// printf("TEST-Interrupt7\n");
- 142:interrupt.c   **** 
- 143:interrupt.c   **** 	//Skriv ut resultat i terminal
- 144:interrupt.c   **** 	printf(" %d \n",DAvalue);
- 145:interrupt.c   **** 	setIsValue(DAvalue);
- 146:interrupt.c   **** 
- 147:interrupt.c   **** 		//printf("TEST-Interrupt8\n");
- 148:interrupt.c   **** 	//lastRead=DAvalue;
- 149:interrupt.c   **** 
- 150:interrupt.c   **** // SLUT LJUSSENSOR + ADOMVANDLING
- 151:interrupt.c   **** */
- 152:interrupt.c   **** 
- 153:interrupt.c   **** //Återställ interruptflaggor
- 154:interrupt.c   **** 	TIMER1_IR |= 0x00000001;          //reseta interrrupt flaggan för MR0
-  54              		.loc 1 154 0
-  55 0034 2C209FE5 		ldr	r2, .L6+16
-  56 0038 003092E5 		ldr	r3, [r2, #0]
-  57 003c 013083E3 		orr	r3, r3, #1
-  58 0040 003082E5 		str	r3, [r2, #0]
- 155:interrupt.c   **** 	VICVectAddr = 0x00;        			//dummy write to VIC to signal end of interrupt
-ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccz4ITac.s 			page 5
+ 118:interrupt.c   **** //Test, vi gör inget. Lägger ut samma värde som kom in
+ 119:interrupt.c   **** 
+ 120:interrupt.c   **** 	DAvalue = ADvalue;
+ 121:interrupt.c   **** 	// printf("TEST-Interrupt5\n");
+ 122:interrupt.c   **** //
+ 123:interrupt.c   **** 
+ 124:interrupt.c   **** 
+ 125:interrupt.c   **** 
+ 126:interrupt.c   **** /* DA-omvandling     */
+ 127:interrupt.c   **** 	 DAvalue=DAvalue & 0xFF;	//maska ut 8 bitar för säkerhets skull
+ 128:interrupt.c   **** 	// printf("TEST-Interrupt6\n");
+ 129:interrupt.c   **** 	DACR=DAvalue<<8;			//skifta 8 bitar, nolla i bit 16 -> snabb mode
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccXERhbd.s 			page 4
 
 
-  59              		.loc 1 155 0
-  60 0044 0020A0E3 		mov	r2, #0
-  61 0048 0030E0E3 		mvn	r3, #0
-  62 004c CF2F03E5 		str	r2, [r3, #-4047]
+ 130:interrupt.c   **** 	// printf("TEST-Interrupt7\n");
+ 131:interrupt.c   **** 
+ 132:interrupt.c   **** 	//Skriv ut resultat i terminal
+ 133:interrupt.c   **** //	printf("DAvalue =  %d \nlastSend = %d\n\n", DAvalue, lastSend);
+ 134:interrupt.c   **** 	//setIsValue(DAvalue);
+ 135:interrupt.c   **** 
+ 136:interrupt.c   **** 		//printf("TEST-Interrupt8\n");
+ 137:interrupt.c   **** 	//lastRead=DAvalue;
+ 138:interrupt.c   **** 
+ 139:interrupt.c   **** // SLUT LJUSSENSOR + ADOMVANDLING
+ 140:interrupt.c   **** 
+ 141:interrupt.c   **** 	// STYR MOTORER MED OMVANDLINGEN
+ 142:interrupt.c   **** 	if( DAvalue != lastSend) {
+  39              		.loc 1 142 0
+  40 0030 8C209FE5 		ldr	r2, .L15+4
+  41              		.loc 1 113 0
+  42 0034 2334A0E1 		mov	r3, r3, lsr #8
+  43              		.loc 1 142 0
+  44 0038 B020D2E1 		ldrh	r2, [r2, #0]
+  45              		.loc 1 113 0
+  46 003c FF4003E2 		and	r4, r3, #255
+  47              	.LVL0:
+  48              		.loc 1 129 0
+  49 0040 80309FE5 		ldr	r3, .L15+8
+  50              		.loc 1 142 0
+  51 0044 040052E1 		cmp	r2, r4
+  52              		.loc 1 129 0
+  53 0048 0424A0E1 		mov	r2, r4, asl #8
+  54 004c 002083E5 		str	r2, [r3, #0]
+  55              		.loc 1 142 0
+  56 0050 1100000A 		beq	.L4
+ 143:interrupt.c   **** 		if( DAvalue < 80 ) { // Go Forward
+  57              		.loc 1 143 0
+  58 0054 4F0054E3 		cmp	r4, #79
+  59 0058 0300008A 		bhi	.L6
+ 144:interrupt.c   **** 			setMode1(1);
+  60              		.loc 1 144 0
+  61 005c 0100A0E3 		mov	r0, #1
+  62 0060 FEFFFFEB 		bl	setMode1
+ 145:interrupt.c   **** 			setMode2(1);
+  63              		.loc 1 145 0
+  64 0064 0100A0E3 		mov	r0, #1
+  65 0068 080000EA 		b	.L14
+  66              	.L6:
+ 146:interrupt.c   **** 		} else if( DAvalue > 130 ) { // Go Backward
+  67              		.loc 1 146 0
+  68 006c 820054E3 		cmp	r4, #130
+  69 0070 0300009A 		bls	.L9
+ 147:interrupt.c   **** 			setMode1(3);
+  70              		.loc 1 147 0
+  71 0074 0300A0E3 		mov	r0, #3
+  72 0078 FEFFFFEB 		bl	setMode1
+ 148:interrupt.c   **** 			setMode2(3);
+  73              		.loc 1 148 0
+  74 007c 0300A0E3 		mov	r0, #3
+  75 0080 020000EA 		b	.L14
+  76              	.L9:
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccXERhbd.s 			page 5
+
+
+ 149:interrupt.c   **** 		} else { // Break
+ 150:interrupt.c   **** 			setMode1(6);
+  77              		.loc 1 150 0
+  78 0084 0600A0E3 		mov	r0, #6
+  79 0088 FEFFFFEB 		bl	setMode1
+ 151:interrupt.c   **** 			setMode2(6);
+  80              		.loc 1 151 0
+  81 008c 0600A0E3 		mov	r0, #6
+  82              	.L14:
+  83 0090 FEFFFFEB 		bl	setMode2
+ 152:interrupt.c   **** 		}
+ 153:interrupt.c   **** 		lastSend = DAvalue;
+  84              		.loc 1 153 0
+  85 0094 28309FE5 		ldr	r3, .L15+4
+  86 0098 B040C3E1 		strh	r4, [r3, #0]	@ movhi
+  87              	.L4:
+ 154:interrupt.c   **** 	}
+ 155:interrupt.c   **** 
  156:interrupt.c   **** 
- 157:interrupt.c   **** 
- 158:interrupt.c   **** 
- 159:interrupt.c   **** 
- 160:interrupt.c   **** }
-  63              		.loc 1 160 0
-  64 0050 1040BDE8 		ldmfd	sp!, {r4, lr}
-  65 0054 1EFF2FE1 		bx	lr
-  66              	.L7:
-  67              		.align	2
-  68              	.L6:
-  69 0058 008002E0 		.word	-536707072
-  70 005c 00000000 		.word	.LC0
-  71 0060 18000000 		.word	.LC1
-  72 0064 24000000 		.word	.LC2
-  73 0068 008000E0 		.word	-536838144
-  74              	.LFE2:
-  75              		.size	Timer1ISRirq, .-Timer1ISRirq
-  76              		.section	.debug_frame,"",%progbits
-  77              	.Lframe0:
-  78 0000 0C000000 		.4byte	.LECIE0-.LSCIE0
-  79              	.LSCIE0:
-  80 0004 FFFFFFFF 		.4byte	0xffffffff
-  81 0008 01       		.byte	0x1
-  82 0009 00       		.ascii	"\000"
-  83 000a 01       		.uleb128 0x1
-  84 000b 7C       		.sleb128 -4
-  85 000c 0E       		.byte	0xe
-  86 000d 0C       		.byte	0xc
-  87 000e 0D       		.uleb128 0xd
-  88 000f 00       		.uleb128 0x0
-  89              		.align	2
-  90              	.LECIE0:
-  91              	.LSFDE0:
-  92 0010 14000000 		.4byte	.LEFDE0-.LASFDE0
-  93              	.LASFDE0:
-  94 0014 00000000 		.4byte	.Lframe0
-  95 0018 00000000 		.4byte	.LFB2
-  96 001c 6C000000 		.4byte	.LFE2-.LFB2
-  97 0020 44       		.byte	0x4
-  98              		.4byte	.LCFI0-.LFB2
-  99 0021 0E       		.byte	0xe
- 100 0022 08       		.uleb128 0x8
- 101 0023 8E       		.byte	0x8e
- 102 0024 01       		.uleb128 0x1
- 103 0025 84       		.byte	0x84
- 104 0026 02       		.uleb128 0x2
- 105 0027 00       		.align	2
- 106              	.LEFDE0:
- 107              		.text
- 108              	.Letext0:
- 109              		.section	.debug_loc,"",%progbits
- 110              	.Ldebug_loc0:
-ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccz4ITac.s 			page 6
+ 157:interrupt.c   **** //Återställ interruptflaggor
+ 158:interrupt.c   **** 	TIMER1_IR |= 0x00000001;          //reseta interrrupt flaggan för MR0
+  88              		.loc 1 158 0
+  89 009c 28209FE5 		ldr	r2, .L15+12
+  90 00a0 003092E5 		ldr	r3, [r2, #0]
+  91 00a4 013083E3 		orr	r3, r3, #1
+  92 00a8 003082E5 		str	r3, [r2, #0]
+ 159:interrupt.c   **** 	VICVectAddr = 0x00;        			//dummy write to VIC to signal end of interrupt
+  93              		.loc 1 159 0
+  94 00ac 0020A0E3 		mov	r2, #0
+  95 00b0 0030E0E3 		mvn	r3, #0
+  96 00b4 CF2F03E5 		str	r2, [r3, #-4047]
+ 160:interrupt.c   **** 
+ 161:interrupt.c   **** 
+ 162:interrupt.c   **** 
+ 163:interrupt.c   **** 
+ 164:interrupt.c   **** }
+  97              		.loc 1 164 0
+  98 00b8 1040BDE8 		ldmfd	sp!, {r4, lr}
+  99 00bc 1EFF2FE1 		bx	lr
+ 100              	.L16:
+ 101              		.align	2
+ 102              	.L15:
+ 103 00c0 004003E0 		.word	-536657920
+ 104 00c4 00000000 		.word	lastSend.1260
+ 105 00c8 00C006E0 		.word	-536428544
+ 106 00cc 008000E0 		.word	-536838144
+ 107              	.LFE2:
+ 108              		.size	Timer1ISRirq, .-Timer1ISRirq
+ 109              		.bss
+ 110              		.align	1
+ 111              	lastSend.1260:
+ 112 0000 0000     		.space	2
+ 113              		.section	.debug_frame,"",%progbits
+ 114              	.Lframe0:
+ 115 0000 0C000000 		.4byte	.LECIE0-.LSCIE0
+ 116              	.LSCIE0:
+ 117 0004 FFFFFFFF 		.4byte	0xffffffff
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccXERhbd.s 			page 6
 
 
- 111              	.LLST0:
- 112 0000 00000000 		.4byte	.LFB2-.Ltext0
- 113 0004 04000000 		.4byte	.LCFI0-.Ltext0
- 114 0008 0100     		.2byte	0x1
- 115 000a 5D       		.byte	0x5d
- 116 000b 04000000 		.4byte	.LCFI0-.Ltext0
- 117 000f 6C000000 		.4byte	.LFE2-.Ltext0
- 118 0013 0200     		.2byte	0x2
- 119 0015 7D       		.byte	0x7d
- 120 0016 08       		.sleb128 8
- 121 0017 00000000 		.4byte	0x0
- 122 001b 00000000 		.4byte	0x0
- 123              		.section	.debug_info
- 124 0000 59000000 		.4byte	0x59
- 125 0004 0200     		.2byte	0x2
- 126 0006 00000000 		.4byte	.Ldebug_abbrev0
- 127 000a 04       		.byte	0x4
- 128 000b 01       		.uleb128 0x1
- 129 000c 00000000 		.4byte	.Ldebug_line0
- 130 0010 6C000000 		.4byte	.Letext0
- 131 0014 00000000 		.4byte	.Ltext0
- 132 0018 2C000000 		.4byte	.LASF2
- 133 001c 01       		.byte	0x1
- 134 001d 20000000 		.4byte	.LASF3
- 135 0021 48000000 		.4byte	.LASF4
- 136 0025 02       		.uleb128 0x2
- 137 0026 55000000 		.4byte	0x55
- 138 002a 01       		.byte	0x1
- 139 002b 00000000 		.4byte	.LASF5
- 140 002f 01       		.byte	0x1
- 141 0030 28       		.byte	0x28
- 142 0031 01       		.byte	0x1
- 143 0032 00000000 		.4byte	.LFB2
- 144 0036 6C000000 		.4byte	.LFE2
- 145 003a 00000000 		.4byte	.LLST0
- 146 003e 03       		.uleb128 0x3
- 147 003f 40000000 		.4byte	.LASF0
- 148 0043 01       		.byte	0x1
- 149 0044 29       		.byte	0x29
- 150 0045 55000000 		.4byte	0x55
- 151 0049 03       		.uleb128 0x3
- 152 004a 38000000 		.4byte	.LASF1
- 153 004e 01       		.byte	0x1
- 154 004f 29       		.byte	0x29
- 155 0050 55000000 		.4byte	0x55
- 156 0054 00       		.byte	0x0
- 157 0055 04       		.uleb128 0x4
- 158 0056 0D000000 		.4byte	.LASF6
- 159 005a 02       		.byte	0x2
- 160 005b 07       		.byte	0x7
- 161 005c 00       		.byte	0x0
- 162              		.section	.debug_abbrev
- 163 0000 01       		.uleb128 0x1
- 164 0001 11       		.uleb128 0x11
- 165 0002 01       		.byte	0x1
- 166 0003 10       		.uleb128 0x10
- 167 0004 06       		.uleb128 0x6
-ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccz4ITac.s 			page 7
+ 118 0008 01       		.byte	0x1
+ 119 0009 00       		.ascii	"\000"
+ 120 000a 01       		.uleb128 0x1
+ 121 000b 7C       		.sleb128 -4
+ 122 000c 0E       		.byte	0xe
+ 123 000d 0C       		.byte	0xc
+ 124 000e 0D       		.uleb128 0xd
+ 125 000f 00       		.uleb128 0x0
+ 126              		.align	2
+ 127              	.LECIE0:
+ 128              	.LSFDE0:
+ 129 0010 14000000 		.4byte	.LEFDE0-.LASFDE0
+ 130              	.LASFDE0:
+ 131 0014 00000000 		.4byte	.Lframe0
+ 132 0018 00000000 		.4byte	.LFB2
+ 133 001c D0000000 		.4byte	.LFE2-.LFB2
+ 134 0020 4C       		.byte	0x4
+ 135              		.4byte	.LCFI0-.LFB2
+ 136 0021 0E       		.byte	0xe
+ 137 0022 08       		.uleb128 0x8
+ 138 0023 8E       		.byte	0x8e
+ 139 0024 01       		.uleb128 0x1
+ 140 0025 84       		.byte	0x84
+ 141 0026 02       		.uleb128 0x2
+ 142 0027 00       		.align	2
+ 143              	.LEFDE0:
+ 144              		.text
+ 145              	.Letext0:
+ 146              		.section	.debug_loc,"",%progbits
+ 147              	.Ldebug_loc0:
+ 148              	.LLST0:
+ 149 0000 00000000 		.4byte	.LFB2-.Ltext0
+ 150 0004 0C000000 		.4byte	.LCFI0-.Ltext0
+ 151 0008 0100     		.2byte	0x1
+ 152 000a 5D       		.byte	0x5d
+ 153 000b 0C000000 		.4byte	.LCFI0-.Ltext0
+ 154 000f D0000000 		.4byte	.LFE2-.Ltext0
+ 155 0013 0200     		.2byte	0x2
+ 156 0015 7D       		.byte	0x7d
+ 157 0016 08       		.sleb128 8
+ 158 0017 00000000 		.4byte	0x0
+ 159 001b 00000000 		.4byte	0x0
+ 160              		.section	.debug_info
+ 161 0000 6C000000 		.4byte	0x6c
+ 162 0004 0200     		.2byte	0x2
+ 163 0006 00000000 		.4byte	.Ldebug_abbrev0
+ 164 000a 04       		.byte	0x4
+ 165 000b 01       		.uleb128 0x1
+ 166 000c 00000000 		.4byte	.Ldebug_line0
+ 167 0010 D0000000 		.4byte	.Letext0
+ 168 0014 00000000 		.4byte	.Ltext0
+ 169 0018 2C000000 		.4byte	.LASF3
+ 170 001c 01       		.byte	0x1
+ 171 001d 20000000 		.4byte	.LASF4
+ 172 0021 51000000 		.4byte	.LASF5
+ 173 0025 02       		.uleb128 0x2
+ 174 0026 68000000 		.4byte	0x68
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccXERhbd.s 			page 7
 
 
- 168 0005 12       		.uleb128 0x12
- 169 0006 01       		.uleb128 0x1
- 170 0007 11       		.uleb128 0x11
- 171 0008 01       		.uleb128 0x1
- 172 0009 25       		.uleb128 0x25
- 173 000a 0E       		.uleb128 0xe
- 174 000b 13       		.uleb128 0x13
- 175 000c 0B       		.uleb128 0xb
- 176 000d 03       		.uleb128 0x3
- 177 000e 0E       		.uleb128 0xe
- 178 000f 1B       		.uleb128 0x1b
- 179 0010 0E       		.uleb128 0xe
- 180 0011 00       		.byte	0x0
- 181 0012 00       		.byte	0x0
- 182 0013 02       		.uleb128 0x2
- 183 0014 2E       		.uleb128 0x2e
- 184 0015 01       		.byte	0x1
- 185 0016 01       		.uleb128 0x1
- 186 0017 13       		.uleb128 0x13
- 187 0018 3F       		.uleb128 0x3f
- 188 0019 0C       		.uleb128 0xc
- 189 001a 03       		.uleb128 0x3
- 190 001b 0E       		.uleb128 0xe
- 191 001c 3A       		.uleb128 0x3a
- 192 001d 0B       		.uleb128 0xb
- 193 001e 3B       		.uleb128 0x3b
- 194 001f 0B       		.uleb128 0xb
- 195 0020 27       		.uleb128 0x27
- 196 0021 0C       		.uleb128 0xc
- 197 0022 11       		.uleb128 0x11
- 198 0023 01       		.uleb128 0x1
- 199 0024 12       		.uleb128 0x12
- 200 0025 01       		.uleb128 0x1
- 201 0026 40       		.uleb128 0x40
- 202 0027 06       		.uleb128 0x6
- 203 0028 00       		.byte	0x0
- 204 0029 00       		.byte	0x0
- 205 002a 03       		.uleb128 0x3
- 206 002b 34       		.uleb128 0x34
- 207 002c 00       		.byte	0x0
- 208 002d 03       		.uleb128 0x3
- 209 002e 0E       		.uleb128 0xe
- 210 002f 3A       		.uleb128 0x3a
- 211 0030 0B       		.uleb128 0xb
- 212 0031 3B       		.uleb128 0x3b
- 213 0032 0B       		.uleb128 0xb
- 214 0033 49       		.uleb128 0x49
- 215 0034 13       		.uleb128 0x13
- 216 0035 00       		.byte	0x0
- 217 0036 00       		.byte	0x0
- 218 0037 04       		.uleb128 0x4
- 219 0038 24       		.uleb128 0x24
- 220 0039 00       		.byte	0x0
- 221 003a 03       		.uleb128 0x3
- 222 003b 0E       		.uleb128 0xe
- 223 003c 0B       		.uleb128 0xb
- 224 003d 0B       		.uleb128 0xb
-ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccz4ITac.s 			page 8
+ 175 002a 01       		.byte	0x1
+ 176 002b 00000000 		.4byte	.LASF6
+ 177 002f 01       		.byte	0x1
+ 178 0030 2B       		.byte	0x2b
+ 179 0031 01       		.byte	0x1
+ 180 0032 00000000 		.4byte	.LFB2
+ 181 0036 D0000000 		.4byte	.LFE2
+ 182 003a 00000000 		.4byte	.LLST0
+ 183 003e 03       		.uleb128 0x3
+ 184 003f 49000000 		.4byte	.LASF0
+ 185 0043 01       		.byte	0x1
+ 186 0044 2C       		.byte	0x2c
+ 187 0045 68000000 		.4byte	0x68
+ 188 0049 01       		.byte	0x1
+ 189 004a 54       		.byte	0x54
+ 190 004b 04       		.uleb128 0x4
+ 191 004c 38000000 		.4byte	.LASF1
+ 192 0050 01       		.byte	0x1
+ 193 0051 2C       		.byte	0x2c
+ 194 0052 68000000 		.4byte	0x68
+ 195 0056 03       		.uleb128 0x3
+ 196 0057 40000000 		.4byte	.LASF2
+ 197 005b 01       		.byte	0x1
+ 198 005c 2D       		.byte	0x2d
+ 199 005d 68000000 		.4byte	0x68
+ 200 0061 05       		.byte	0x5
+ 201 0062 03       		.byte	0x3
+ 202 0063 00000000 		.4byte	lastSend.1260
+ 203 0067 00       		.byte	0x0
+ 204 0068 05       		.uleb128 0x5
+ 205 0069 0D000000 		.4byte	.LASF7
+ 206 006d 02       		.byte	0x2
+ 207 006e 07       		.byte	0x7
+ 208 006f 00       		.byte	0x0
+ 209              		.section	.debug_abbrev
+ 210 0000 01       		.uleb128 0x1
+ 211 0001 11       		.uleb128 0x11
+ 212 0002 01       		.byte	0x1
+ 213 0003 10       		.uleb128 0x10
+ 214 0004 06       		.uleb128 0x6
+ 215 0005 12       		.uleb128 0x12
+ 216 0006 01       		.uleb128 0x1
+ 217 0007 11       		.uleb128 0x11
+ 218 0008 01       		.uleb128 0x1
+ 219 0009 25       		.uleb128 0x25
+ 220 000a 0E       		.uleb128 0xe
+ 221 000b 13       		.uleb128 0x13
+ 222 000c 0B       		.uleb128 0xb
+ 223 000d 03       		.uleb128 0x3
+ 224 000e 0E       		.uleb128 0xe
+ 225 000f 1B       		.uleb128 0x1b
+ 226 0010 0E       		.uleb128 0xe
+ 227 0011 00       		.byte	0x0
+ 228 0012 00       		.byte	0x0
+ 229 0013 02       		.uleb128 0x2
+ 230 0014 2E       		.uleb128 0x2e
+ 231 0015 01       		.byte	0x1
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccXERhbd.s 			page 8
 
 
- 225 003e 3E       		.uleb128 0x3e
- 226 003f 0B       		.uleb128 0xb
- 227 0040 00       		.byte	0x0
- 228 0041 00       		.byte	0x0
- 229 0042 00       		.byte	0x0
- 230              		.section	.debug_pubnames,"",%progbits
- 231 0000 1F000000 		.4byte	0x1f
- 232 0004 0200     		.2byte	0x2
- 233 0006 00000000 		.4byte	.Ldebug_info0
- 234 000a 5D000000 		.4byte	0x5d
- 235 000e 25000000 		.4byte	0x25
- 236 0012 54696D65 		.ascii	"Timer1ISRirq\000"
- 236      72314953 
- 236      52697271 
- 236      00
- 237 001f 00000000 		.4byte	0x0
- 238              		.section	.debug_aranges,"",%progbits
- 239 0000 1C000000 		.4byte	0x1c
- 240 0004 0200     		.2byte	0x2
- 241 0006 00000000 		.4byte	.Ldebug_info0
- 242 000a 04       		.byte	0x4
- 243 000b 00       		.byte	0x0
- 244 000c 0000     		.2byte	0x0
- 245 000e 0000     		.2byte	0x0
- 246 0010 00000000 		.4byte	.Ltext0
- 247 0014 6C000000 		.4byte	.Letext0-.Ltext0
- 248 0018 00000000 		.4byte	0x0
- 249 001c 00000000 		.4byte	0x0
- 250              		.section	.debug_str,"MS",%progbits,1
- 251              	.LASF5:
- 252 0000 54696D65 		.ascii	"Timer1ISRirq\000"
- 252      72314953 
- 252      52697271 
- 252      00
- 253              	.LASF6:
- 254 000d 73686F72 		.ascii	"short unsigned int\000"
- 254      7420756E 
- 254      7369676E 
- 254      65642069 
- 254      6E7400
- 255              	.LASF3:
- 256 0020 696E7465 		.ascii	"interrupt.c\000"
- 256      72727570 
- 256      742E6300 
- 257              	.LASF2:
- 258 002c 474E5520 		.ascii	"GNU C 4.1.1\000"
- 258      4320342E 
- 258      312E3100 
- 259              	.LASF1:
- 260 0038 44417661 		.ascii	"DAvalue\000"
- 260      6C756500 
- 261              	.LASF0:
- 262 0040 41447661 		.ascii	"ADvalue\000"
- 262      6C756500 
- 263              	.LASF4:
- 264 0048 2F637967 		.ascii	"/cygdrive/c/DropBox/armprojects/Projekt12Integratio"
- 264      64726976 
-ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccz4ITac.s 			page 9
+ 232 0016 01       		.uleb128 0x1
+ 233 0017 13       		.uleb128 0x13
+ 234 0018 3F       		.uleb128 0x3f
+ 235 0019 0C       		.uleb128 0xc
+ 236 001a 03       		.uleb128 0x3
+ 237 001b 0E       		.uleb128 0xe
+ 238 001c 3A       		.uleb128 0x3a
+ 239 001d 0B       		.uleb128 0xb
+ 240 001e 3B       		.uleb128 0x3b
+ 241 001f 0B       		.uleb128 0xb
+ 242 0020 27       		.uleb128 0x27
+ 243 0021 0C       		.uleb128 0xc
+ 244 0022 11       		.uleb128 0x11
+ 245 0023 01       		.uleb128 0x1
+ 246 0024 12       		.uleb128 0x12
+ 247 0025 01       		.uleb128 0x1
+ 248 0026 40       		.uleb128 0x40
+ 249 0027 06       		.uleb128 0x6
+ 250 0028 00       		.byte	0x0
+ 251 0029 00       		.byte	0x0
+ 252 002a 03       		.uleb128 0x3
+ 253 002b 34       		.uleb128 0x34
+ 254 002c 00       		.byte	0x0
+ 255 002d 03       		.uleb128 0x3
+ 256 002e 0E       		.uleb128 0xe
+ 257 002f 3A       		.uleb128 0x3a
+ 258 0030 0B       		.uleb128 0xb
+ 259 0031 3B       		.uleb128 0x3b
+ 260 0032 0B       		.uleb128 0xb
+ 261 0033 49       		.uleb128 0x49
+ 262 0034 13       		.uleb128 0x13
+ 263 0035 02       		.uleb128 0x2
+ 264 0036 0A       		.uleb128 0xa
+ 265 0037 00       		.byte	0x0
+ 266 0038 00       		.byte	0x0
+ 267 0039 04       		.uleb128 0x4
+ 268 003a 34       		.uleb128 0x34
+ 269 003b 00       		.byte	0x0
+ 270 003c 03       		.uleb128 0x3
+ 271 003d 0E       		.uleb128 0xe
+ 272 003e 3A       		.uleb128 0x3a
+ 273 003f 0B       		.uleb128 0xb
+ 274 0040 3B       		.uleb128 0x3b
+ 275 0041 0B       		.uleb128 0xb
+ 276 0042 49       		.uleb128 0x49
+ 277 0043 13       		.uleb128 0x13
+ 278 0044 00       		.byte	0x0
+ 279 0045 00       		.byte	0x0
+ 280 0046 05       		.uleb128 0x5
+ 281 0047 24       		.uleb128 0x24
+ 282 0048 00       		.byte	0x0
+ 283 0049 03       		.uleb128 0x3
+ 284 004a 0E       		.uleb128 0xe
+ 285 004b 0B       		.uleb128 0xb
+ 286 004c 0B       		.uleb128 0xb
+ 287 004d 3E       		.uleb128 0x3e
+ 288 004e 0B       		.uleb128 0xb
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccXERhbd.s 			page 9
 
 
- 264      652F632F 
- 264      44726F70 
- 264      426F782F 
- 265 007b 6E2F696E 		.ascii	"n/interrupt\000"
- 265      74657272 
- 265      75707400 
- 266              		.ident	"GCC: (GNU) 4.1.1"
-ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccz4ITac.s 			page 10
+ 289 004f 00       		.byte	0x0
+ 290 0050 00       		.byte	0x0
+ 291 0051 00       		.byte	0x0
+ 292              		.section	.debug_pubnames,"",%progbits
+ 293 0000 1F000000 		.4byte	0x1f
+ 294 0004 0200     		.2byte	0x2
+ 295 0006 00000000 		.4byte	.Ldebug_info0
+ 296 000a 70000000 		.4byte	0x70
+ 297 000e 25000000 		.4byte	0x25
+ 298 0012 54696D65 		.ascii	"Timer1ISRirq\000"
+ 298      72314953 
+ 298      52697271 
+ 298      00
+ 299 001f 00000000 		.4byte	0x0
+ 300              		.section	.debug_aranges,"",%progbits
+ 301 0000 1C000000 		.4byte	0x1c
+ 302 0004 0200     		.2byte	0x2
+ 303 0006 00000000 		.4byte	.Ldebug_info0
+ 304 000a 04       		.byte	0x4
+ 305 000b 00       		.byte	0x0
+ 306 000c 0000     		.2byte	0x0
+ 307 000e 0000     		.2byte	0x0
+ 308 0010 00000000 		.4byte	.Ltext0
+ 309 0014 D0000000 		.4byte	.Letext0-.Ltext0
+ 310 0018 00000000 		.4byte	0x0
+ 311 001c 00000000 		.4byte	0x0
+ 312              		.section	.debug_str,"MS",%progbits,1
+ 313              	.LASF6:
+ 314 0000 54696D65 		.ascii	"Timer1ISRirq\000"
+ 314      72314953 
+ 314      52697271 
+ 314      00
+ 315              	.LASF7:
+ 316 000d 73686F72 		.ascii	"short unsigned int\000"
+ 316      7420756E 
+ 316      7369676E 
+ 316      65642069 
+ 316      6E7400
+ 317              	.LASF4:
+ 318 0020 696E7465 		.ascii	"interrupt.c\000"
+ 318      72727570 
+ 318      742E6300 
+ 319              	.LASF3:
+ 320 002c 474E5520 		.ascii	"GNU C 4.1.1\000"
+ 320      4320342E 
+ 320      312E3100 
+ 321              	.LASF1:
+ 322 0038 44417661 		.ascii	"DAvalue\000"
+ 322      6C756500 
+ 323              	.LASF2:
+ 324 0040 6C617374 		.ascii	"lastSend\000"
+ 324      53656E64 
+ 324      00
+ 325              	.LASF0:
+ 326 0049 41447661 		.ascii	"ADvalue\000"
+ 326      6C756500 
+ 327              	.LASF5:
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccXERhbd.s 			page 10
+
+
+ 328 0051 2F637967 		.ascii	"/cygdrive/c/DropBox/armprojects/Projekt12Integratio"
+ 328      64726976 
+ 328      652F632F 
+ 328      44726F70 
+ 328      426F782F 
+ 329 0084 6E2F696E 		.ascii	"n/interrupt\000"
+ 329      74657272 
+ 329      75707400 
+ 330              		.ident	"GCC: (GNU) 4.1.1"
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccXERhbd.s 			page 11
 
 
 DEFINED SYMBOLS
                             *ABS*:00000000 interrupt.c
-/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccz4ITac.s:25     .text:00000000 Timer1ISRirq
-/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccz4ITac.s:32     .text:00000000 $a
-/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccz4ITac.s:69     .text:00000058 $d
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccXERhbd.s:13     .text:00000000 Timer1ISRirq
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccXERhbd.s:21     .text:00000000 $a
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccXERhbd.s:103    .text:000000c0 $d
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccXERhbd.s:111    .bss:00000000 lastSend.1260
 
 UNDEFINED SYMBOLS
-simplePrintf
+setMode1
+setMode2

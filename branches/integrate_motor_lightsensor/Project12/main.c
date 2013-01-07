@@ -86,6 +86,7 @@ static void procStackUsage(void* arg);
 
 //Exempel på avbrott (ljudsampling)
 void Timer1ISRirq (void);  // skall inte ha något attribut när RTOS används
+void Timer0ISRirq (void);
 /****************************************************************************/
 
 
@@ -165,7 +166,7 @@ main(void)
   tU8 error;
   tU8 pid;
 
-  //initLightSwitchPins();
+  initLightPins();
 
   //FÖR LJUSSENSORN:
   //IODIR |= P06; // Sätter P0.6 till output
@@ -305,6 +306,7 @@ initProc(void* arg)
   TIMER1_TCR = 0x01;          //start timer
 
 
+
   //Initiera avbrott vid match på MR0
   // Numret på VICVectCntl och VICVectAddr bestämmer prioriteten
 
@@ -318,6 +320,7 @@ initProc(void* arg)
   VICIntEnable|=0x000000020;		//Enabla Timer1 som irqavbrott
 
 //*************slut ljudavbrottsinitering****************
+
 
 
 

@@ -16,6 +16,9 @@
 //#include "../lightSensorSwitch/initLightSwitch.c"
 #include  "../regulation/regulation.c"
 
+//#include "../motor/motor.c"
+
+
 
 #define P028   0x10000000			// Output Switch
 /// Från buttonledc
@@ -39,24 +42,52 @@
 void Timer1ISRirq (void)
 {
  tU16 ADvalue, DAvalue;
+ static tU16 lastSend = 0;
+ //int mode1 = 0;
+ //int mode2 = 0;
 
+
+
+ /* STYR MOTOR MED SWITCH */
+ /*
+ static int mode1 = -1;
+ static int mode2 = -1;
+ static int testFlag = 0;
+ static int pulsFlag = 0;
 
  	 // Tryck på switch och text skrivs ut
  	 if(IOPIN & P028){
- 		printf("Klickat på switch ON\n");
+ 		//printf("Klickat på switch ON\n");
  	 		//printf("tempMask = %h. P028 = %h", tempMask, P028);
  	 		 //IOSET = led;	//P0.8 = 1, led off
- 			printf("IOPIN = %x\n", IOPIN);
+ 			//printf("IOPIN = %x\n", IOPIN);
+ 		 testFlag = 1;
 
  	 } else {
     	 //IOCLR = led;	//led on
- 		printf("a\na\na\na\na\na\na\na\na\na\na\na\na\na\n");
+ 		 if( testFlag == 1 ) {
+			 mode1 += 2;
+			 mode2 += 2;
+
+			 if( mode1 == 5)
+				 mode1 = 1;
+			 if (mode2 == 5 )
+				 mode2 = 1;
+
+			printf("mode1 = %d.\nmode2 = %d\n\n");
+			setMode2( mode2 );
+			setMode1( mode1 );
+			testFlag = 0;
+ 		 }
+ 		//delay(1500);
+ //		delay_millis(1000);
  		//printf("IOPIN = %d\n", IOPIN);
  		//printf("tempMask = %d. P028 = %d", tempMask, P028);
  	 }
 
 
- // SLUT TEST AV SWITCH
+ */
+ /*S LUT STYR MOTOR MED SWITCH */
 
 
 
@@ -67,7 +98,7 @@ void Timer1ISRirq (void)
 
 
 
-/*
+
  	  //get AIN1 (P0.28)or AIN2 (P0.29)
 	//start conversion now (for selected channel)
  	 // Denna rad har vi lagt till.
@@ -90,23 +121,38 @@ void Timer1ISRirq (void)
 	// printf("TEST-Interrupt5\n");
 //
 
-*/
+
 
 /* DA-omvandling     */
-	/* DAvalue=DAvalue & 0xFF;	//maska ut 8 bitar för säkerhets skull
+	 DAvalue=DAvalue & 0xFF;	//maska ut 8 bitar för säkerhets skull
 	// printf("TEST-Interrupt6\n");
 	DACR=DAvalue<<8;			//skifta 8 bitar, nolla i bit 16 -> snabb mode
 	// printf("TEST-Interrupt7\n");
 
 	//Skriv ut resultat i terminal
-	printf(" %d \n",DAvalue);
-	setIsValue(DAvalue);
+//	printf("DAvalue =  %d \nlastSend = %d\n\n", DAvalue, lastSend);
+	//setIsValue(DAvalue);
 
 		//printf("TEST-Interrupt8\n");
 	//lastRead=DAvalue;
 
 // SLUT LJUSSENSOR + ADOMVANDLING
-*/
+
+	// STYR MOTORER MED OMVANDLINGEN
+	if( DAvalue != lastSend) {
+		if( DAvalue < 80 ) { // Go Forward
+			setMode1(1);
+			setMode2(1);
+		} else if( DAvalue > 130 ) { // Go Backward
+			setMode1(3);
+			setMode2(3);
+		} else { // Break
+			setMode1(6);
+			setMode2(6);
+		}
+		lastSend = DAvalue;
+	}
+
 
 //Återställ interruptflaggor
 	TIMER1_IR |= 0x00000001;          //reseta interrrupt flaggan för MR0

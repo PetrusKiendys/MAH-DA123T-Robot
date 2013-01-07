@@ -24,6 +24,8 @@
 #include "LCD/LCD.h"  //  Funktionsprototyper för LCD-rutinerna
 
 
+#define P028   0x10000000			// Output Switch
+
 extern long const delayshort;
 extern long const delaylong;
 
@@ -40,6 +42,44 @@ procEx3(void* arg)
 // Exempelkod för att visa hur flera processer kan dela på LCD
     osSemTake(&mutexLCD, 0, &error);
 
+
+    static int switchCounter = 0; // sets to 0 first time
+   // delay(delayshort);
+   // send_instruction(1);	//cleara displayn
+
+    // Tryck på switch och text skrivs ut
+    	if(IOPIN & P028){
+    		//printf("Klickat på switch ON\n");
+    		printf("counter = %d. ", switchCounter);
+    	    //printf("tempMask = %h. P028 = %h", tempMask, P028);
+    	    //IOSET = led;	//P0.8 = 1, led off
+    	    //printf("IOPIN = %x\n", IOPIN);
+    		//delay(delaylong);
+    		//send_character('E');
+
+
+   // 		delay_millis(500);
+
+    	} else {
+    	   	//IOCLR = led;	//led on
+    		switchCounter++;
+
+    	   //	printf("a\na\na\na\na\na\na\na\na\na\na\na\na\na\n");
+    	   	printf("counterKLICKAD = %d\n", switchCounter);
+
+    	   //	delay(delaylong);
+    	   //	send_character('X');
+
+    	   	osSleep(500);
+    	   	//printf("IOPIN = %d\n", IOPIN);
+    	   	//printf("tempMask = %d. P028 = %d", tempMask, P028);
+    	}
+
+   	//osSleep(300);
+
+
+
+/*
     delay(delayshort);
 	send_instruction(1);	//cleara displayn
 	delay(delaylong);
@@ -62,9 +102,9 @@ procEx3(void* arg)
     send_character('3');
 
     osSleep(300);		// för att infon säkert skall hinna synas
-
+*/
     osSemGive(&mutexLCD, &error);
 
-    osSleep(3000);
+    osSleep(300);
   }
 }
