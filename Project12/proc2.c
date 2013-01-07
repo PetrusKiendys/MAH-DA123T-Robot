@@ -36,7 +36,7 @@ procEx2(void* arg)
   {
 // Exempelkod för att visa hur flera processer kan dela på LCD
     osSemTake(&mutexLCD, 0, &error);
-
+/*
     delay(delayshort);
 	send_instruction(1);	//cleara displayn
 	delay(delaylong);
@@ -59,7 +59,7 @@ procEx2(void* arg)
     send_character('2');
 
     osSleep(300);		// för att infon säkert skall hinna synas
-
+*/
     osSemGive(&mutexLCD, &error);
 
     osSleep(2000);

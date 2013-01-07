@@ -17,7 +17,7 @@
 
 //void initLightSwitchPins(void);
 
-void initLightSwitchPins()
+void initLightPins()
 {
 
 	 //FÖR LJUSSENSORN:

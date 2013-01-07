@@ -44,7 +44,7 @@ procEx1(void* arg)
 	for (;;) {	// QUESTION: why use for-loop?
 
 		osSemTake(&mutexLCD, 0, &error);
-
+/*
 		initLCD();
 	//	runPwm();
 		delay(delayshort);
@@ -57,7 +57,7 @@ procEx1(void* arg)
 		    send_character('x');
 
 		    osSleep(300);
-
+*/
 
 //printf("\n\nBEFORE GIVE\n\n");
 		osSemGive(&mutexLCD, &error);

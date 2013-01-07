@@ -30,7 +30,7 @@
 #define VPBDIV_FACTOR     PBSD
 
 #define P07 (1 << 7)
-#define	P15	(1 << 15)
+#define	P12	(1 << 12)
 #define	P25	(1 << 25)
 #define P21 (1 << 21)
 #define	P23 (1 << 23)
@@ -38,15 +38,16 @@
 
 #define TASK	2		// task 1 - use circulary loop
 						// task 2 - use constant PWM signal
-#define MODE	1		// mode 1 - Forward, Fast Current-Decay Mode
+//#define MODE	1		// mode 1 - Forward, Fast Current-Decay Mode
 						// mode 2 - Forward, Slow Current-Decay Mode
 						// mode 3 - Reverse, Fast Current-Decay Mode
 						// mode 4 - Reverse, Slow Current-Decay Mode
 						// mode 5 - Brake, Fast Current-Decay Mode
 						// mode 6 - Brake, No Current Control
-#define MODE2	3
+//#define MODE2	3
 
-
+int mode1 = 0;
+int mode2 = 0;
 /*****************************************************************************
  * Function prototypes
  ****************************************************************************/
@@ -184,14 +185,14 @@ void initPins() {
 	  //PINSEL1 |= 0x80000000;
 }
 
-void setMode1() {
+void setMode1( int MODE) {
 
 	if (MODE == 1) {	// MODE = Forward, Fast Current-Decay Mode
 		IODIR |= P07;	// ENABLE (P0.7)
 		IOCLR = P07;	// set to L
 
-		IODIR |= P15;	// PHASE (P0.15)
-		IOSET = P15;	// set to H
+		IODIR |= P12;	// PHASE (P0.15)
+		IOSET = P12;	// set to H
 
 		IODIR |= P25;	// BRAKE (P0.25)
 		IOSET = P25;	// set to H
@@ -201,8 +202,8 @@ void setMode1() {
 		IODIR |= P07; // ENABLE (P0.7)
 		IOCLR = P07; // set to L
 
-		IODIR |= P15; // PHASE (P0.15)
-		IOSET = P15; // set to H
+		IODIR |= P12; // PHASE (P0.15)
+		IOSET = P12; // set to H
 
 		IODIR |= P25; // BRAKE (P0.25)
 		IOSET = P25; // set to H
@@ -211,8 +212,8 @@ void setMode1() {
 		IODIR |= P07; // ENABLE (P0.7)
 		IOCLR = P07; // set to L
 
-		IODIR |= P15; // PHASE (P0.15)
-		IOCLR = P15; // set to L
+		IODIR |= P12; // PHASE (P0.15)
+		IOCLR = P12; // set to L
 
 		IODIR |= P25; // BRAKE (P0.25)
 		IOSET = P25; // set to H
@@ -221,8 +222,8 @@ void setMode1() {
 		IODIR |= P07; // ENABLE (P0.7)
 		IOCLR = P07; // set to L
 
-		IODIR |= P15; // PHASE (P0.15)
-		IOCLR = P15; // set to L
+		IODIR |= P12; // PHASE (P0.15)
+		IOCLR = P12; // set to L
 
 		IODIR |= P25; // BRAKE (P0.25)
 		IOSET = P25; // set to H
@@ -231,8 +232,8 @@ void setMode1() {
 		IODIR |= P07; // ENABLE (P0.7)
 		IOCLR = P07; // set to L
 
-		IODIR |= P15; // PHASE (P0.15)
-		IOCLR = P15; // set to L
+		IODIR |= P12; // PHASE (P0.15)
+		IOCLR = P12; // set to L
 
 		IODIR |= P25; // BRAKE (P0.25)
 		IOCLR = P25; // set to L
@@ -241,21 +242,21 @@ void setMode1() {
 		IODIR |= P07; // ENABLE (P0.7)
 		IOCLR = P07; // set to L
 
-		IODIR |= P15; // PHASE (P0.15)
-		IOCLR = P15; // set to L
+		IODIR |= P12; // PHASE (P0.12)
+		IOCLR = P12; // set to L
 
 		IODIR |= P25; // BRAKE (P0.25)
 		IOCLR = P25; // set to L
 	}
 
 }
-void setMode2() {
+void setMode2(int MODE2) {
 
 	if (MODE2 == 1) {	// MODE = Forward, Fast Current-Decay Mode
 		IODIR |= P21;	// ENABLE (P0.7)
 		IOCLR = P21;	// set to L
 
-		IODIR |= P23;	// PHASE (P0.15)
+		IODIR |= P23;	// PHASE (P0.12)
 		IOSET = P23;	// set to H
 
 		IODIR |= P31;	// BRAKE (P0.25)
@@ -266,7 +267,7 @@ void setMode2() {
 		IODIR |= P21; // ENABLE (P0.7)
 		IOCLR = P21; // set to L
 
-		IODIR |= P23; // PHASE (P0.15)
+		IODIR |= P23; // PHASE (P0.12)
 		IOSET = P23; // set to H
 
 		IODIR |= P31; // BRAKE (P0.25)
@@ -276,7 +277,7 @@ void setMode2() {
 		IODIR |= P21; // ENABLE (P0.7)
 		IOCLR = P21; // set to L
 
-		IODIR |= P23; // PHASE (P0.15)
+		IODIR |= P23; // PHASE (P0.12)
 		IOCLR = P23; // set to L
 
 		IODIR |= P31; // BRAKE (P0.25)
@@ -286,7 +287,7 @@ void setMode2() {
 		IODIR |= P21; // ENABLE (P0.7)
 		IOCLR = P21; // set to L
 
-		IODIR |= P23; // PHASE (P0.15)
+		IODIR |= P23; // PHASE (P0.12)
 		IOCLR = P23; // set to L
 
 		IODIR |= P31; // BRAKE (P0.25)
@@ -296,7 +297,7 @@ void setMode2() {
 		IODIR |= P21; // ENABLE (P0.7)
 		IOCLR = P21; // set to L
 
-		IODIR |= P23; // PHASE (P0.15)
+		IODIR |= P23; // PHASE (P0.12)
 		IOCLR = P23; // set to L
 
 		IODIR |= P31; // BRAKE (P0.25)
@@ -306,7 +307,7 @@ void setMode2() {
 		IODIR |= P21; // ENABLE (P0.7)
 		IOCLR = P21; // set to L
 
-		IODIR |= P23; // PHASE (P0.15)
+		IODIR |= P23; // PHASE (P0.12)
 		IOCLR = P23; // set to L
 
 		IODIR |= P31; // BRAKE (P0.25)
@@ -333,8 +334,8 @@ runPwm()
   duty1 = 0;
   duty2 = 0;
 
-  setMode1();
-  setMode2();
+  setMode1(mode1);
+  setMode2(mode2);
 
   //dev_run(duty1, duty2);
 
