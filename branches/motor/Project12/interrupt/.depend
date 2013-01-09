@@ -1,2 +1,0 @@
-interrupt.o: interrupt.c ../general.h ../startup/lpc2xxx.h \
-  ../startup/framework.h ../startup/config.h ../startup/config.h
