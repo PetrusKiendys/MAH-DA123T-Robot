@@ -39,7 +39,7 @@
 #define	P23 (1 << 23)
 #define	P31 (1 << 31)
 
-#define TASK	7		// task 1 - use circulary loop
+#define TASK	8		// task 1 - use circulary loop
 						// task 2 - use constant PWM signal
 						// ...
 //#define MODE	1		// mode 1 - Forward, Fast Current-Decay Mode
@@ -54,7 +54,7 @@
 #define BACKWARD	2
 #define BRAKE		3
 
-#define RUN_SETPWM_IN_LOOP	0	// dictates whether setPwmDutyPercentx(tU32) should be run outside the "TASK conditional statement"
+#define RUN_SETPWM_IN_LOOP	1	// dictates whether setPwmDutyPercentx(tU32) should be run outside the "TASK conditional statement"
 
 
 /*****************************************************************************
@@ -96,8 +96,7 @@ void delay_millis(long ms);
  *                           (VPBDIV factor * desired frequency)
  *
  ****************************************************************************/
-static void
-initPwm(tU32 initialFreqValue)
+static void initPwm(tU32 initialFreqValue)
 {
   /*
    * initialize PWM
@@ -124,15 +123,13 @@ initPwm(tU32 initialFreqValue)
  *                     of 0.01% (i.e., 10% = 1000).
  *
  ****************************************************************************/
-static void
-setPwmDutyPercent1(tU32 dutyValue1)
+static void setPwmDutyPercent1(tU32 dutyValue1)
 {
   PWM_MR2 = (PWM_MR0 * dutyValue1) / 10000; //update duty cycle
   PWM_LER = 0x04;                           //latch new values for MR2
 }
 
-static void
-setPwmDutyPercent2(tU32 dutyValue2)
+static void setPwmDutyPercent2(tU32 dutyValue2)
 {
   PWM_MR5 = (PWM_MR0 * dutyValue2) / 10000;  //update duty cycle
   PWM_LER = 0x20;         //latch new values for MR5
@@ -147,8 +144,7 @@ setPwmDutyPercent2(tU32 dutyValue2)
  *    [in] delayInMs - the number of milliseconds to delay.
  *
  ****************************************************************************/
-static void
-delayMs(tU16 delayInMs)
+static void delayMs(tU16 delayInMs)
 {
   /*
    * setup timer #1 for delay
@@ -277,8 +273,7 @@ void setMode2(short mode) {
 
 }
 
-int
-runPwm()
+int runPwm()
 {
   tU32 duty1;
   tU32 duty2;
@@ -346,7 +341,7 @@ void dev_run(tU32 duty1, tU32 duty2) {
 			setPwmDutyPercent2(duty2);
 		}
 
-
+		//	delayMs(10);
 
 		switch (TASK) {
 		case 1: {
@@ -418,9 +413,32 @@ void dev_run(tU32 duty1, tU32 duty2) {
 			duty1 = 6000;
 			duty2 = 6000;
 
+			//delayMs(10);
 			delay_millis(10);
 
 			pwm_motor_run(duty1, duty2);
+			break;
+		}
+		case 8: {
+
+
+			setMode1(FORWARD);
+			setMode2(FORWARD);
+
+			delay_millis(700);
+
+			duty1 = 7000;
+			duty2 = 7000;
+
+
+			setMode1(BACKWARD);
+			setMode2(BACKWARD);
+
+			delay_millis(700);
+
+			duty1 = 1000;
+			duty2 = 1000;
+
 			break;
 		}
 
@@ -432,7 +450,8 @@ void pwm_motor_init() {
 	setMode1(FORWARD);
 	setMode2(FORWARD);
 
-	delay_millis(200);
+	delayMs(10);
+	//delay_millis(10);
 }
 
 void pwm_motor_run(tU32 duty1, tU32 duty2) {
@@ -450,5 +469,6 @@ void pwm_motor_run(tU32 duty1, tU32 duty2) {
 void change_mode(short mode) {
 	setMode1(mode);
 	setMode2(mode);
-	delay_millis(200);
+	delayMs(10);
+	//delay_millis(10);
 }
