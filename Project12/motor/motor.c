@@ -16,6 +16,8 @@
  *
  *****************************************************************************/
 
+// todo: verify that EINT0 and EINT3 (also VIC) is correctly implemented!
+
 /******************************************************************************
  * Includes
  *****************************************************************************/
@@ -34,9 +36,11 @@
 
 #define P07 (1 << 7)
 #define P12	(1 << 12)
-#define	P25	(1 << 25)
+#define P16 (1 << 16)
+#define P20 (1 << 20)
 #define P21 (1 << 21)
 #define	P23 (1 << 23)
+#define	P25	(1 << 25)
 #define	P31 (1 << 31)
 
 #define TASK	8		// task 1 - use circulary loop
@@ -66,7 +70,7 @@ static void setPwmDutyPercent2(tU32 dutyValue2);
 static void delayMs(tU16 delayInMs);
 void setMode1(short mode);
 void setMode2(short mode);
-void init_3953_io(void);
+void init_io(void);
 
 //----------- DEV functions ------------------//
 void dev_run(tU32 duty1, tU32 duty2);
@@ -186,6 +190,8 @@ void initPins() {
 	  PINSEL0 |=  0x80000000;
 
 	  PINSEL1 &= ~0x000c0000;	// set P0.25 to GPIO Port 0.25
+
+
 	  /*
 	  	   * connect signal PWM5 to pin P0.21
 	  	   */
@@ -195,8 +201,9 @@ void initPins() {
 
 	  PINSEL1 &= ~0x0000c000; //set P0.23 to GPIO
 
-	  PINSEL1 &= ~0xc0000000;  //set P0.31 to GPO Port only
+	  PINSEL1 &= ~0xc0000000; //set P0.31 to GPO Port only
 	  //PINSEL1 |= 0x80000000;
+
 }
 
 
@@ -273,6 +280,34 @@ void setMode2(short mode) {
 
 }
 
+void init_EINT0(void)
+{
+   PINSEL1 &= ~(1<<0);
+   PINSEL1 &= ~(1<<1);
+   PINSEL1 |= (1<<0);			// P0.16 is connected to EINT0
+
+   EXTMODE |= 0x00000001;
+   EXTPOLAR &= ~(0x00000001);	// sets EINT0 to low-active (falling-edge sensitive)
+
+   EXTINT = 0x00000001;			// (re)activates the interrupt
+}
+
+void init_EINT3(void)
+{
+   PINSEL1 |= (1<<8);
+   PINSEL1 |= (1<<9);			// P0.20 is connected to EINT3
+
+   EXTMODE |= 0x00000008;
+   EXTPOLAR &= ~(0x00000008);	// sets EINT3 to low-active (falling-edge sensitive)
+
+   EXTINT = 0x00000008;			// (re)activates the interrupt
+}
+
+void init_vic(void) {
+	VICIntEnable =	  0x00024000;	// sets EINT0 and EINT3 as ISR (IRQ/FIQ routines)
+	VICIntSelect &= ~(0x00024000);	// sets EINT0 and EINT3 as IRQ routines
+}
+
 int runPwm()
 {
   tU32 duty1;
@@ -291,11 +326,16 @@ int runPwm()
   duty1 = 0;
   duty2 = 0;
 
-  init_3953_io();
+  init_io();
+
+  init_vic();
 
   //set modes for UT1 and UT2
   setMode1(FORWARD);
   setMode2(FORWARD);
+
+  init_EINT0();
+  init_EINT3();
 
   dev_run(duty1, duty2);
 
@@ -304,16 +344,22 @@ int runPwm()
   return 0;
 }
 
-void init_3953_io() {
-	// UT1
+void init_io() {
+	// OUTPUT INITIALIZATION
+	// initializes UT1
 	IODIR |= P07;	// ENABLE (P0.7)
 	IODIR |= P12;	// PHASE (P0.12)
 	IODIR |= P25;	// BRAKE (P0.25)
 
-	// UT2
+	// initializes UT2
 	IODIR |= P21;	// ENABLE (P0.21)
 	IODIR |= P23;	// PHASE (P0.23)
 	IODIR |= P31;	// BRAKE (P0.31)
+
+
+	// INPUT INITIALIZATION
+	IODIR &= ~(P16);
+	IODIR &= ~(P20);	// makes EINT0 and EINT3 inputs
 }
 
 // dev function - not used in release
