@@ -3,20 +3,20 @@
  * Bas för Project12
  *
  * RTOS kompilerat för max 10 processer, 5 prioritetsnivåer
- * link_32k_512k_rom.ld ändrad så att ramadressen börjar på 0x40000200
- * Newlib används inte
+ * link_32k_512k_rom.ld ändrad så att ramadressen börjar på 0x40000200.
+ * Newlib används inte.
  *
  * Alla ändringar när det gäller processortyp mm är gjorda.
  * Även förberett för on chip debugging.
  *
  * Projektet visar hur man kan ha processerna i olika filer, vilket är bra
  * när man är många som jobbar med samma projekt.
- * Namnen på källkodsfilerna måste anges i den yttre makefilen
+ * Namnen på källkodsfilerna måste anges i den yttre makefilen.
  *
- * Pga av problem med BF_wait för vissa kort används i stället delay()i exemplen.
+ * Pga av problem med BF_wait för vissa kort används i stället delay() i exemplen.
  *
  * I projektet visas även hur man hanterar avbrott. Exemplet samplar en analog signal
- * 8000 gånger/sekund och lägger sen ut värdena på DA-omvandlaren
+ * 8000 gånger/sekund och lägger sen ut värdena på DA-omvandlaren.
  *
  * Tommy 121108
  *
@@ -24,6 +24,9 @@
 
 // QUESTION: how many ms is a tick (RTOS)?
 
+/******************************************************************************
+ * Includes
+ *****************************************************************************/
 #include "pre_emptive_os/api/osapi.h"
 #include "general.h"
 #include "startup/lpc2xxx.h"
@@ -36,6 +39,9 @@
 
 #include "LCD/LCD.h"  //  Funktionsprototyper för LCD-rutinerna
 
+/******************************************************************************
+ * Defines and typedefs
+ *****************************************************************************/
 // Dessa definitioner används av en del av EA's rutiner
 #define CRYSTAL_FREQUENCY FOSC
 #define PLL_FACTOR        PLL_MUL
@@ -50,7 +56,9 @@
 #define INIT_STACK_SIZE  1024
 #define PROC_ST_US_STACK_SIZE  1024
 
-
+/*****************************************************************************
+ * Global variables
+ ****************************************************************************/
 static tU8 procEx1Stack[PROC_Ex1_STACK_SIZE];
 static tU8 procEx2Stack[PROC_Ex2_STACK_SIZE];
 static tU8 procEx3Stack[PROC_Ex3_STACK_SIZE];
@@ -64,6 +72,11 @@ static tU8 pidEx3;
 
 static tU8 pidStUs;
 
+long const delayshort = 1200;
+long const delaylong = 49250;
+
+tCntSem mutexLCD;	//	Semaforer för att skydda gemensamma resurser,
+					//	används här som binära semaforer dvs antar bara värden 0 och 1 (mutex)
 
 /*****************************************************************************
  * Function prototypes
@@ -71,83 +84,12 @@ static tU8 pidStUs;
 void procEx1(void* arg);
 void procEx2(void* arg);
 void procEx3(void* arg);
-
-//int runPwm(void);
-
 static void initProc(void* arg);
 static void procStackUsage(void* arg);
-
-//static void initPwm(tU32 initialFreqValue);
-
 
 //Exempel på avbrott (ljudsampling)
 void Timer1ISRirq (void);  // skall inte ha något attribut när RTOS används
 /****************************************************************************/
-
-
-
-/****************************************************************************
- *
- * Globala konstanter och variabler
- *
- ****************************************************************************/
-
-long const delayshort = 1200;
-long const delaylong = 49250;
-
-// TODO: temporary global variables, make local later if possible..
-//tU32 duty;
-//set frequency to 1000 Hz (1 kHz)
-//tU32 const freq = ((CRYSTAL_FREQUENCY * PLL_FACTOR)/ (VPBDIV_FACTOR * 1000));
-
-
-
-/****************************************************************************
- *
- * Semaforer för att skydda gemensamma resurser
- * Används här som binära semaforer dvs antar bara värden 0 och 1 (mutex)
- *
- ****************************************************************************/
-
-tCntSem mutexLCD;
-
-
-
-/*****************************************************************************
- *
- * Description:
- *    Initialize the PWM unit to generate a variable duty cycle signal on
- *    PWM2. Connect signal PWM2 to pin P0.7.
- *    The function sets initial frequency. Initial duty cucle is set to 0%.
- *
- * Params:
- *    [in] initialFreqValue - the initial frequency value. Value calculated as:
- *
- *                     (crystal frequency * PLL multiplication factor)
- *                     -----------------------------------------------
- *                           (VPBDIV factor * desired frequency)
- *
- ****************************************************************************/
-//static void
-//initPwm(tU32 initialFreqValue)
-//{
-//  /*
-//   * initialize PWM
-//   */
-//  PWM_PR  = 0x00000000;             //set prescale to 0
-//  PWM_MCR = 0x0002;                 //counter resets on MR0 match (period time)
-//  PWM_MR0 = initialFreqValue;       //MR0 = period cycle time
-//  PWM_MR2 = 0;                      //MR2 = duty cycle control, initial = 0%
-//  PWM_LER = 0x05;                   //latch new values for MR0 and MR2
-//  PWM_PCR = 0x0400;                 //enable PWM2 in single edge control mode
-//  PWM_TCR = 0x09;                   //enable PWM and Counter
-//
-//  /*
-//   * connect signal PWM2 to pin P0.7
-//   */
-//  PINSEL0 &= ~0x0000c000;  //clear bits related to P0.7
-//  PINSEL0 |=  0x00008000;  //connect signal PWM2 to P0.7 (second alternative function)
-//}
 
 
 /*****************************************************************************
@@ -209,7 +151,9 @@ procStackUsage(void* arg)
   for(;;)
   {
     osSleep(5500);
-//    printf("Stack usage: %d %%\n", osStackUsage(pidEx1));
+    printf("Stack usage proc1: %d %%\n", osStackUsage(pidEx1));
+    printf("Stack usage proc2: %d %%\n", osStackUsage(pidEx2));
+    printf("Stack usage proc3: %d %%\n", osStackUsage(pidEx3));
   }
 }
 /*****************************************************************************
@@ -254,21 +198,21 @@ initProc(void* arg)
  /****************************************************************************************
   * Detta är ett exempel på avbrottshantering
   * Kod för initiering av AD och DA-omvandlare och Timer 1 som skall ge avbrott (8 KHz)
-  */
+  ****************************************************************************************/
 
   //set AIN1 = P0.28
   PINSEL1 |= 0x01080000;
 
  //initialize ADC (fel i beräkningen av divisionsfaktorn i EA-kod, rättat här)
-   ADCR = (1 << 0)                             |  //SEL = 1, dummy channel #1
+   ADCR = (1 << 0)                             |	//SEL = 1, dummy channel #1
           ((CRYSTAL_FREQUENCY *
             PLL_FACTOR /
-            VPBDIV_FACTOR) / 4500000) << 8 |  //set clock division factor, so ADC clock is 4.5MHz
-          (0 << 16)                            |  //BURST = 0, conversions are SW controlled
-          (0 << 17)                            |  //CLKS  = 0, 11 clocks = 10-bit result
-          (1 << 21)                            |  //PDN   = 1, ADC is active
-          (1 << 24)                            |  //START = 1, start a conversion now
-          (0 << 27);							                 //EDGE  = 0, not relevant when start=1
+            VPBDIV_FACTOR) / 4500000) << 8 |  		//set clock division factor, so ADC clock is 4.5MHz
+          (0 << 16)                            |	//BURST = 0, conversions are SW controlled
+          (0 << 17)                            |	//CLKS  = 0, 11 clocks = 10-bit result
+          (1 << 21)                            |	//PDN   = 1, ADC is active
+          (1 << 24)                            |	//START = 1, start a conversion now
+          (0 << 27);								//EDGE  = 0, not relevant when start=1
 
    while((ADDR & 0x80000000) == 0)
 
@@ -284,17 +228,15 @@ initProc(void* arg)
   TIMER1_TCR = 0x01;          //start timer
 
 
-  //Initiera avbrott vid match på MR0
+  // Initiera avbrott vid match på MR0
   // Numret på VICVectCntl och VICVectAddr bestämmer prioriteten
-
-  VICIntSelect&=~0x000000020;		//IRQ, inte FIQ-avbrott
-  VICVectCntl7  =  0x00000025; //Enabla interuptchannel 5 (Timer1)
-  VICVectAddr7  =  (tU32)Timer1ISRirq; //adressen till avbrottsrutinen
-
-
-// enabla interrupt
-
-  VICIntEnable|=0x000000020;		//Enabla Timer1 som irqavbrott
+  // TEMPLATE:	VICVectCntl["slot"] = 0x20 | ["VIC_channel"]
+  //			where "slot" is the priority slot of the VIC Control registers (from 0 to 15, 0 has highest priority)
+  //			and "VIC_channel" is the VIC channel for the specified flag/function (as specified by Table 5-57 in manualLPC2148.pdf)
+  VICIntSelect	&=	~0x000000020;		// Timer1 sätts till IRQ
+  VICVectCntl7  =  	 0x00000025;		// tilldela interuptchannel 5 (Timer1) till slot 7
+  VICVectAddr7	=  	(tU32)Timer1ISRirq;	// adressen till avbrottsrutinen på slot 7
+  VICIntEnable	|=	 0x000000020;		// enabla Timer1 som avbrott
 
 //*************slut ljudavbrottsinitering****************
 
