@@ -419,6 +419,7 @@ void dev_run(tU32 duty1, tU32 duty2) {
 			duty2 = 6000;
 			break;
 		}
+
 		case 6: {
 			short delay = 1;
 			short duty_vals = 6000;
