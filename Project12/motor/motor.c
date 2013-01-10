@@ -180,29 +180,30 @@ static void delayMs(tU16 delayInMs)
  ****************************************************************************/
 void initPins() {
 
-	/*
-	   * connect signal PWM2 to pin P0.7
-	   */
-	  PINSEL0 &= ~0x0000c000;  //clear bits related to P0.7
-	  PINSEL0 |=  0x00008000;  //connect signal PWM2 to P0.7 (second alternative function)
+	// connect PWM2 to pin P0.7 - Motor 1 ENABLE (PWM2)
+	PINSEL0 &= ~0x0000c000;
+	PINSEL0 |= 0x00008000;
 
-	  PINSEL0 &= ~0xc0000000;	// set P0.15 to EINT2
-	  PINSEL0 |=  0x80000000;
+	// connect GPIO to P0.12 - Motor 1 PHASE
+	PINSEL0 &= ~0x03000000;
 
-	  PINSEL1 &= ~0x000c0000;	// set P0.25 to GPIO Port 0.25
+	// REMARK: P0.16 is initialized in init_EINT0() - Motor 1 Tacho A (EINT0)
+	// REMARK: P0.17 is unused - Motor 1 Tacho A
+	// REMARK: P0.18 is unused - Motor 2 Tacho A
+	// REMARK: P0.19 is unused - Motor 1 Tacho B
+	// REMARK: P0.20 is initialized in init_EINT3() - Motor 2 Tacho B (EINT3)
 
 
-	  /*
-	  	   * connect signal PWM5 to pin P0.21
-	  	   */
+	PINSEL1 &= ~0x000c0000;	// set P0.25 to GPIO Port 0.25
 
-	  PINSEL1 &= ~0x00000c00; //clear bits related to P0.21
-	  PINSEL1 |= 0x00000400; //connect signal PWM5 to P0.21 (second alternative function)
 
-	  PINSEL1 &= ~0x0000c000; //set P0.23 to GPIO
+	// connect signal PWM5 to pin P0.21
+	PINSEL1 &= ~0x00000c00;	//clear bits related to P0.21
+	PINSEL1 |= 0x00000400;	//connect signal PWM5 to P0.21 (second alternative function)
 
-	  PINSEL1 &= ~0xc0000000; //set P0.31 to GPO Port only
-	  //PINSEL1 |= 0x80000000;
+	PINSEL1 &= ~0x0000c000; //set P0.23 to GPIO
+
+	PINSEL1 &= ~0xc0000000;	//set P0.31 to GPO Port only
 
 }
 
@@ -306,42 +307,47 @@ void init_EINT3(void)
 void init_vic(void) {
 	VICIntEnable =	  0x00024000;	// sets EINT0 and EINT3 as ISR (IRQ/FIQ routines)
 	VICIntSelect &= ~(0x00024000);	// sets EINT0 and EINT3 as IRQ routines
+
+	pISR_IRQ = (unsigned int)IRQ;
 }
 
-int runPwm()
-{
-  tU32 duty1;
-  tU32 duty2;
-  tU32 freq;
+void __attribute__ ((interrupt("IRQ"))) IRQ(void){
 
-  //set frequency to 1000 Hz (1 kHz)
-  freq = ((CRYSTAL_FREQUENCY * PLL_FACTOR)/ (VPBDIV_FACTOR * 1000));
+	// perform when interrupt is triggered
 
-  //initialize PWM unit
-  initPwm(freq);
-  
-  initPins();
+}
 
-  //vary duty cycle
-  duty1 = 0;
-  duty2 = 0;
+int runPwm() {
 
-  init_io();
+	tU32 duty1;
+	tU32 duty2;
+	tU32 freq;
 
-  init_vic();
+	init_io();
 
-  //set modes for UT1 and UT2
-  setMode1(FORWARD);
-  setMode2(FORWARD);
+	eaInit();
 
-  init_EINT0();
-  init_EINT3();
+	freq = ((CRYSTAL_FREQUENCY * PLL_FACTOR) / (VPBDIV_FACTOR * 1000));	//set frequency to 1000 Hz (1 kHz)
+	initPwm(freq);														//initialize PWM unit
 
-  dev_run(duty1, duty2);
+	initPins();
 
-  //while(1);
+	// initialize duty values
+	duty1 = 0;
+	duty2 = 0;
 
-  return 0;
+	init_vic();
+
+	//set modes for UT1 and UT2
+	setMode1(FORWARD);
+	setMode2(FORWARD);
+
+	init_EINT0();
+	init_EINT3();
+
+	dev_run(duty1, duty2);
+
+	return 0;
 }
 
 void init_io() {
