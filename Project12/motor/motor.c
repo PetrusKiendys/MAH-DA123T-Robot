@@ -1,4 +1,5 @@
 // TODO: rewrite this file as a lib that can be used by other processes and interrupts
+// TODO: verify that EINT0 and EINT3 (also VIC) is correctly implemented!
 
 /******************************************************************************
  *
@@ -16,8 +17,6 @@
  *
  *****************************************************************************/
 
-// todo: verify that EINT0 and EINT3 (also VIC) is correctly implemented!
-
 /******************************************************************************
  * Includes
  *****************************************************************************/
@@ -25,7 +24,6 @@
 #include <lpc2xxx.h>
 #include "../startup/config.h"
 #include "../utils/lpc214x.h"
-
 
 /******************************************************************************
  * Defines and typedefs
@@ -60,6 +58,11 @@
 
 #define RUN_SETPWM_IN_LOOP	1	// dictates whether setPwmDutyPercentx(tU32) should be run outside the "TASK conditional statement"
 
+/*****************************************************************************
+ * Global variables
+ ****************************************************************************/
+tU32 duty1;
+tU32 duty2;
 
 /*****************************************************************************
  * Function prototypes
@@ -71,6 +74,7 @@ static void delayMs(tU16 delayInMs);
 void setMode1(short mode);
 void setMode2(short mode);
 void init_io(void);
+void __attribute__ ((interrupt("IRQ"))) IRQ(void);
 
 //----------- DEV functions ------------------//
 void dev_run(tU32 duty1, tU32 duty2);
@@ -114,7 +118,7 @@ static void initPwm(tU32 initialFreqValue)
   PWM_PCR = 0x2400;                 //enable PWM2 and in single edge control mode
   PWM_TCR = 0x09;                   //enable PWM and Counter
 
-
+  // TODO: verify that this function is correctly implemented!
 }
 
 /*****************************************************************************
@@ -131,12 +135,16 @@ static void setPwmDutyPercent1(tU32 dutyValue1)
 {
   PWM_MR2 = (PWM_MR0 * dutyValue1) / 10000; //update duty cycle
   PWM_LER = 0x04;                           //latch new values for MR2
+
+  // TODO: verify that this function is correctly implemented!
 }
 
 static void setPwmDutyPercent2(tU32 dutyValue2)
 {
   PWM_MR5 = (PWM_MR0 * dutyValue2) / 10000;  //update duty cycle
   PWM_LER = 0x20;         //latch new values for MR5
+
+  // TODO: verify that this function is correctly implemented!
 }
 /*****************************************************************************
  *
@@ -193,23 +201,23 @@ void initPins() {
 	// REMARK: P0.19 is unused - Motor 1 Tacho B
 	// REMARK: P0.20 is initialized in init_EINT3() - Motor 2 Tacho B (EINT3)
 
+	// connect PWM5 to P0.21 - Motor 2 ENABLE (PWM5)
+	PINSEL1 &= ~0x00000c00;
+	PINSEL1 |= 0x00000400;
 
-	PINSEL1 &= ~0x000c0000;	// set P0.25 to GPIO Port 0.25
+	// connect GPIO to P0.23 - Motor 2 PHASE
+	PINSEL1 &= ~0x0000c000;
 
+	// connect GPIO to P0.25 - Motor 1 BRAKE
+	PINSEL1 &= ~0x000c0000;
 
-	// connect signal PWM5 to pin P0.21
-	PINSEL1 &= ~0x00000c00;	//clear bits related to P0.21
-	PINSEL1 |= 0x00000400;	//connect signal PWM5 to P0.21 (second alternative function)
-
-	PINSEL1 &= ~0x0000c000; //set P0.23 to GPIO
-
-	PINSEL1 &= ~0xc0000000;	//set P0.31 to GPO Port only
+	// connect GPIO to P0.31 - Motor 2 BRAKE
+	PINSEL1 &= ~0xc0000000;
 
 }
 
-
-// COMMENT: PHASE was earlier set to P0.15, this is incorrect!
 void setMode1(short mode) {
+	// COMMENT: PHASE was earlier set to P0.15, this is incorrect!
 
 	if (mode == 1) {	// MODE = Forward, Fast Current-Decay Mode
 		//IODIR |= P07;	// ENABLE (P0.7)
@@ -308,7 +316,7 @@ void init_vic(void) {
 	VICIntEnable =	  0x00024000;	// sets EINT0 and EINT3 as ISR (IRQ/FIQ routines)
 	VICIntSelect &= ~(0x00024000);	// sets EINT0 and EINT3 as IRQ routines
 
-	pISR_IRQ = (unsigned int)IRQ;
+	pISR_IRQ = (unsigned int) IRQ;	// TODO: initialize this IRQ in main.c
 }
 
 void __attribute__ ((interrupt("IRQ"))) IRQ(void){
@@ -318,9 +326,8 @@ void __attribute__ ((interrupt("IRQ"))) IRQ(void){
 }
 
 int runPwm() {
+	// TODO: restructure and clean up this function!
 
-	tU32 duty1;
-	tU32 duty2;
 	tU32 freq;
 
 	init_io();
@@ -369,9 +376,8 @@ void init_io() {
 }
 
 // dev function - not used in release
-
 // COMMENT: PWM signal is continuously generated when the setPwmDutyPercent(tU32) function is called, no need to endlessly iterate the calls
-// UPDATE:  seems like you need to iterate over the setPwmDutyPercent(tU32) functions afterall...
+// EDIT:  	seems like you need to iterate over the setPwmDutyPercent(tU32) functions afterall...
 // COMMENT: the duty sets the speed of the motor driver
 // 			the value that can be set is 0-10000
 // 			a higher value means a lower speed, conversely a low value means a higher speed
