@@ -1,4 +1,4 @@
-ARM GAS  /cygdrive/c/DOCUME~1/Tommy/LOKALA~1/Temp/ccZSH6Rj.s 			page 1
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccolIhDv.s 			page 1
 
 
    1              		.code	16
@@ -58,7 +58,7 @@ ARM GAS  /cygdrive/c/DOCUME~1/Tommy/LOKALA~1/Temp/ccZSH6Rj.s 			page 1
   17:main.c        ****  *****************************************************************************/
   18:main.c        **** #include "general.h"
   19:main.c        **** #include <lpc2xxx.h>
-ARM GAS  /cygdrive/c/DOCUME~1/Tommy/LOKALA~1/Temp/ccZSH6Rj.s 			page 2
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccolIhDv.s 			page 2
 
 
   20:main.c        **** #include <printf_P.h>
@@ -118,7 +118,7 @@ ARM GAS  /cygdrive/c/DOCUME~1/Tommy/LOKALA~1/Temp/ccZSH6Rj.s 			page 1
   74:main.c        ****   //wait until delay time has elapsed
   75:main.c        ****   while (TIMER1_TCR & 0x01)
   76:main.c        ****     ;
-ARM GAS  /cygdrive/c/DOCUME~1/Tommy/LOKALA~1/Temp/ccZSH6Rj.s 			page 3
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccolIhDv.s 			page 3
 
 
   77:main.c        **** }
@@ -178,7 +178,7 @@ ARM GAS  /cygdrive/c/DOCUME~1/Tommy/LOKALA~1/Temp/ccZSH6Rj.s 			page 1
  116:main.c        **** 
  117:main.c        ****     temperatur[0]=0;		//8 mest signifikanta bitarna, lägsta biten svarar mot 1 grad C
   42              		.loc 1 117 0
-ARM GAS  /cygdrive/c/DOCUME~1/Tommy/LOKALA~1/Temp/ccZSH6Rj.s 			page 4
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccolIhDv.s 			page 4
 
 
   43 0014 6C46     		mov	r4, sp
@@ -238,7 +238,7 @@ ARM GAS  /cygdrive/c/DOCUME~1/Tommy/LOKALA~1/Temp/ccZSH6Rj.s 			page 1
   88              	.L3:
   89              		.loc 1 75 0
   90 0058 054B     		ldr	r3, .L7+12
-ARM GAS  /cygdrive/c/DOCUME~1/Tommy/LOKALA~1/Temp/ccZSH6Rj.s 			page 5
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccolIhDv.s 			page 5
 
 
   91 005a 1B68     		ldr	r3, [r3]
@@ -298,7 +298,7 @@ ARM GAS  /cygdrive/c/DOCUME~1/Tommy/LOKALA~1/Temp/ccZSH6Rj.s 			page 1
  145              	.LEFDE0:
  146              		.text
  147              	.Letext0:
-ARM GAS  /cygdrive/c/DOCUME~1/Tommy/LOKALA~1/Temp/ccZSH6Rj.s 			page 6
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccolIhDv.s 			page 6
 
 
  148              		.section	.debug_loc,"",%progbits
@@ -329,10 +329,10 @@ ARM GAS  /cygdrive/c/DOCUME~1/Tommy/LOKALA~1/Temp/ccZSH6Rj.s 			page 1
  173 000c 00000000 		.4byte	.Ldebug_line0
  174 0010 7C000000 		.4byte	.Letext0
  175 0014 00000000 		.4byte	.Ltext0
- 176 0018 68000000 		.4byte	.LASF3
+ 176 0018 42000000 		.4byte	.LASF3
  177 001c 01       		.byte	0x1
- 178 001d 74000000 		.4byte	.LASF4
- 179 0021 42000000 		.4byte	.LASF5
+ 178 001d 4E000000 		.4byte	.LASF4
+ 179 0021 55000000 		.4byte	.LASF5
  180 0025 02       		.uleb128 0x2
  181 0026 3E000000 		.4byte	0x3e
  182 002a 12000000 		.4byte	.LASF6
@@ -358,7 +358,7 @@ ARM GAS  /cygdrive/c/DOCUME~1/Tommy/LOKALA~1/Temp/ccZSH6Rj.s 			page 1
  202 0050 5F       		.byte	0x5f
  203 0051 01       		.byte	0x1
  204 0052 90000000 		.4byte	0x90
-ARM GAS  /cygdrive/c/DOCUME~1/Tommy/LOKALA~1/Temp/ccZSH6Rj.s 			page 7
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccolIhDv.s 			page 7
 
 
  205 0056 00000000 		.4byte	.LFB3
@@ -418,7 +418,7 @@ ARM GAS  /cygdrive/c/DOCUME~1/Tommy/LOKALA~1/Temp/ccZSH6Rj.s 			page 1
  259 0008 01       		.uleb128 0x1
  260 0009 25       		.uleb128 0x25
  261 000a 0E       		.uleb128 0xe
-ARM GAS  /cygdrive/c/DOCUME~1/Tommy/LOKALA~1/Temp/ccZSH6Rj.s 			page 8
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccolIhDv.s 			page 8
 
 
  262 000b 13       		.uleb128 0x13
@@ -478,7 +478,7 @@ ARM GAS  /cygdrive/c/DOCUME~1/Tommy/LOKALA~1/Temp/ccZSH6Rj.s 			page 1
  316 0041 3F       		.uleb128 0x3f
  317 0042 0C       		.uleb128 0xc
  318 0043 03       		.uleb128 0x3
-ARM GAS  /cygdrive/c/DOCUME~1/Tommy/LOKALA~1/Temp/ccZSH6Rj.s 			page 9
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccolIhDv.s 			page 9
 
 
  319 0044 0E       		.uleb128 0xe
@@ -538,7 +538,7 @@ ARM GAS  /cygdrive/c/DOCUME~1/Tommy/LOKALA~1/Temp/ccZSH6Rj.s 			page 1
  373 007a 00       		.byte	0x0
  374 007b 00       		.byte	0x0
  375 007c 09       		.uleb128 0x9
-ARM GAS  /cygdrive/c/DOCUME~1/Tommy/LOKALA~1/Temp/ccZSH6Rj.s 			page 10
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccolIhDv.s 			page 10
 
 
  376 007d 05       		.uleb128 0x5
@@ -598,7 +598,7 @@ ARM GAS  /cygdrive/c/DOCUME~1/Tommy/LOKALA~1/Temp/ccZSH6Rj.s 			page 1
  429 0014 7C000000 		.4byte	.Letext0-.Ltext0
  430 0018 00000000 		.4byte	0x0
  431 001c 00000000 		.4byte	0x0
-ARM GAS  /cygdrive/c/DOCUME~1/Tommy/LOKALA~1/Temp/ccZSH6Rj.s 			page 11
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccolIhDv.s 			page 11
 
 
  432              		.section	.debug_str,"MS",%progbits,1
@@ -625,19 +625,19 @@ ARM GAS  /cygdrive/c/DOCUME~1/Tommy/LOKALA~1/Temp/ccZSH6Rj.s 			page 1
  442 0037 74656D70 		.ascii	"temperatur\000"
  442      65726174 
  442      757200
- 443              	.LASF5:
- 444 0042 2F637967 		.ascii	"/cygdrive/c/eclipse/workspace/I2Ctest\000"
- 444      64726976 
- 444      652F632F 
- 444      65636C69 
- 444      7073652F 
- 445              	.LASF3:
- 446 0068 474E5520 		.ascii	"GNU C 4.1.1\000"
- 446      4320342E 
- 446      312E3100 
- 447              	.LASF4:
- 448 0074 6D61696E 		.ascii	"main.c\000"
- 448      2E6300
+ 443              	.LASF3:
+ 444 0042 474E5520 		.ascii	"GNU C 4.1.1\000"
+ 444      4320342E 
+ 444      312E3100 
+ 445              	.LASF4:
+ 446 004e 6D61696E 		.ascii	"main.c\000"
+ 446      2E6300
+ 447              	.LASF5:
+ 448 0055 2F637967 		.ascii	"/cygdrive/c/ultraljudprojects/I2Ctest\000"
+ 448      64726976 
+ 448      652F632F 
+ 448      756C7472 
+ 448      616C6A75 
  449              	.LASF2:
  450 007b 756E7369 		.ascii	"unsigned char\000"
  450      676E6564 
@@ -647,14 +647,14 @@ ARM GAS  /cygdrive/c/DOCUME~1/Tommy/LOKALA~1/Temp/ccZSH6Rj.s 			page 1
  452 0089 6D61696E 		.ascii	"main\000"
  452      00
  453              		.ident	"GCC: (GNU) 4.1.1"
-ARM GAS  /cygdrive/c/DOCUME~1/Tommy/LOKALA~1/Temp/ccZSH6Rj.s 			page 12
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccolIhDv.s 			page 12
 
 
 DEFINED SYMBOLS
                             *ABS*:00000000 main.c
-/cygdrive/c/DOCUME~1/Tommy/LOKALA~1/Temp/ccZSH6Rj.s:1      .text:00000000 $t
-/cygdrive/c/DOCUME~1/Tommy/LOKALA~1/Temp/ccZSH6Rj.s:24     .text:00000000 main
-/cygdrive/c/DOCUME~1/Tommy/LOKALA~1/Temp/ccZSH6Rj.s:98     .text:00000064 $d
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccolIhDv.s:1      .text:00000000 $t
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccolIhDv.s:24     .text:00000000 main
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccolIhDv.s:98     .text:00000064 $d
 
 UNDEFINED SYMBOLS
 eaInit
