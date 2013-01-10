@@ -61,8 +61,8 @@
 /*****************************************************************************
  * Global variables
  ****************************************************************************/
-tU32 duty1;
-tU32 duty2;
+static tU32 duty1;
+static tU32 duty2;
 
 /*****************************************************************************
  * Function prototypes
@@ -74,15 +74,15 @@ static void delayMs(tU16 delayInMs);
 void setMode1(short mode);
 void setMode2(short mode);
 void init_io(void);
-void __attribute__ ((interrupt("IRQ"))) IRQ(void);
-
+//void __attribute__ ((interrupt("IRQ"))) IRQ(void);
+void Tacho1_IRQ(void);
+void Tacho2_IRQ(void);
 //----------- DEV functions ------------------//
 void dev_run(tU32 duty1, tU32 duty2);
 void pwm_motor_init(void);
 void pwm_motor_run(tU32 duty1, tU32 duty2);
 void change_mode(short mode);
 //----------- end of DEV functions -----------//
-
 void delay_millis(long ms);
 
 /*****************************************************************************
@@ -313,16 +313,66 @@ void init_EINT3(void)
 }
 
 void init_vic(void) {
-	VICIntEnable =	  0x00024000;	// sets EINT0 and EINT3 as ISR (IRQ/FIQ routines)
-	VICIntSelect &= ~(0x00024000);	// sets EINT0 and EINT3 as IRQ routines
+	// REMARK: Timer1 (used by lightsensor) is already assigned to VICVectCntl7 (priority slot 7)
 
-	pISR_IRQ = (unsigned int) IRQ;	// TODO: initialize this IRQ in main.c
+	VICIntSelect &= ~(0x00024000);		// sets EINT0 and EINT3 as IRQ routines
+
+	VICVectCntl6 = 0x20 | 17;			// assigns EINT3 to priority slot 6 of VIC
+	VICVectCntl5 = 0x20 | 14;			// assigns EINT0 to priority slot 5 of VIC
+
+	VICVectAddr6 = (tU32)Tacho2_IRQ;	// binds the address of Tacho2_IRQ to the VIC
+	VICVectAddr5 = (tU32)Tacho1_IRQ;	// binds the address of Tacho1_IRQ to the VIC
+	// REMARK:	Writing to this register does not set the value for future reads from it.
+	// 			Rather, this register should be written near the end of an ISR, to update the priority hardware.
+
+	VICIntEnable =	  0x00024000;		// enables EINT0 and EINT3 as interrupts
+
+	// TODO: initialize this IRQ in main.c
+	// REMARK: confirm that this is the correct implementation
+//	pISR_IRQ = (unsigned int)IRQ;
+//	pISR_IRQ = (unsigned int)Tacho1_IRQ;
+//	pISR_IRQ = (unsigned int)Tacho2_IRQ;
 }
 
-void __attribute__ ((interrupt("IRQ"))) IRQ(void){
+void init_io() {
+	// REMARK: Note that the direction control register IODIR is effective only when the GPIO function is selected for a pin.
 
-	// perform when interrupt is triggered
+	// OUTPUT INITIALIZATION
+	// initializes UT1
+	IODIR |= P07;	// ENABLE (P0.7)
+	IODIR |= P12;	// PHASE (P0.12)
+	IODIR |= P25;	// BRAKE (P0.25)
 
+	// initializes UT2
+	IODIR |= P21;	// ENABLE (P0.21)
+	IODIR |= P23;	// PHASE (P0.23)
+	IODIR |= P31;	// BRAKE (P0.31)
+
+
+	// INPUT INITIALIZATION
+	IODIR &= ~(P16);
+	IODIR &= ~(P20);	// makes EINT0 and EINT3 inputs
+}
+
+
+//void __attribute__ ((interrupt("IRQ"))) IRQ(void){
+//
+//	// perform when interrupt is triggered
+//
+//}
+
+void Tacho1_IRQ(void) {
+	// perform this when Tacho1 is triggered
+	// don't forget to reset the interrupt flag!
+//	VICVectAddr = 0x00;		//dummy write to VIC to signal end of interrupt
+							// QUESTION: have to use this statement?
+}
+
+void Tacho2_IRQ(void) {
+	// perform this when Tacho2 is triggered
+	// don't forget to reset the interrupt flag!
+//	VICVectAddr = 0x00;		//dummy write to VIC to signal end of interrupt
+							// QUESTION: have to use this statement?
 }
 
 int runPwm() {
@@ -331,8 +381,6 @@ int runPwm() {
 	tU32 freq;
 
 	init_io();
-
-	eaInit();
 
 	freq = ((CRYSTAL_FREQUENCY * PLL_FACTOR) / (VPBDIV_FACTOR * 1000));	//set frequency to 1000 Hz (1 kHz)
 	initPwm(freq);														//initialize PWM unit
@@ -357,23 +405,9 @@ int runPwm() {
 	return 0;
 }
 
-void init_io() {
-	// OUTPUT INITIALIZATION
-	// initializes UT1
-	IODIR |= P07;	// ENABLE (P0.7)
-	IODIR |= P12;	// PHASE (P0.12)
-	IODIR |= P25;	// BRAKE (P0.25)
-
-	// initializes UT2
-	IODIR |= P21;	// ENABLE (P0.21)
-	IODIR |= P23;	// PHASE (P0.23)
-	IODIR |= P31;	// BRAKE (P0.31)
 
 
-	// INPUT INITIALIZATION
-	IODIR &= ~(P16);
-	IODIR &= ~(P20);	// makes EINT0 and EINT3 inputs
-}
+
 
 // dev function - not used in release
 // COMMENT: PWM signal is continuously generated when the setPwmDutyPercent(tU32) function is called, no need to endlessly iterate the calls
@@ -505,6 +539,9 @@ void dev_run(tU32 duty1, tU32 duty2) {
 	}
 }
 
+/*****************************************************************************
+ * Temporary developer functions
+ ****************************************************************************/
 void pwm_motor_init() {
 	setMode1(FORWARD);
 	setMode2(FORWARD);
