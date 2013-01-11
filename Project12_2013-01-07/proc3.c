@@ -36,7 +36,6 @@ void
 procEx3(void* arg)
 {
   tU8 error;
-  int i;
 
   for(;;)
   {
@@ -45,22 +44,19 @@ procEx3(void* arg)
 
 
     static int switchCounter = 0; // sets to 0 first time
-    delay(delayshort);
-    send_instruction(1);	//cleara displayn
-
-
+   // delay(delayshort);
+   // send_instruction(1);	//cleara displayn
 
     // Tryck på switch och text skrivs ut
     	if(IOPIN & P028){
     		//printf("Klickat på switch ON\n");
-    		//printf("counter = %d. \n", switchCounter);
+    		printf("counter = %d. ", switchCounter);
     	    //printf("tempMask = %h. P028 = %h", tempMask, P028);
     	    //IOSET = led;	//P0.8 = 1, led off
     	    //printf("IOPIN = %x\n", IOPIN);
     		//delay(delaylong);
     		//send_character('E');
-    		delay(delaylong);
-    		send_character('U');
+
 
    // 		delay_millis(500);
 
@@ -69,22 +65,15 @@ procEx3(void* arg)
     		switchCounter++;
 
     	   //	printf("a\na\na\na\na\na\na\na\na\na\na\na\na\na\n");
-    	   	//printf("counterKLICKAD = %d\n", switchCounter);
-
-    		for( i=0; i<switchCounter; i++ ) {
-				delay(delaylong);
-				send_character('I');
-    		}
-    	   	// Kalla på funktion som ändrar state eftersom countern ökat!
+    	   	printf("counterKLICKAD = %d\n", switchCounter);
 
     	   //	delay(delaylong);
     	   //	send_character('X');
 
-    	   	osSleep(100);
+    	   	osSleep(500);
     	   	//printf("IOPIN = %d\n", IOPIN);
     	   	//printf("tempMask = %d. P028 = %d", tempMask, P028);
     	}
-
 
    	//osSleep(300);
 
@@ -116,6 +105,6 @@ procEx3(void* arg)
 */
     osSemGive(&mutexLCD, &error);
 
-    osSleep(50);
+    osSleep(300);
   }
 }

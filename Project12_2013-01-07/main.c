@@ -33,7 +33,6 @@
 #include "startup/config.h"
 #include "startup/framework.h"
 #include "lightSensor/initLightSensor.c"
-#include "motor/initMotor.c"
 
 #include "LCD/LCD.h"  //  Funktionsprototyper för LCD-rutinerna
 
@@ -88,20 +87,6 @@ static void procStackUsage(void* arg);
 //Exempel på avbrott (ljudsampling)
 void Timer1ISRirq (void);  // skall inte ha något attribut när RTOS används
 void Timer0ISRirq (void);
-
-//motor.c
-void setPwmDutyPercent1(volatile unsigned long dutyValue1);
-void setPwmDutyPercent2(volatile unsigned long dutyValue2);
-void setMode1(int mode);
-void setMode2(int mode);
-void setPwmDuty1(tU32 dutyValue1);
-void setPwmDuty2(tU32 dutyValue2);
-
-//initMotor.c
-void runPwm();
-void initPwm(tU32 initialFreqValue);
-void initPins();
-void init_io();
 /****************************************************************************/
 
 
@@ -181,7 +166,6 @@ main(void)
   tU8 error;
   tU8 pid;
 
-  runPwm();
   initLightPins();
 
   //FÖR LJUSSENSORN:
