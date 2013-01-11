@@ -538,10 +538,12 @@ ifdef SUBDIRS
 endif
 
 depend:
-	$(RM) .depend 
+	$(RM) .depend
+	
 	@for f in $(CSRCS) ; do \
 		$(CC) -MM $(CC_OPTS) $$f >> .depend ; \
 	done
+	
 	@for f in $(ASRCS) ; do \
 		$(AS) -MM $(CC_OPTS) $$f >> .depend ; \
 	done

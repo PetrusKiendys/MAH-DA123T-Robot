@@ -35,7 +35,7 @@
 #define	P23 (1 << 23)
 #define	P31 (1 << 31)
 
-#define TASK	2		// task 1 - use circulary loop
+#define TASK	1		// task 1 - use circulary loop
 						// task 2 - use constant PWM signal
 #define MODE	1		// mode 1 - Forward, Fast Current-Decay Mode
 						// mode 2 - Forward, Slow Current-Decay Mode
