@@ -22,6 +22,7 @@
  *
  *****************************************************************************/
 
+// QUESTION: how many ms is a tick (RTOS)?
 
 #include "pre_emptive_os/api/osapi.h"
 #include "general.h"
@@ -63,29 +64,40 @@ static tU8 pidEx3;
 static tU8 pidStUs;
 
 
-
+/*****************************************************************************
+ * Function prototypes
+ ****************************************************************************/
 void procEx1(void* arg);
 void procEx2(void* arg);
 void procEx3(void* arg);
 
+//int runPwm(void);
+
 static void initProc(void* arg);
 static void procStackUsage(void* arg);
+
+//static void initPwm(tU32 initialFreqValue);
 
 
 //Exempel på avbrott (ljudsampling)
 void Timer1ISRirq (void);  // skall inte ha något attribut när RTOS används
-
+/****************************************************************************/
 
 
 
 /****************************************************************************
  *
- * Globala konstenter och variabler
+ * Globala konstanter och variabler
  *
  ****************************************************************************/
 
 long const delayshort = 1200;
 long const delaylong = 49250;
+
+// TODO: temporary global variables, make local later if possible..
+//tU32 duty;
+//set frequency to 1000 Hz (1 kHz)
+//tU32 const freq = ((CRYSTAL_FREQUENCY * PLL_FACTOR)/ (VPBDIV_FACTOR * 1000));
 
 
 
@@ -99,6 +111,42 @@ long const delaylong = 49250;
 tCntSem mutexLCD;
 
 
+
+/*****************************************************************************
+ *
+ * Description:
+ *    Initialize the PWM unit to generate a variable duty cycle signal on
+ *    PWM2. Connect signal PWM2 to pin P0.7.
+ *    The function sets initial frequency. Initial duty cucle is set to 0%.
+ *
+ * Params:
+ *    [in] initialFreqValue - the initial frequency value. Value calculated as:
+ *
+ *                     (crystal frequency * PLL multiplication factor)
+ *                     -----------------------------------------------
+ *                           (VPBDIV factor * desired frequency)
+ *
+ ****************************************************************************/
+//static void
+//initPwm(tU32 initialFreqValue)
+//{
+//  /*
+//   * initialize PWM
+//   */
+//  PWM_PR  = 0x00000000;             //set prescale to 0
+//  PWM_MCR = 0x0002;                 //counter resets on MR0 match (period time)
+//  PWM_MR0 = initialFreqValue;       //MR0 = period cycle time
+//  PWM_MR2 = 0;                      //MR2 = duty cycle control, initial = 0%
+//  PWM_LER = 0x05;                   //latch new values for MR0 and MR2
+//  PWM_PCR = 0x0400;                 //enable PWM2 in single edge control mode
+//  PWM_TCR = 0x09;                   //enable PWM and Counter
+//
+//  /*
+//   * connect signal PWM2 to pin P0.7
+//   */
+//  PINSEL0 &= ~0x0000c000;  //clear bits related to P0.7
+//  PINSEL0 |=  0x00008000;  //connect signal PWM2 to P0.7 (second alternative function)
+//}
 
 
 /*****************************************************************************
@@ -118,6 +166,12 @@ main(void)
   delay(delaylong);
   send_instruction(0xC);  //släck cursorn
 
+  // init PWM variables
+  //initPwmVars();
+
+  //initialize PWM unit
+  //initPwm(freq);
+
  // Här kan diverse initeringar läggas
  // Alternativt gör detta i initieringprocessen
  // Lägg märke till att avbrott inte bör enablas för än när alla processer startats
@@ -130,6 +184,11 @@ main(void)
   osStart();
   return 0;
 }
+
+//void initPwmVars(void) {
+//
+//	  // REMARK: make other inits here (or remove this method)
+//}
 
 
 

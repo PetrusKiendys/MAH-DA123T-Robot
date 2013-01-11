@@ -1,0 +1,1621 @@
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccd3GY5y.s 			page 1
+
+
+   1              		.file	"framework.c"
+   2              		.section	.debug_abbrev,"",%progbits
+   3              	.Ldebug_abbrev0:
+   4              		.section	.debug_info,"",%progbits
+   5              	.Ldebug_info0:
+   6              		.section	.debug_line,"",%progbits
+   7              	.Ldebug_line0:
+   8 0000 A6000000 		.text
+   8      02002200 
+   8      00000201 
+   8      FB0E0D00 
+   8      01010101 
+   9              	.Ltext0:
+  10              		.align	2
+  11              		.global	exceptionHandlerInit
+  12              		.type	exceptionHandlerInit, %function
+  13              	exceptionHandlerInit:
+  14              	.LFB7:
+  15              		.file 1 "framework.c"
+   1:framework.c   **** /******************************************************************************
+   2:framework.c   ****  *
+   3:framework.c   ****  * Copyright:
+   4:framework.c   ****  *    (C) 2000 - 2005 Embedded Artists AB
+   5:framework.c   ****  *
+   6:framework.c   ****  * Description:
+   7:framework.c   ****  *    Framework for ARM7 processor
+   8:framework.c   ****  *
+   9:framework.c   ****  *****************************************************************************/
+  10:framework.c   **** 
+  11:framework.c   **** /******************************************************************************
+  12:framework.c   ****  * Includes
+  13:framework.c   ****  *****************************************************************************/
+  14:framework.c   **** #include "lpc2xxx.h"                            /* LPC2xxx definitions */
+  15:framework.c   **** #include "config.h"
+  16:framework.c   **** #include "framework.h"
+  17:framework.c   **** #include "consol.h"
+  18:framework.c   **** 
+  19:framework.c   **** /******************************************************************************
+  20:framework.c   ****  * Defines, macros, and typedefs
+  21:framework.c   ****  *****************************************************************************/
+  22:framework.c   **** 
+  23:framework.c   **** 
+  24:framework.c   **** /******************************************************************************
+  25:framework.c   ****  * External variables
+  26:framework.c   ****  *****************************************************************************/
+  27:framework.c   **** extern char end asm ("end");  //the symbol "end" is defined by the linker script
+  28:framework.c   **** 
+  29:framework.c   **** 
+  30:framework.c   **** /******************************************************************************
+  31:framework.c   ****  * Public variables
+  32:framework.c   ****  *****************************************************************************/
+  33:framework.c   **** unsigned char *pHeapStart;
+  34:framework.c   **** unsigned char *pHeapEnd;
+  35:framework.c   **** 
+  36:framework.c   **** 
+  37:framework.c   **** /******************************************************************************
+  38:framework.c   ****  * External functions
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccd3GY5y.s 			page 2
+
+
+  39:framework.c   ****  *****************************************************************************/
+  40:framework.c   **** 
+  41:framework.c   **** 
+  42:framework.c   **** /******************************************************************************
+  43:framework.c   ****  * Public functions
+  44:framework.c   ****  *****************************************************************************/
+  45:framework.c   **** void lowLevelInit(void);
+  46:framework.c   **** void eaInit(void);
+  47:framework.c   **** void exceptionHandlerInit(void);
+  48:framework.c   **** 
+  49:framework.c   **** /******************************************************************************
+  50:framework.c   ****  * Implementation of local functions
+  51:framework.c   ****  *****************************************************************************/
+  52:framework.c   **** 
+  53:framework.c   **** /*****************************************************************************
+  54:framework.c   ****  *
+  55:framework.c   ****  * Description:
+  56:framework.c   ****  *    Default exception handler for undefined instruction.
+  57:framework.c   ****  *    Prints information and halt. Observe that code execture in exception
+  58:framework.c   ****  *    mode (as opposed to supervisor mode, which is the normal execution mode).
+  59:framework.c   ****  *
+  60:framework.c   ****  ****************************************************************************/
+  61:framework.c   **** static void
+  62:framework.c   **** exceptionHandlerUndef(void)
+  63:framework.c   **** {
+  64:framework.c   ****   register unsigned int programCounter asm ("lr");
+  65:framework.c   ****   unsigned int          value = programCounter - (unsigned int)0x04;
+  66:framework.c   **** 
+  67:framework.c   ****   consolSendString("Undefined instruction exception !!!\nAddress: 0x");
+  68:framework.c   ****   consolSendNumber(16, 8, 0, '0', value); 
+  69:framework.c   ****   while(1)
+  70:framework.c   ****     ;
+  71:framework.c   **** }
+  72:framework.c   **** 
+  73:framework.c   **** /*****************************************************************************
+  74:framework.c   ****  *
+  75:framework.c   ****  * Description:
+  76:framework.c   ****  *    Default exception handler for software interrupt.
+  77:framework.c   ****  *    Prints information and halt. Observe that code execture in exception
+  78:framework.c   ****  *    mode (as opposed to supervisor mode, which is the normal execution mode).
+  79:framework.c   ****  *
+  80:framework.c   ****  ****************************************************************************/
+  81:framework.c   **** static void
+  82:framework.c   **** exceptionHandlerSwi(void)
+  83:framework.c   **** {
+  84:framework.c   ****   register unsigned int programCounter asm ("lr");
+  85:framework.c   ****   unsigned int          value = programCounter - (unsigned int)0x04;
+  86:framework.c   **** 
+  87:framework.c   ****   consolSendString("SWI exception !!!\nAddress: 0x");
+  88:framework.c   ****   consolSendNumber(16, 8, 0, '0', value); 
+  89:framework.c   ****   while(1)
+  90:framework.c   ****     ;
+  91:framework.c   **** }
+  92:framework.c   **** 
+  93:framework.c   **** /*****************************************************************************
+  94:framework.c   ****  *
+  95:framework.c   ****  * Description:
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccd3GY5y.s 			page 3
+
+
+  96:framework.c   ****  *    Default exception handler for invalid program fetch.
+  97:framework.c   ****  *    Prints information and halt. Observe that code execture in exception
+  98:framework.c   ****  *    mode (as opposed to supervisor mode, which is the normal execution mode).
+  99:framework.c   ****  *
+ 100:framework.c   ****  ****************************************************************************/
+ 101:framework.c   **** static void
+ 102:framework.c   **** exceptionHandlerPabort()
+ 103:framework.c   **** {
+ 104:framework.c   ****   register unsigned int programCounter asm ("lr");
+ 105:framework.c   ****   unsigned int          value = programCounter - (unsigned int)0x04;
+ 106:framework.c   **** 
+ 107:framework.c   ****   consolSendString("Pabort exception !!!\nAddress: 0x");
+ 108:framework.c   ****   consolSendNumber(16, 8, 0, '0', value); 
+ 109:framework.c   ****   while(1)
+ 110:framework.c   ****     ;
+ 111:framework.c   **** }
+ 112:framework.c   **** 
+ 113:framework.c   **** /*****************************************************************************
+ 114:framework.c   ****  *
+ 115:framework.c   ****  * Description:
+ 116:framework.c   ****  *    Default exception handler for invalid data access.
+ 117:framework.c   ****  *    Prints information and halt. Observe that code execture in exception
+ 118:framework.c   ****  *    mode (as opposed to supervisor mode, which is the normal execution mode).
+ 119:framework.c   ****  *
+ 120:framework.c   ****  ****************************************************************************/
+ 121:framework.c   **** static void
+ 122:framework.c   **** exceptionHandlerDabort(void)
+ 123:framework.c   **** {
+ 124:framework.c   ****   register unsigned int programCounter asm ("lr");
+ 125:framework.c   ****   unsigned int          value = programCounter - (unsigned int)0x08;
+ 126:framework.c   **** 
+ 127:framework.c   ****   consolSendString("Dabort exception !!!\nAddress: 0x");
+ 128:framework.c   ****   consolSendNumber(16, 8, 0, '0', value); 
+ 129:framework.c   ****   while(1)
+ 130:framework.c   ****     ;
+ 131:framework.c   **** }
+ 132:framework.c   **** 
+ 133:framework.c   **** /*****************************************************************************
+ 134:framework.c   ****  *
+ 135:framework.c   ****  * Description:
+ 136:framework.c   ****  *    Default exception handler for fast interrupts.
+ 137:framework.c   ****  *    Prints information and halt. Observe that code execture in exception
+ 138:framework.c   ****  *    mode (as opposed to supervisor mode, which is the normal execution mode).
+ 139:framework.c   ****  *
+ 140:framework.c   ****  ****************************************************************************/
+ 141:framework.c   **** static void
+ 142:framework.c   **** exceptionHandlerFiq(void)
+ 143:framework.c   **** {
+ 144:framework.c   ****   register unsigned int programCounter asm ("lr");
+ 145:framework.c   ****   unsigned int          value = programCounter - (unsigned int)0x04;
+ 146:framework.c   **** 
+ 147:framework.c   ****   consolSendString("FIQ exception !!!\nAddress: 0x");
+ 148:framework.c   ****   consolSendNumber(16, 8, 0, '0', value); 
+ 149:framework.c   ****   while(1)
+ 150:framework.c   ****     ;
+ 151:framework.c   **** }
+ 152:framework.c   **** 
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccd3GY5y.s 			page 4
+
+
+ 153:framework.c   **** #if (IRQ_HANDLER == 0)
+ 154:framework.c   **** /*****************************************************************************
+ 155:framework.c   ****  *
+ 156:framework.c   ****  * Description:
+ 157:framework.c   ****  *    Default exception handler for normal interrupts. This handler should
+ 158:framework.c   ****  *    normally never be used.
+ 159:framework.c   ****  *    Prints information and halt. Observe that code execture in exception
+ 160:framework.c   ****  *    mode (as opposed to supervisor mode, which is the normal execution mode).
+ 161:framework.c   ****  *
+ 162:framework.c   ****  ****************************************************************************/
+ 163:framework.c   **** static void
+ 164:framework.c   **** exceptionHandlerIrq(void)
+ 165:framework.c   **** {
+ 166:framework.c   ****   register unsigned int programCounter asm ("lr");
+ 167:framework.c   ****   unsigned int          value = programCounter - (unsigned int)0x04;
+ 168:framework.c   **** 
+ 169:framework.c   ****   consolSendString("IRQ exception !!!\nAddress: 0x");
+ 170:framework.c   ****   consolSendNumber(16, 8, 0, '0', value); 
+ 171:framework.c   ****   while(1)
+ 172:framework.c   ****     ;
+ 173:framework.c   **** }
+ 174:framework.c   **** #endif
+ 175:framework.c   **** 
+ 176:framework.c   **** /******************************************************************************
+ 177:framework.c   ****  * Implementation of public functions
+ 178:framework.c   ****  *****************************************************************************/
+ 179:framework.c   **** 
+ 180:framework.c   **** /*****************************************************************************
+ 181:framework.c   ****  *
+ 182:framework.c   ****  * Description:
+ 183:framework.c   ****  *    Connect all default exception handlers.
+ 184:framework.c   ****  *    The application can overwrite these handlers with new ones.
+ 185:framework.c   ****  *
+ 186:framework.c   ****  ****************************************************************************/
+ 187:framework.c   **** void
+ 188:framework.c   **** exceptionHandlerInit(void)
+ 189:framework.c   **** {
+  16              		.loc 1 189 0
+  17              		@ Function supports interworking.
+  18              		@ args = 0, pretend = 0, frame = 0
+  19              		@ frame_needed = 0, uses_anonymous_args = 0
+  20              		@ link register save eliminated.
+ 190:framework.c   ****   pISR_UNDEF  = (unsigned int)exceptionHandlerUndef;
+ 191:framework.c   ****   pISR_SWI    = (unsigned int)exceptionHandlerSwi;
+ 192:framework.c   ****   pISR_PABORT = (unsigned int)exceptionHandlerPabort;
+ 193:framework.c   ****   pISR_DABORT = (unsigned int)exceptionHandlerDabort;
+ 194:framework.c   ****   pISR_FIQ    = (unsigned int)exceptionHandlerFiq;
+  21              		.loc 1 194 0
+  22 0000 40309FE5 		ldr	r3, .L3
+  23              		.loc 1 190 0
+  24 0004 0111A0E3 		mov	r1, #1073741824
+ 195:framework.c   **** 
+ 196:framework.c   **** #if (IRQ_HANDLER == 0)
+ 197:framework.c   ****   pISR_IRQ    = (unsigned int)exceptionHandlerIrq;
+ 198:framework.c   **** #endif
+ 199:framework.c   **** 
+ 200:framework.c   ****   //set heap limits
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccd3GY5y.s 			page 5
+
+
+ 201:framework.c   ****   pHeapStart = &end;
+  25              		.loc 1 201 0
+  26 0008 3C209FE5 		ldr	r2, .L3+4
+  27              		.loc 1 194 0
+  28 000c 383081E5 		str	r3, [r1, #56]
+  29              		.loc 1 201 0
+  30 0010 38309FE5 		ldr	r3, .L3+8
+  31 0014 002083E5 		str	r2, [r3, #0]
+ 202:framework.c   ****   pHeapEnd   = (unsigned char*)((STK_SADDR - 1) & 0xfffffffc);
+  32              		.loc 1 202 0
+  33 0018 34309FE5 		ldr	r3, .L3+12
+  34 001c 34209FE5 		ldr	r2, .L3+16
+  35 0020 002083E5 		str	r2, [r3, #0]
+  36              		.loc 1 190 0
+  37 0024 30309FE5 		ldr	r3, .L3+20
+  38 0028 243081E5 		str	r3, [r1, #36]
+  39              		.loc 1 191 0
+  40 002c 2C309FE5 		ldr	r3, .L3+24
+  41 0030 283081E5 		str	r3, [r1, #40]
+  42              		.loc 1 192 0
+  43 0034 28309FE5 		ldr	r3, .L3+28
+  44 0038 2C3081E5 		str	r3, [r1, #44]
+  45              		.loc 1 193 0
+  46 003c 24309FE5 		ldr	r3, .L3+32
+  47              		.loc 1 189 0
+  48              		@ lr needed for prologue
+  49              		.loc 1 193 0
+  50 0040 303081E5 		str	r3, [r1, #48]
+ 203:framework.c   **** }
+  51              		.loc 1 203 0
+  52 0044 1EFF2FE1 		bx	lr
+  53              	.L4:
+  54              		.align	2
+  55              	.L3:
+  56 0048 78010000 		.word	exceptionHandlerFiq
+  57 004c 00000000 		.word	end
+  58 0050 00000000 		.word	pHeapStart
+  59 0054 00000000 		.word	pHeapEnd
+  60 0058 4C3A0040 		.word	1073756748
+  61 005c 48020000 		.word	exceptionHandlerUndef
+  62 0060 14020000 		.word	exceptionHandlerSwi
+  63 0064 E0010000 		.word	exceptionHandlerPabort
+  64 0068 AC010000 		.word	exceptionHandlerDabort
+  65              	.LFE7:
+  66              		.size	exceptionHandlerInit, .-exceptionHandlerInit
+  67              		.align	2
+  68              		.global	lowLevelInit
+  69              		.type	lowLevelInit, %function
+  70              	lowLevelInit:
+  71              	.LFB8:
+ 204:framework.c   **** 
+ 205:framework.c   **** /*****************************************************************************
+ 206:framework.c   ****  *
+ 207:framework.c   ****  * Description:
+ 208:framework.c   ****  *    Initialize system functions and GPIO
+ 209:framework.c   ****  *
+ 210:framework.c   ****  ****************************************************************************/
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccd3GY5y.s 			page 6
+
+
+ 211:framework.c   **** void
+ 212:framework.c   **** lowLevelInit(void)
+ 213:framework.c   **** {
+  72              		.loc 1 213 0
+  73              		@ Function supports interworking.
+  74              		@ args = 0, pretend = 0, frame = 0
+  75              		@ frame_needed = 0, uses_anonymous_args = 0
+  76              		@ link register save eliminated.
+ 214:framework.c   ****   PINSEL0 = 0x00000000;  
+ 215:framework.c   ****   PINSEL1 = 0x00000000;  
+ 216:framework.c   **** 
+ 217:framework.c   ****   IOSET = 0x00000000;       //Initialize pins to high level
+  77              		.loc 1 217 0
+  78 006c 9C109FE5 		ldr	r1, .L7
+  79              		.loc 1 214 0
+  80 0070 9C009FE5 		ldr	r0, .L7+4
+  81 0074 0030A0E3 		mov	r3, #0
+ 218:framework.c   ****   IOCLR = 0xffffffff;       //Initialize pins to low level
+  82              		.loc 1 218 0
+  83 0078 0020E0E3 		mvn	r2, #0
+ 219:framework.c   ****   IODIR = 0x00000000;       //Set pin direction
+ 220:framework.c   **** 
+ 221:framework.c   ****   //initialize the MAM (Memory Accelerator Module)
+ 222:framework.c   ****   MAMTIM = MAM_TIMING;       //number of CCLK to read from the FLASH
+  84              		.loc 1 222 0
+  85 007c 94C09FE5 		ldr	ip, .L7+8
+  86              		.loc 1 214 0
+  87 0080 003080E5 		str	r3, [r0, #0]
+  88              		.loc 1 215 0
+  89 0084 043080E5 		str	r3, [r0, #4]
+  90              		.loc 1 217 0
+  91 0088 043081E5 		str	r3, [r1, #4]
+  92              		.loc 1 218 0
+  93 008c 0C2081E5 		str	r2, [r1, #12]
+  94              		.loc 1 219 0
+  95 0090 083081E5 		str	r3, [r1, #8]
+  96              		.loc 1 222 0
+  97 0094 0310A0E3 		mov	r1, #3
+  98 0098 04108CE5 		str	r1, [ip, #4]
+ 223:framework.c   ****   MAMCR  = MAM_SETTING;      //0=disabled, 1=partly enabled (enabled for code prefetch, but not for
+  99              		.loc 1 223 0
+ 100 009c 0210A0E3 		mov	r1, #2
+ 101 00a0 00108CE5 		str	r1, [ip, #0]
+ 224:framework.c   **** 
+ 225:framework.c   ****   //initialize the exception vector mapping
+ 226:framework.c   ****   MAMMAP = MAM_MAP;
+ 102              		.loc 1 226 0
+ 103 00a4 0110A0E3 		mov	r1, #1
+ 104 00a8 40108CE5 		str	r1, [ip, #64]
+ 227:framework.c   **** 
+ 228:framework.c   ****   //set the peripheral bus speed, PCLK = CCLK / PBSD
+ 229:framework.c   **** 	VPBDIV = PBSD;
+ 105              		.loc 1 229 0
+ 106 00ac 031081E2 		add	r1, r1, #3
+ 107 00b0 00118CE5 		str	r1, [ip, #256]
+ 108              		.loc 1 213 0
+ 109              		@ lr needed for prologue
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccd3GY5y.s 			page 7
+
+
+ 230:framework.c   **** 	
+ 231:framework.c   **** 	//initialize VIC
+ 232:framework.c   ****   VICIntEnClr    = 0xFFFFFFFF;           /* Disable ALL interrupts                             */
+ 110              		.loc 1 232 0
+ 111 00b4 EB2F02E5 		str	r2, [r2, #-4075]
+ 233:framework.c   ****   VICProtection  = 0;                    /* Setup interrupt controller                         */
+ 112              		.loc 1 233 0
+ 113 00b8 DF3F02E5 		str	r3, [r2, #-4063]
+ 234:framework.c   ****   VICDefVectAddr = (unsigned int)0;      /* Direct unvectored IRQs to reset, i.e., address 0x0 */
+ 114              		.loc 1 234 0
+ 115 00bc CB3F02E5 		str	r3, [r2, #-4043]
+ 235:framework.c   **** 
+ 236:framework.c   ****   VICVectAddr0   = (unsigned int)0;      /* Set the vector address                             */
+ 116              		.loc 1 236 0
+ 117 00c0 FF3E02E5 		str	r3, [r2, #-3839]
+ 237:framework.c   ****   VICVectAddr1   = (unsigned int)0;      /* Set the vector address                             */
+ 118              		.loc 1 237 0
+ 119 00c4 FB3E02E5 		str	r3, [r2, #-3835]
+ 238:framework.c   ****   VICVectAddr2   = (unsigned int)0;      /* Set the vector address                             */
+ 120              		.loc 1 238 0
+ 121 00c8 F73E02E5 		str	r3, [r2, #-3831]
+ 239:framework.c   ****   VICVectAddr3   = (unsigned int)0;      /* Set the vector address                             */
+ 122              		.loc 1 239 0
+ 123 00cc F33E02E5 		str	r3, [r2, #-3827]
+ 240:framework.c   ****   VICVectAddr4   = (unsigned int)0;      /* Set the vector address                             */
+ 124              		.loc 1 240 0
+ 125 00d0 EF3E02E5 		str	r3, [r2, #-3823]
+ 241:framework.c   ****   VICVectAddr5   = (unsigned int)0;      /* Set the vector address                             */
+ 126              		.loc 1 241 0
+ 127 00d4 EB3E02E5 		str	r3, [r2, #-3819]
+ 242:framework.c   ****   VICVectAddr6   = (unsigned int)0;      /* Set the vector address                             */
+ 128              		.loc 1 242 0
+ 129 00d8 E73E02E5 		str	r3, [r2, #-3815]
+ 243:framework.c   ****   VICVectAddr7   = (unsigned int)0;      /* Set the vector address                             */
+ 130              		.loc 1 243 0
+ 131 00dc E33E02E5 		str	r3, [r2, #-3811]
+ 244:framework.c   ****   VICVectAddr8   = (unsigned int)0;      /* Set the vector address                             */
+ 132              		.loc 1 244 0
+ 133 00e0 DF3E02E5 		str	r3, [r2, #-3807]
+ 245:framework.c   ****   VICVectAddr9   = (unsigned int)0;      /* Set the vector address                             */
+ 134              		.loc 1 245 0
+ 135 00e4 DB3E02E5 		str	r3, [r2, #-3803]
+ 246:framework.c   ****   VICVectAddr10  = (unsigned int)0;      /* Set the vector address                             */
+ 136              		.loc 1 246 0
+ 137 00e8 D73E02E5 		str	r3, [r2, #-3799]
+ 247:framework.c   ****   VICVectAddr11  = (unsigned int)0;      /* Set the vector address                             */
+ 138              		.loc 1 247 0
+ 139 00ec D33E02E5 		str	r3, [r2, #-3795]
+ 248:framework.c   ****   VICVectAddr12  = (unsigned int)0;      /* Set the vector address                             */
+ 140              		.loc 1 248 0
+ 141 00f0 CF3E02E5 		str	r3, [r2, #-3791]
+ 249:framework.c   ****   VICVectAddr13  = (unsigned int)0;      /* Set the vector address                             */
+ 142              		.loc 1 249 0
+ 143 00f4 CB3E02E5 		str	r3, [r2, #-3787]
+ 250:framework.c   ****   VICVectAddr14  = (unsigned int)0;      /* Set the vector address                             */
+ 144              		.loc 1 250 0
+ 145 00f8 C73E02E5 		str	r3, [r2, #-3783]
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccd3GY5y.s 			page 8
+
+
+ 251:framework.c   ****   VICVectAddr15  = (unsigned int)0;      /* Set the vector address                             */
+ 146              		.loc 1 251 0
+ 147 00fc C33E02E5 		str	r3, [r2, #-3779]
+ 252:framework.c   **** 	
+ 253:framework.c   ****   //enable interrupts (both IRQ and FIQ) 
+ 254:framework.c   ****   asm volatile ("mrs r3, cpsr       \n\t"                          
+ 148              		.loc 1 254 0
+ 149 0100 00300FE1 		mrs r3, cpsr       
+ 150 0104 C030C3E3 		bic r3, r3, #0xC0  
+ 151 0108 03F029E1 		msr cpsr, r3       
+ 152              		
+ 255:framework.c   ****                 "bic r3, r3, #0xC0  \n\t"                      
+ 256:framework.c   ****                 "msr cpsr, r3       \n\t"                          
+ 257:framework.c   ****                 :                                       
+ 258:framework.c   ****                 :                                       
+ 259:framework.c   ****                 : "r3" );
+ 260:framework.c   **** }
+ 153              		.loc 1 260 0
+ 154 010c 1EFF2FE1 		bx	lr
+ 155              	.L8:
+ 156              		.align	2
+ 157              	.L7:
+ 158 0110 008002E0 		.word	-536707072
+ 159 0114 00C002E0 		.word	-536690688
+ 160 0118 00C01FE0 		.word	-534790144
+ 161              	.LFE8:
+ 162              		.size	lowLevelInit, .-lowLevelInit
+ 163              		.align	2
+ 164              		.global	eaInit
+ 165              		.type	eaInit, %function
+ 166              	eaInit:
+ 167              	.LFB9:
+ 261:framework.c   **** 
+ 262:framework.c   **** /*****************************************************************************
+ 263:framework.c   ****  *
+ 264:framework.c   ****  * Description:
+ 265:framework.c   ****  *    Initialize the consol
+ 266:framework.c   ****  *
+ 267:framework.c   ****  ****************************************************************************/
+ 268:framework.c   **** void
+ 269:framework.c   **** eaInit(void)
+ 270:framework.c   **** {
+ 168              		.loc 1 270 0
+ 169              		@ Function supports interworking.
+ 170              		@ args = 0, pretend = 0, frame = 0
+ 171              		@ frame_needed = 0, uses_anonymous_args = 0
+ 172 011c 04E02DE5 		str	lr, [sp, #-4]!
+ 173              	.LCFI0:
+ 271:framework.c   ****   //initialize the consol
+ 272:framework.c   ****   consolInit();
+ 174              		.loc 1 272 0
+ 175 0120 FEFFFFEB 		bl	consolInit
+ 273:framework.c   ****   
+ 274:framework.c   **** #ifdef CONSOL_STARTUP_DELAY
+ 275:framework.c   ****   /*
+ 276:framework.c   ****    * setup timer #1 for a short delay
+ 277:framework.c   ****    */
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccd3GY5y.s 			page 9
+
+
+ 278:framework.c   ****   TIMER1_TCR = 0x02;          //stop and reset timer
+ 176              		.loc 1 278 0
+ 177 0124 44209FE5 		ldr	r2, .L15
+ 178 0128 0230A0E3 		mov	r3, #2
+ 179 012c 043082E5 		str	r3, [r2, #4]
+ 279:framework.c   ****   TIMER1_PR  = 0x00;          //set prescaler to zero
+ 180              		.loc 1 279 0
+ 181 0130 0030A0E3 		mov	r3, #0
+ 182 0134 0C3082E5 		str	r3, [r2, #12]
+ 280:framework.c   ****   TIMER1_MR0 = CONSOL_STARTUP_DELAY_LENGTH * ((FOSC * PLL_MUL)/ (1000000 * PBSD));
+ 183              		.loc 1 280 0
+ 184 0138 34309FE5 		ldr	r3, .L15+4
+ 185 013c 183082E5 		str	r3, [r2, #24]
+ 281:framework.c   ****   TIMER1_IR  = 0xff;          //reset all interrrupt flags
+ 186              		.loc 1 281 0
+ 187 0140 FF30A0E3 		mov	r3, #255
+ 188 0144 003082E5 		str	r3, [r2, #0]
+ 282:framework.c   ****   TIMER1_MCR = 0x04;          //stop timer on match
+ 189              		.loc 1 282 0
+ 190 0148 0430A0E3 		mov	r3, #4
+ 191 014c 143082E5 		str	r3, [r2, #20]
+ 283:framework.c   ****   TIMER1_TCR = 0x01;          //start timer
+ 192              		.loc 1 283 0
+ 193 0150 0130A0E3 		mov	r3, #1
+ 194 0154 043082E5 		str	r3, [r2, #4]
+ 195              	.L10:
+ 284:framework.c   ****   
+ 285:framework.c   ****   //wait until delay time has elapsed
+ 286:framework.c   ****   while (TIMER1_TCR & 0x01)
+ 196              		.loc 1 286 0
+ 197 0158 10309FE5 		ldr	r3, .L15
+ 198 015c 043093E5 		ldr	r3, [r3, #4]
+ 199 0160 010013E3 		tst	r3, #1
+ 200 0164 FBFFFF1A 		bne	.L10
+ 287:framework.c   ****     ;
+ 288:framework.c   **** #endif
+ 289:framework.c   **** }
+ 201              		.loc 1 289 0
+ 202 0168 04E09DE4 		ldr	lr, [sp], #4
+ 203 016c 1EFF2FE1 		bx	lr
+ 204              	.L16:
+ 205              		.align	2
+ 206              	.L15:
+ 207 0170 008000E0 		.word	-536838144
+ 208 0174 78050000 		.word	1400
+ 209              	.LFE9:
+ 210              		.size	eaInit, .-eaInit
+ 211              		.section	.rodata.str1.4,"aMS",%progbits,1
+ 212              		.align	2
+ 213              	.LC0:
+ 214 0000 46495120 		.ascii	"FIQ exception !!!\012Address: 0x\000"
+ 214      65786365 
+ 214      7074696F 
+ 214      6E202121 
+ 214      210A4164 
+ 215              		.text
+ 216              		.align	2
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccd3GY5y.s 			page 10
+
+
+ 217              		.type	exceptionHandlerFiq, %function
+ 218              	exceptionHandlerFiq:
+ 219              	.LFB6:
+ 220              		.loc 1 143 0
+ 221              		@ Function supports interworking.
+ 222              		@ args = 0, pretend = 0, frame = 0
+ 223              		@ frame_needed = 0, uses_anonymous_args = 0
+ 224 0178 04E02DE5 		str	lr, [sp, #-4]!
+ 225              	.LCFI1:
+ 226              		.loc 1 147 0
+ 227 017c 24009FE5 		ldr	r0, .L20
+ 228              		.loc 1 143 0
+ 229 0180 04D04DE2 		sub	sp, sp, #4
+ 230              	.LCFI2:
+ 231              		.loc 1 147 0
+ 232 0184 FEFFFFEB 		bl	consolSendString
+ 233              		.loc 1 148 0
+ 234 0188 1000A0E3 		mov	r0, #16
+ 235              	.LVL0:
+ 236 018c 04E04EE2 		sub	lr, lr, #4
+ 237              	.LVL1:
+ 238 0190 0810A0E3 		mov	r1, #8
+ 239 0194 0020A0E3 		mov	r2, #0
+ 240 0198 3030A0E3 		mov	r3, #48
+ 241 019c 00E08DE5 		str	lr, [sp, #0]
+ 242 01a0 FEFFFFEB 		bl	consolSendNumber
+ 243              	.L18:
+ 244 01a4 FEFFFFEA 		b	.L18
+ 245              	.L21:
+ 246              		.align	2
+ 247              	.L20:
+ 248 01a8 00000000 		.word	.LC0
+ 249              	.LFE6:
+ 250              		.size	exceptionHandlerFiq, .-exceptionHandlerFiq
+ 251              		.section	.rodata.str1.4
+ 252 001e 0000     		.align	2
+ 253              	.LC1:
+ 254 0020 4461626F 		.ascii	"Dabort exception !!!\012Address: 0x\000"
+ 254      72742065 
+ 254      78636570 
+ 254      74696F6E 
+ 254      20212121 
+ 255              		.text
+ 256              		.align	2
+ 257              		.type	exceptionHandlerDabort, %function
+ 258              	exceptionHandlerDabort:
+ 259              	.LFB5:
+ 260              		.loc 1 123 0
+ 261              		@ Function supports interworking.
+ 262              		@ args = 0, pretend = 0, frame = 0
+ 263              		@ frame_needed = 0, uses_anonymous_args = 0
+ 264 01ac 04E02DE5 		str	lr, [sp, #-4]!
+ 265              	.LCFI3:
+ 266              		.loc 1 127 0
+ 267 01b0 24009FE5 		ldr	r0, .L25
+ 268              		.loc 1 123 0
+ 269 01b4 04D04DE2 		sub	sp, sp, #4
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccd3GY5y.s 			page 11
+
+
+ 270              	.LCFI4:
+ 271              		.loc 1 127 0
+ 272 01b8 FEFFFFEB 		bl	consolSendString
+ 273              		.loc 1 128 0
+ 274 01bc 1000A0E3 		mov	r0, #16
+ 275              	.LVL2:
+ 276 01c0 08E04EE2 		sub	lr, lr, #8
+ 277              	.LVL3:
+ 278 01c4 0810A0E3 		mov	r1, #8
+ 279 01c8 0020A0E3 		mov	r2, #0
+ 280 01cc 3030A0E3 		mov	r3, #48
+ 281 01d0 00E08DE5 		str	lr, [sp, #0]
+ 282 01d4 FEFFFFEB 		bl	consolSendNumber
+ 283              	.L23:
+ 284 01d8 FEFFFFEA 		b	.L23
+ 285              	.L26:
+ 286              		.align	2
+ 287              	.L25:
+ 288 01dc 20000000 		.word	.LC1
+ 289              	.LFE5:
+ 290              		.size	exceptionHandlerDabort, .-exceptionHandlerDabort
+ 291              		.section	.rodata.str1.4
+ 292 0041 000000   		.align	2
+ 293              	.LC2:
+ 294 0044 5061626F 		.ascii	"Pabort exception !!!\012Address: 0x\000"
+ 294      72742065 
+ 294      78636570 
+ 294      74696F6E 
+ 294      20212121 
+ 295              		.text
+ 296              		.align	2
+ 297              		.type	exceptionHandlerPabort, %function
+ 298              	exceptionHandlerPabort:
+ 299              	.LFB4:
+ 300              		.loc 1 103 0
+ 301              		@ Function supports interworking.
+ 302              		@ args = 0, pretend = 0, frame = 0
+ 303              		@ frame_needed = 0, uses_anonymous_args = 0
+ 304 01e0 04E02DE5 		str	lr, [sp, #-4]!
+ 305              	.LCFI5:
+ 306              		.loc 1 107 0
+ 307 01e4 24009FE5 		ldr	r0, .L30
+ 308              		.loc 1 103 0
+ 309 01e8 04D04DE2 		sub	sp, sp, #4
+ 310              	.LCFI6:
+ 311              		.loc 1 107 0
+ 312 01ec FEFFFFEB 		bl	consolSendString
+ 313              		.loc 1 108 0
+ 314 01f0 1000A0E3 		mov	r0, #16
+ 315              	.LVL4:
+ 316 01f4 04E04EE2 		sub	lr, lr, #4
+ 317              	.LVL5:
+ 318 01f8 0810A0E3 		mov	r1, #8
+ 319 01fc 0020A0E3 		mov	r2, #0
+ 320 0200 3030A0E3 		mov	r3, #48
+ 321 0204 00E08DE5 		str	lr, [sp, #0]
+ 322 0208 FEFFFFEB 		bl	consolSendNumber
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccd3GY5y.s 			page 12
+
+
+ 323              	.L28:
+ 324 020c FEFFFFEA 		b	.L28
+ 325              	.L31:
+ 326              		.align	2
+ 327              	.L30:
+ 328 0210 44000000 		.word	.LC2
+ 329              	.LFE4:
+ 330              		.size	exceptionHandlerPabort, .-exceptionHandlerPabort
+ 331              		.section	.rodata.str1.4
+ 332 0065 000000   		.align	2
+ 333              	.LC3:
+ 334 0068 53574920 		.ascii	"SWI exception !!!\012Address: 0x\000"
+ 334      65786365 
+ 334      7074696F 
+ 334      6E202121 
+ 334      210A4164 
+ 335              		.text
+ 336              		.align	2
+ 337              		.type	exceptionHandlerSwi, %function
+ 338              	exceptionHandlerSwi:
+ 339              	.LFB3:
+ 340              		.loc 1 83 0
+ 341              		@ Function supports interworking.
+ 342              		@ args = 0, pretend = 0, frame = 0
+ 343              		@ frame_needed = 0, uses_anonymous_args = 0
+ 344 0214 04E02DE5 		str	lr, [sp, #-4]!
+ 345              	.LCFI7:
+ 346              		.loc 1 87 0
+ 347 0218 24009FE5 		ldr	r0, .L35
+ 348              		.loc 1 83 0
+ 349 021c 04D04DE2 		sub	sp, sp, #4
+ 350              	.LCFI8:
+ 351              		.loc 1 87 0
+ 352 0220 FEFFFFEB 		bl	consolSendString
+ 353              		.loc 1 88 0
+ 354 0224 1000A0E3 		mov	r0, #16
+ 355              	.LVL6:
+ 356 0228 04E04EE2 		sub	lr, lr, #4
+ 357              	.LVL7:
+ 358 022c 0810A0E3 		mov	r1, #8
+ 359 0230 0020A0E3 		mov	r2, #0
+ 360 0234 3030A0E3 		mov	r3, #48
+ 361 0238 00E08DE5 		str	lr, [sp, #0]
+ 362 023c FEFFFFEB 		bl	consolSendNumber
+ 363              	.L33:
+ 364 0240 FEFFFFEA 		b	.L33
+ 365              	.L36:
+ 366              		.align	2
+ 367              	.L35:
+ 368 0244 68000000 		.word	.LC3
+ 369              	.LFE3:
+ 370              		.size	exceptionHandlerSwi, .-exceptionHandlerSwi
+ 371              		.section	.rodata.str1.4
+ 372 0086 0000     		.align	2
+ 373              	.LC4:
+ 374 0088 556E6465 		.ascii	"Undefined instruction exception !!!\012Address: 0x\000"
+ 374      66696E65 
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccd3GY5y.s 			page 13
+
+
+ 374      6420696E 
+ 374      73747275 
+ 374      6374696F 
+ 375              		.text
+ 376              		.align	2
+ 377              		.type	exceptionHandlerUndef, %function
+ 378              	exceptionHandlerUndef:
+ 379              	.LFB2:
+ 380              		.loc 1 63 0
+ 381              		@ Function supports interworking.
+ 382              		@ args = 0, pretend = 0, frame = 0
+ 383              		@ frame_needed = 0, uses_anonymous_args = 0
+ 384 0248 04E02DE5 		str	lr, [sp, #-4]!
+ 385              	.LCFI9:
+ 386              		.loc 1 67 0
+ 387 024c 24009FE5 		ldr	r0, .L40
+ 388              		.loc 1 63 0
+ 389 0250 04D04DE2 		sub	sp, sp, #4
+ 390              	.LCFI10:
+ 391              		.loc 1 67 0
+ 392 0254 FEFFFFEB 		bl	consolSendString
+ 393              		.loc 1 68 0
+ 394 0258 1000A0E3 		mov	r0, #16
+ 395              	.LVL8:
+ 396 025c 04E04EE2 		sub	lr, lr, #4
+ 397              	.LVL9:
+ 398 0260 0810A0E3 		mov	r1, #8
+ 399 0264 0020A0E3 		mov	r2, #0
+ 400 0268 3030A0E3 		mov	r3, #48
+ 401 026c 00E08DE5 		str	lr, [sp, #0]
+ 402 0270 FEFFFFEB 		bl	consolSendNumber
+ 403              	.L38:
+ 404 0274 FEFFFFEA 		b	.L38
+ 405              	.L41:
+ 406              		.align	2
+ 407              	.L40:
+ 408 0278 88000000 		.word	.LC4
+ 409              	.LFE2:
+ 410              		.size	exceptionHandlerUndef, .-exceptionHandlerUndef
+ 411              		.comm	pHeapStart,4,4
+ 412              		.comm	pHeapEnd,4,4
+ 413              		.section	.debug_frame,"",%progbits
+ 414              	.Lframe0:
+ 415 0000 0C000000 		.4byte	.LECIE0-.LSCIE0
+ 416              	.LSCIE0:
+ 417 0004 FFFFFFFF 		.4byte	0xffffffff
+ 418 0008 01       		.byte	0x1
+ 419 0009 00       		.ascii	"\000"
+ 420 000a 01       		.uleb128 0x1
+ 421 000b 7C       		.sleb128 -4
+ 422 000c 0E       		.byte	0xe
+ 423 000d 0C       		.byte	0xc
+ 424 000e 0D       		.uleb128 0xd
+ 425 000f 00       		.uleb128 0x0
+ 426              		.align	2
+ 427              	.LECIE0:
+ 428              	.LSFDE0:
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccd3GY5y.s 			page 14
+
+
+ 429 0010 0C000000 		.4byte	.LEFDE0-.LASFDE0
+ 430              	.LASFDE0:
+ 431 0014 00000000 		.4byte	.Lframe0
+ 432 0018 00000000 		.4byte	.LFB7
+ 433 001c 6C000000 		.4byte	.LFE7-.LFB7
+ 434              		.align	2
+ 435              	.LEFDE0:
+ 436              	.LSFDE2:
+ 437 0020 0C000000 		.4byte	.LEFDE2-.LASFDE2
+ 438              	.LASFDE2:
+ 439 0024 00000000 		.4byte	.Lframe0
+ 440 0028 6C000000 		.4byte	.LFB8
+ 441 002c B0000000 		.4byte	.LFE8-.LFB8
+ 442              		.align	2
+ 443              	.LEFDE2:
+ 444              	.LSFDE4:
+ 445 0030 14000000 		.4byte	.LEFDE4-.LASFDE4
+ 446              	.LASFDE4:
+ 447 0034 00000000 		.4byte	.Lframe0
+ 448 0038 1C010000 		.4byte	.LFB9
+ 449 003c 5C000000 		.4byte	.LFE9-.LFB9
+ 450 0040 44       		.byte	0x4
+ 451              		.4byte	.LCFI0-.LFB9
+ 452 0041 0E       		.byte	0xe
+ 453 0042 04       		.uleb128 0x4
+ 454 0043 8E       		.byte	0x8e
+ 455 0044 01       		.uleb128 0x1
+ 456 0045 000000   		.align	2
+ 457              	.LEFDE4:
+ 458              	.LSFDE6:
+ 459 0048 14000000 		.4byte	.LEFDE6-.LASFDE6
+ 460              	.LASFDE6:
+ 461 004c 00000000 		.4byte	.Lframe0
+ 462 0050 78010000 		.4byte	.LFB6
+ 463 0054 34000000 		.4byte	.LFE6-.LFB6
+ 464 0058 44       		.byte	0x4
+ 465              		.4byte	.LCFI1-.LFB6
+ 466 0059 0E       		.byte	0xe
+ 467 005a 04       		.uleb128 0x4
+ 468 005b 48       		.byte	0x4
+ 469              		.4byte	.LCFI2-.LCFI1
+ 470 005c 0E       		.byte	0xe
+ 471 005d 08       		.uleb128 0x8
+ 472 005e 8E       		.byte	0x8e
+ 473 005f 01       		.uleb128 0x1
+ 474              		.align	2
+ 475              	.LEFDE6:
+ 476              	.LSFDE8:
+ 477 0060 14000000 		.4byte	.LEFDE8-.LASFDE8
+ 478              	.LASFDE8:
+ 479 0064 00000000 		.4byte	.Lframe0
+ 480 0068 AC010000 		.4byte	.LFB5
+ 481 006c 34000000 		.4byte	.LFE5-.LFB5
+ 482 0070 44       		.byte	0x4
+ 483              		.4byte	.LCFI3-.LFB5
+ 484 0071 0E       		.byte	0xe
+ 485 0072 04       		.uleb128 0x4
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccd3GY5y.s 			page 15
+
+
+ 486 0073 48       		.byte	0x4
+ 487              		.4byte	.LCFI4-.LCFI3
+ 488 0074 0E       		.byte	0xe
+ 489 0075 08       		.uleb128 0x8
+ 490 0076 8E       		.byte	0x8e
+ 491 0077 01       		.uleb128 0x1
+ 492              		.align	2
+ 493              	.LEFDE8:
+ 494              	.LSFDE10:
+ 495 0078 14000000 		.4byte	.LEFDE10-.LASFDE10
+ 496              	.LASFDE10:
+ 497 007c 00000000 		.4byte	.Lframe0
+ 498 0080 E0010000 		.4byte	.LFB4
+ 499 0084 34000000 		.4byte	.LFE4-.LFB4
+ 500 0088 44       		.byte	0x4
+ 501              		.4byte	.LCFI5-.LFB4
+ 502 0089 0E       		.byte	0xe
+ 503 008a 04       		.uleb128 0x4
+ 504 008b 48       		.byte	0x4
+ 505              		.4byte	.LCFI6-.LCFI5
+ 506 008c 0E       		.byte	0xe
+ 507 008d 08       		.uleb128 0x8
+ 508 008e 8E       		.byte	0x8e
+ 509 008f 01       		.uleb128 0x1
+ 510              		.align	2
+ 511              	.LEFDE10:
+ 512              	.LSFDE12:
+ 513 0090 14000000 		.4byte	.LEFDE12-.LASFDE12
+ 514              	.LASFDE12:
+ 515 0094 00000000 		.4byte	.Lframe0
+ 516 0098 14020000 		.4byte	.LFB3
+ 517 009c 34000000 		.4byte	.LFE3-.LFB3
+ 518 00a0 44       		.byte	0x4
+ 519              		.4byte	.LCFI7-.LFB3
+ 520 00a1 0E       		.byte	0xe
+ 521 00a2 04       		.uleb128 0x4
+ 522 00a3 48       		.byte	0x4
+ 523              		.4byte	.LCFI8-.LCFI7
+ 524 00a4 0E       		.byte	0xe
+ 525 00a5 08       		.uleb128 0x8
+ 526 00a6 8E       		.byte	0x8e
+ 527 00a7 01       		.uleb128 0x1
+ 528              		.align	2
+ 529              	.LEFDE12:
+ 530              	.LSFDE14:
+ 531 00a8 14000000 		.4byte	.LEFDE14-.LASFDE14
+ 532              	.LASFDE14:
+ 533 00ac 00000000 		.4byte	.Lframe0
+ 534 00b0 48020000 		.4byte	.LFB2
+ 535 00b4 34000000 		.4byte	.LFE2-.LFB2
+ 536 00b8 44       		.byte	0x4
+ 537              		.4byte	.LCFI9-.LFB2
+ 538 00b9 0E       		.byte	0xe
+ 539 00ba 04       		.uleb128 0x4
+ 540 00bb 48       		.byte	0x4
+ 541              		.4byte	.LCFI10-.LCFI9
+ 542 00bc 0E       		.byte	0xe
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccd3GY5y.s 			page 16
+
+
+ 543 00bd 08       		.uleb128 0x8
+ 544 00be 8E       		.byte	0x8e
+ 545 00bf 01       		.uleb128 0x1
+ 546              		.align	2
+ 547              	.LEFDE14:
+ 548              		.text
+ 549              	.Letext0:
+ 550              		.section	.debug_loc,"",%progbits
+ 551              	.Ldebug_loc0:
+ 552              	.LLST2:
+ 553 0000 1C010000 		.4byte	.LFB9-.Ltext0
+ 554 0004 20010000 		.4byte	.LCFI0-.Ltext0
+ 555 0008 0100     		.2byte	0x1
+ 556 000a 5D       		.byte	0x5d
+ 557 000b 20010000 		.4byte	.LCFI0-.Ltext0
+ 558 000f 78010000 		.4byte	.LFE9-.Ltext0
+ 559 0013 0200     		.2byte	0x2
+ 560 0015 7D       		.byte	0x7d
+ 561 0016 04       		.sleb128 4
+ 562 0017 00000000 		.4byte	0x0
+ 563 001b 00000000 		.4byte	0x0
+ 564              	.LLST3:
+ 565 001f 78010000 		.4byte	.LFB6-.Ltext0
+ 566 0023 7C010000 		.4byte	.LCFI1-.Ltext0
+ 567 0027 0100     		.2byte	0x1
+ 568 0029 5D       		.byte	0x5d
+ 569 002a 7C010000 		.4byte	.LCFI1-.Ltext0
+ 570 002e 84010000 		.4byte	.LCFI2-.Ltext0
+ 571 0032 0200     		.2byte	0x2
+ 572 0034 7D       		.byte	0x7d
+ 573 0035 04       		.sleb128 4
+ 574 0036 84010000 		.4byte	.LCFI2-.Ltext0
+ 575 003a AC010000 		.4byte	.LFE6-.Ltext0
+ 576 003e 0200     		.2byte	0x2
+ 577 0040 7D       		.byte	0x7d
+ 578 0041 08       		.sleb128 8
+ 579 0042 00000000 		.4byte	0x0
+ 580 0046 00000000 		.4byte	0x0
+ 581              	.LLST4:
+ 582 004a 8C010000 		.4byte	.LVL0-.Ltext0
+ 583 004e 90010000 		.4byte	.LVL1-.Ltext0
+ 584 0052 0100     		.2byte	0x1
+ 585 0054 5E       		.byte	0x5e
+ 586 0055 00000000 		.4byte	0x0
+ 587 0059 00000000 		.4byte	0x0
+ 588              	.LLST5:
+ 589 005d AC010000 		.4byte	.LFB5-.Ltext0
+ 590 0061 B0010000 		.4byte	.LCFI3-.Ltext0
+ 591 0065 0100     		.2byte	0x1
+ 592 0067 5D       		.byte	0x5d
+ 593 0068 B0010000 		.4byte	.LCFI3-.Ltext0
+ 594 006c B8010000 		.4byte	.LCFI4-.Ltext0
+ 595 0070 0200     		.2byte	0x2
+ 596 0072 7D       		.byte	0x7d
+ 597 0073 04       		.sleb128 4
+ 598 0074 B8010000 		.4byte	.LCFI4-.Ltext0
+ 599 0078 E0010000 		.4byte	.LFE5-.Ltext0
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccd3GY5y.s 			page 17
+
+
+ 600 007c 0200     		.2byte	0x2
+ 601 007e 7D       		.byte	0x7d
+ 602 007f 08       		.sleb128 8
+ 603 0080 00000000 		.4byte	0x0
+ 604 0084 00000000 		.4byte	0x0
+ 605              	.LLST6:
+ 606 0088 C0010000 		.4byte	.LVL2-.Ltext0
+ 607 008c C4010000 		.4byte	.LVL3-.Ltext0
+ 608 0090 0100     		.2byte	0x1
+ 609 0092 5E       		.byte	0x5e
+ 610 0093 00000000 		.4byte	0x0
+ 611 0097 00000000 		.4byte	0x0
+ 612              	.LLST7:
+ 613 009b E0010000 		.4byte	.LFB4-.Ltext0
+ 614 009f E4010000 		.4byte	.LCFI5-.Ltext0
+ 615 00a3 0100     		.2byte	0x1
+ 616 00a5 5D       		.byte	0x5d
+ 617 00a6 E4010000 		.4byte	.LCFI5-.Ltext0
+ 618 00aa EC010000 		.4byte	.LCFI6-.Ltext0
+ 619 00ae 0200     		.2byte	0x2
+ 620 00b0 7D       		.byte	0x7d
+ 621 00b1 04       		.sleb128 4
+ 622 00b2 EC010000 		.4byte	.LCFI6-.Ltext0
+ 623 00b6 14020000 		.4byte	.LFE4-.Ltext0
+ 624 00ba 0200     		.2byte	0x2
+ 625 00bc 7D       		.byte	0x7d
+ 626 00bd 08       		.sleb128 8
+ 627 00be 00000000 		.4byte	0x0
+ 628 00c2 00000000 		.4byte	0x0
+ 629              	.LLST8:
+ 630 00c6 F4010000 		.4byte	.LVL4-.Ltext0
+ 631 00ca F8010000 		.4byte	.LVL5-.Ltext0
+ 632 00ce 0100     		.2byte	0x1
+ 633 00d0 5E       		.byte	0x5e
+ 634 00d1 00000000 		.4byte	0x0
+ 635 00d5 00000000 		.4byte	0x0
+ 636              	.LLST9:
+ 637 00d9 14020000 		.4byte	.LFB3-.Ltext0
+ 638 00dd 18020000 		.4byte	.LCFI7-.Ltext0
+ 639 00e1 0100     		.2byte	0x1
+ 640 00e3 5D       		.byte	0x5d
+ 641 00e4 18020000 		.4byte	.LCFI7-.Ltext0
+ 642 00e8 20020000 		.4byte	.LCFI8-.Ltext0
+ 643 00ec 0200     		.2byte	0x2
+ 644 00ee 7D       		.byte	0x7d
+ 645 00ef 04       		.sleb128 4
+ 646 00f0 20020000 		.4byte	.LCFI8-.Ltext0
+ 647 00f4 48020000 		.4byte	.LFE3-.Ltext0
+ 648 00f8 0200     		.2byte	0x2
+ 649 00fa 7D       		.byte	0x7d
+ 650 00fb 08       		.sleb128 8
+ 651 00fc 00000000 		.4byte	0x0
+ 652 0100 00000000 		.4byte	0x0
+ 653              	.LLST10:
+ 654 0104 28020000 		.4byte	.LVL6-.Ltext0
+ 655 0108 2C020000 		.4byte	.LVL7-.Ltext0
+ 656 010c 0100     		.2byte	0x1
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccd3GY5y.s 			page 18
+
+
+ 657 010e 5E       		.byte	0x5e
+ 658 010f 00000000 		.4byte	0x0
+ 659 0113 00000000 		.4byte	0x0
+ 660              	.LLST11:
+ 661 0117 48020000 		.4byte	.LFB2-.Ltext0
+ 662 011b 4C020000 		.4byte	.LCFI9-.Ltext0
+ 663 011f 0100     		.2byte	0x1
+ 664 0121 5D       		.byte	0x5d
+ 665 0122 4C020000 		.4byte	.LCFI9-.Ltext0
+ 666 0126 54020000 		.4byte	.LCFI10-.Ltext0
+ 667 012a 0200     		.2byte	0x2
+ 668 012c 7D       		.byte	0x7d
+ 669 012d 04       		.sleb128 4
+ 670 012e 54020000 		.4byte	.LCFI10-.Ltext0
+ 671 0132 7C020000 		.4byte	.LFE2-.Ltext0
+ 672 0136 0200     		.2byte	0x2
+ 673 0138 7D       		.byte	0x7d
+ 674 0139 08       		.sleb128 8
+ 675 013a 00000000 		.4byte	0x0
+ 676 013e 00000000 		.4byte	0x0
+ 677              	.LLST12:
+ 678 0142 5C020000 		.4byte	.LVL8-.Ltext0
+ 679 0146 60020000 		.4byte	.LVL9-.Ltext0
+ 680 014a 0100     		.2byte	0x1
+ 681 014c 5E       		.byte	0x5e
+ 682 014d 00000000 		.4byte	0x0
+ 683 0151 00000000 		.4byte	0x0
+ 684              		.section	.debug_info
+ 685 0000 AC010000 		.4byte	0x1ac
+ 686 0004 0200     		.2byte	0x2
+ 687 0006 00000000 		.4byte	.Ldebug_abbrev0
+ 688 000a 04       		.byte	0x4
+ 689 000b 01       		.uleb128 0x1
+ 690 000c 00000000 		.4byte	.Ldebug_line0
+ 691 0010 7C020000 		.4byte	.Letext0
+ 692 0014 00000000 		.4byte	.Ltext0
+ 693 0018 98000000 		.4byte	.LASF15
+ 694 001c 01       		.byte	0x1
+ 695 001d 47000000 		.4byte	.LASF16
+ 696 0021 00000000 		.4byte	.LASF17
+ 697 0025 02       		.uleb128 0x2
+ 698 0026 01       		.byte	0x1
+ 699 0027 65000000 		.4byte	.LASF0
+ 700 002b 01       		.byte	0x1
+ 701 002c BD       		.byte	0xbd
+ 702 002d 01       		.byte	0x1
+ 703 002e 00000000 		.4byte	.LFB7
+ 704 0032 6C000000 		.4byte	.LFE7
+ 705 0036 01       		.byte	0x1
+ 706 0037 5D       		.byte	0x5d
+ 707 0038 02       		.uleb128 0x2
+ 708 0039 01       		.byte	0x1
+ 709 003a 53000000 		.4byte	.LASF1
+ 710 003e 01       		.byte	0x1
+ 711 003f D5       		.byte	0xd5
+ 712 0040 01       		.byte	0x1
+ 713 0041 6C000000 		.4byte	.LFB8
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccd3GY5y.s 			page 19
+
+
+ 714 0045 1C010000 		.4byte	.LFE8
+ 715 0049 01       		.byte	0x1
+ 716 004a 5D       		.byte	0x5d
+ 717 004b 03       		.uleb128 0x3
+ 718 004c 01       		.byte	0x1
+ 719 004d 7A000000 		.4byte	.LASF2
+ 720 0051 01       		.byte	0x1
+ 721 0052 0E01     		.2byte	0x10e
+ 722 0054 01       		.byte	0x1
+ 723 0055 1C010000 		.4byte	.LFB9
+ 724 0059 78010000 		.4byte	.LFE9
+ 725 005d 00000000 		.4byte	.LLST2
+ 726 0061 04       		.uleb128 0x4
+ 727 0062 94000000 		.4byte	0x94
+ 728 0066 A4000000 		.4byte	.LASF5
+ 729 006a 01       		.byte	0x1
+ 730 006b 8F       		.byte	0x8f
+ 731 006c 01       		.byte	0x1
+ 732 006d 78010000 		.4byte	.LFB6
+ 733 0071 AC010000 		.4byte	.LFE6
+ 734 0075 1F000000 		.4byte	.LLST3
+ 735 0079 05       		.uleb128 0x5
+ 736 007a F1000000 		.4byte	.LASF3
+ 737 007e 01       		.byte	0x1
+ 738 007f 90       		.byte	0x90
+ 739 0080 94000000 		.4byte	0x94
+ 740 0084 4A000000 		.4byte	.LLST4
+ 741 0088 06       		.uleb128 0x6
+ 742 0089 B8000000 		.4byte	.LASF4
+ 743 008d 01       		.byte	0x1
+ 744 008e 91       		.byte	0x91
+ 745 008f 94000000 		.4byte	0x94
+ 746 0093 00       		.byte	0x0
+ 747 0094 07       		.uleb128 0x7
+ 748 0095 2F000000 		.4byte	.LASF11
+ 749 0099 04       		.byte	0x4
+ 750 009a 07       		.byte	0x7
+ 751 009b 04       		.uleb128 0x4
+ 752 009c CE000000 		.4byte	0xce
+ 753 00a0 81000000 		.4byte	.LASF6
+ 754 00a4 01       		.byte	0x1
+ 755 00a5 7B       		.byte	0x7b
+ 756 00a6 01       		.byte	0x1
+ 757 00a7 AC010000 		.4byte	.LFB5
+ 758 00ab E0010000 		.4byte	.LFE5
+ 759 00af 5D000000 		.4byte	.LLST5
+ 760 00b3 05       		.uleb128 0x5
+ 761 00b4 F1000000 		.4byte	.LASF3
+ 762 00b8 01       		.byte	0x1
+ 763 00b9 7C       		.byte	0x7c
+ 764 00ba 94000000 		.4byte	0x94
+ 765 00be 88000000 		.4byte	.LLST6
+ 766 00c2 06       		.uleb128 0x6
+ 767 00c3 B8000000 		.4byte	.LASF4
+ 768 00c7 01       		.byte	0x1
+ 769 00c8 7D       		.byte	0x7d
+ 770 00c9 94000000 		.4byte	0x94
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccd3GY5y.s 			page 20
+
+
+ 771 00cd 00       		.byte	0x0
+ 772 00ce 08       		.uleb128 0x8
+ 773 00cf 00010000 		.4byte	0x100
+ 774 00d3 BE000000 		.4byte	.LASF7
+ 775 00d7 01       		.byte	0x1
+ 776 00d8 67       		.byte	0x67
+ 777 00d9 E0010000 		.4byte	.LFB4
+ 778 00dd 14020000 		.4byte	.LFE4
+ 779 00e1 9B000000 		.4byte	.LLST7
+ 780 00e5 05       		.uleb128 0x5
+ 781 00e6 F1000000 		.4byte	.LASF3
+ 782 00ea 01       		.byte	0x1
+ 783 00eb 68       		.byte	0x68
+ 784 00ec 94000000 		.4byte	0x94
+ 785 00f0 C6000000 		.4byte	.LLST8
+ 786 00f4 06       		.uleb128 0x6
+ 787 00f5 B8000000 		.4byte	.LASF4
+ 788 00f9 01       		.byte	0x1
+ 789 00fa 69       		.byte	0x69
+ 790 00fb 94000000 		.4byte	0x94
+ 791 00ff 00       		.byte	0x0
+ 792 0100 04       		.uleb128 0x4
+ 793 0101 33010000 		.4byte	0x133
+ 794 0105 16010000 		.4byte	.LASF8
+ 795 0109 01       		.byte	0x1
+ 796 010a 53       		.byte	0x53
+ 797 010b 01       		.byte	0x1
+ 798 010c 14020000 		.4byte	.LFB3
+ 799 0110 48020000 		.4byte	.LFE3
+ 800 0114 D9000000 		.4byte	.LLST9
+ 801 0118 05       		.uleb128 0x5
+ 802 0119 F1000000 		.4byte	.LASF3
+ 803 011d 01       		.byte	0x1
+ 804 011e 54       		.byte	0x54
+ 805 011f 94000000 		.4byte	0x94
+ 806 0123 04010000 		.4byte	.LLST10
+ 807 0127 06       		.uleb128 0x6
+ 808 0128 B8000000 		.4byte	.LASF4
+ 809 012c 01       		.byte	0x1
+ 810 012d 55       		.byte	0x55
+ 811 012e 94000000 		.4byte	0x94
+ 812 0132 00       		.byte	0x0
+ 813 0133 04       		.uleb128 0x4
+ 814 0134 66010000 		.4byte	0x166
+ 815 0138 00010000 		.4byte	.LASF9
+ 816 013c 01       		.byte	0x1
+ 817 013d 3F       		.byte	0x3f
+ 818 013e 01       		.byte	0x1
+ 819 013f 48020000 		.4byte	.LFB2
+ 820 0143 7C020000 		.4byte	.LFE2
+ 821 0147 17010000 		.4byte	.LLST11
+ 822 014b 05       		.uleb128 0x5
+ 823 014c F1000000 		.4byte	.LASF3
+ 824 0150 01       		.byte	0x1
+ 825 0151 40       		.byte	0x40
+ 826 0152 94000000 		.4byte	0x94
+ 827 0156 42010000 		.4byte	.LLST12
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccd3GY5y.s 			page 21
+
+
+ 828 015a 06       		.uleb128 0x6
+ 829 015b B8000000 		.4byte	.LASF4
+ 830 015f 01       		.byte	0x1
+ 831 0160 41       		.byte	0x41
+ 832 0161 94000000 		.4byte	0x94
+ 833 0165 00       		.byte	0x0
+ 834 0166 09       		.uleb128 0x9
+ 835 0167 3C000000 		.4byte	.LASF10
+ 836 016b 01       		.byte	0x1
+ 837 016c 21       		.byte	0x21
+ 838 016d 78010000 		.4byte	0x178
+ 839 0171 01       		.byte	0x1
+ 840 0172 05       		.byte	0x5
+ 841 0173 03       		.byte	0x3
+ 842 0174 00000000 		.4byte	pHeapStart
+ 843 0178 0A       		.uleb128 0xa
+ 844 0179 04       		.byte	0x4
+ 845 017a 7E010000 		.4byte	0x17e
+ 846 017e 07       		.uleb128 0x7
+ 847 017f D5000000 		.4byte	.LASF12
+ 848 0183 01       		.byte	0x1
+ 849 0184 08       		.byte	0x8
+ 850 0185 09       		.uleb128 0x9
+ 851 0186 E3000000 		.4byte	.LASF13
+ 852 018a 01       		.byte	0x1
+ 853 018b 22       		.byte	0x22
+ 854 018c 78010000 		.4byte	0x178
+ 855 0190 01       		.byte	0x1
+ 856 0191 05       		.byte	0x5
+ 857 0192 03       		.byte	0x3
+ 858 0193 00000000 		.4byte	pHeapEnd
+ 859 0197 0B       		.uleb128 0xb
+ 860 0198 656E6400 		.ascii	"end\000"
+ 861 019c 01       		.byte	0x1
+ 862 019d 1B       		.byte	0x1b
+ 863 019e 60000000 		.4byte	.LASF18
+ 864 01a2 A8010000 		.4byte	0x1a8
+ 865 01a6 01       		.byte	0x1
+ 866 01a7 01       		.byte	0x1
+ 867 01a8 07       		.uleb128 0x7
+ 868 01a9 EC000000 		.4byte	.LASF14
+ 869 01ad 01       		.byte	0x1
+ 870 01ae 08       		.byte	0x8
+ 871 01af 00       		.byte	0x0
+ 872              		.section	.debug_abbrev
+ 873 0000 01       		.uleb128 0x1
+ 874 0001 11       		.uleb128 0x11
+ 875 0002 01       		.byte	0x1
+ 876 0003 10       		.uleb128 0x10
+ 877 0004 06       		.uleb128 0x6
+ 878 0005 12       		.uleb128 0x12
+ 879 0006 01       		.uleb128 0x1
+ 880 0007 11       		.uleb128 0x11
+ 881 0008 01       		.uleb128 0x1
+ 882 0009 25       		.uleb128 0x25
+ 883 000a 0E       		.uleb128 0xe
+ 884 000b 13       		.uleb128 0x13
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccd3GY5y.s 			page 22
+
+
+ 885 000c 0B       		.uleb128 0xb
+ 886 000d 03       		.uleb128 0x3
+ 887 000e 0E       		.uleb128 0xe
+ 888 000f 1B       		.uleb128 0x1b
+ 889 0010 0E       		.uleb128 0xe
+ 890 0011 00       		.byte	0x0
+ 891 0012 00       		.byte	0x0
+ 892 0013 02       		.uleb128 0x2
+ 893 0014 2E       		.uleb128 0x2e
+ 894 0015 00       		.byte	0x0
+ 895 0016 3F       		.uleb128 0x3f
+ 896 0017 0C       		.uleb128 0xc
+ 897 0018 03       		.uleb128 0x3
+ 898 0019 0E       		.uleb128 0xe
+ 899 001a 3A       		.uleb128 0x3a
+ 900 001b 0B       		.uleb128 0xb
+ 901 001c 3B       		.uleb128 0x3b
+ 902 001d 0B       		.uleb128 0xb
+ 903 001e 27       		.uleb128 0x27
+ 904 001f 0C       		.uleb128 0xc
+ 905 0020 11       		.uleb128 0x11
+ 906 0021 01       		.uleb128 0x1
+ 907 0022 12       		.uleb128 0x12
+ 908 0023 01       		.uleb128 0x1
+ 909 0024 40       		.uleb128 0x40
+ 910 0025 0A       		.uleb128 0xa
+ 911 0026 00       		.byte	0x0
+ 912 0027 00       		.byte	0x0
+ 913 0028 03       		.uleb128 0x3
+ 914 0029 2E       		.uleb128 0x2e
+ 915 002a 00       		.byte	0x0
+ 916 002b 3F       		.uleb128 0x3f
+ 917 002c 0C       		.uleb128 0xc
+ 918 002d 03       		.uleb128 0x3
+ 919 002e 0E       		.uleb128 0xe
+ 920 002f 3A       		.uleb128 0x3a
+ 921 0030 0B       		.uleb128 0xb
+ 922 0031 3B       		.uleb128 0x3b
+ 923 0032 05       		.uleb128 0x5
+ 924 0033 27       		.uleb128 0x27
+ 925 0034 0C       		.uleb128 0xc
+ 926 0035 11       		.uleb128 0x11
+ 927 0036 01       		.uleb128 0x1
+ 928 0037 12       		.uleb128 0x12
+ 929 0038 01       		.uleb128 0x1
+ 930 0039 40       		.uleb128 0x40
+ 931 003a 06       		.uleb128 0x6
+ 932 003b 00       		.byte	0x0
+ 933 003c 00       		.byte	0x0
+ 934 003d 04       		.uleb128 0x4
+ 935 003e 2E       		.uleb128 0x2e
+ 936 003f 01       		.byte	0x1
+ 937 0040 01       		.uleb128 0x1
+ 938 0041 13       		.uleb128 0x13
+ 939 0042 03       		.uleb128 0x3
+ 940 0043 0E       		.uleb128 0xe
+ 941 0044 3A       		.uleb128 0x3a
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccd3GY5y.s 			page 23
+
+
+ 942 0045 0B       		.uleb128 0xb
+ 943 0046 3B       		.uleb128 0x3b
+ 944 0047 0B       		.uleb128 0xb
+ 945 0048 27       		.uleb128 0x27
+ 946 0049 0C       		.uleb128 0xc
+ 947 004a 11       		.uleb128 0x11
+ 948 004b 01       		.uleb128 0x1
+ 949 004c 12       		.uleb128 0x12
+ 950 004d 01       		.uleb128 0x1
+ 951 004e 40       		.uleb128 0x40
+ 952 004f 06       		.uleb128 0x6
+ 953 0050 00       		.byte	0x0
+ 954 0051 00       		.byte	0x0
+ 955 0052 05       		.uleb128 0x5
+ 956 0053 34       		.uleb128 0x34
+ 957 0054 00       		.byte	0x0
+ 958 0055 03       		.uleb128 0x3
+ 959 0056 0E       		.uleb128 0xe
+ 960 0057 3A       		.uleb128 0x3a
+ 961 0058 0B       		.uleb128 0xb
+ 962 0059 3B       		.uleb128 0x3b
+ 963 005a 0B       		.uleb128 0xb
+ 964 005b 49       		.uleb128 0x49
+ 965 005c 13       		.uleb128 0x13
+ 966 005d 02       		.uleb128 0x2
+ 967 005e 06       		.uleb128 0x6
+ 968 005f 00       		.byte	0x0
+ 969 0060 00       		.byte	0x0
+ 970 0061 06       		.uleb128 0x6
+ 971 0062 34       		.uleb128 0x34
+ 972 0063 00       		.byte	0x0
+ 973 0064 03       		.uleb128 0x3
+ 974 0065 0E       		.uleb128 0xe
+ 975 0066 3A       		.uleb128 0x3a
+ 976 0067 0B       		.uleb128 0xb
+ 977 0068 3B       		.uleb128 0x3b
+ 978 0069 0B       		.uleb128 0xb
+ 979 006a 49       		.uleb128 0x49
+ 980 006b 13       		.uleb128 0x13
+ 981 006c 00       		.byte	0x0
+ 982 006d 00       		.byte	0x0
+ 983 006e 07       		.uleb128 0x7
+ 984 006f 24       		.uleb128 0x24
+ 985 0070 00       		.byte	0x0
+ 986 0071 03       		.uleb128 0x3
+ 987 0072 0E       		.uleb128 0xe
+ 988 0073 0B       		.uleb128 0xb
+ 989 0074 0B       		.uleb128 0xb
+ 990 0075 3E       		.uleb128 0x3e
+ 991 0076 0B       		.uleb128 0xb
+ 992 0077 00       		.byte	0x0
+ 993 0078 00       		.byte	0x0
+ 994 0079 08       		.uleb128 0x8
+ 995 007a 2E       		.uleb128 0x2e
+ 996 007b 01       		.byte	0x1
+ 997 007c 01       		.uleb128 0x1
+ 998 007d 13       		.uleb128 0x13
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccd3GY5y.s 			page 24
+
+
+ 999 007e 03       		.uleb128 0x3
+ 1000 007f 0E       		.uleb128 0xe
+ 1001 0080 3A       		.uleb128 0x3a
+ 1002 0081 0B       		.uleb128 0xb
+ 1003 0082 3B       		.uleb128 0x3b
+ 1004 0083 0B       		.uleb128 0xb
+ 1005 0084 11       		.uleb128 0x11
+ 1006 0085 01       		.uleb128 0x1
+ 1007 0086 12       		.uleb128 0x12
+ 1008 0087 01       		.uleb128 0x1
+ 1009 0088 40       		.uleb128 0x40
+ 1010 0089 06       		.uleb128 0x6
+ 1011 008a 00       		.byte	0x0
+ 1012 008b 00       		.byte	0x0
+ 1013 008c 09       		.uleb128 0x9
+ 1014 008d 34       		.uleb128 0x34
+ 1015 008e 00       		.byte	0x0
+ 1016 008f 03       		.uleb128 0x3
+ 1017 0090 0E       		.uleb128 0xe
+ 1018 0091 3A       		.uleb128 0x3a
+ 1019 0092 0B       		.uleb128 0xb
+ 1020 0093 3B       		.uleb128 0x3b
+ 1021 0094 0B       		.uleb128 0xb
+ 1022 0095 49       		.uleb128 0x49
+ 1023 0096 13       		.uleb128 0x13
+ 1024 0097 3F       		.uleb128 0x3f
+ 1025 0098 0C       		.uleb128 0xc
+ 1026 0099 02       		.uleb128 0x2
+ 1027 009a 0A       		.uleb128 0xa
+ 1028 009b 00       		.byte	0x0
+ 1029 009c 00       		.byte	0x0
+ 1030 009d 0A       		.uleb128 0xa
+ 1031 009e 0F       		.uleb128 0xf
+ 1032 009f 00       		.byte	0x0
+ 1033 00a0 0B       		.uleb128 0xb
+ 1034 00a1 0B       		.uleb128 0xb
+ 1035 00a2 49       		.uleb128 0x49
+ 1036 00a3 13       		.uleb128 0x13
+ 1037 00a4 00       		.byte	0x0
+ 1038 00a5 00       		.byte	0x0
+ 1039 00a6 0B       		.uleb128 0xb
+ 1040 00a7 34       		.uleb128 0x34
+ 1041 00a8 00       		.byte	0x0
+ 1042 00a9 03       		.uleb128 0x3
+ 1043 00aa 08       		.uleb128 0x8
+ 1044 00ab 3A       		.uleb128 0x3a
+ 1045 00ac 0B       		.uleb128 0xb
+ 1046 00ad 3B       		.uleb128 0x3b
+ 1047 00ae 0B       		.uleb128 0xb
+ 1048 00af 8740     		.uleb128 0x2007
+ 1049 00b1 0E       		.uleb128 0xe
+ 1050 00b2 49       		.uleb128 0x49
+ 1051 00b3 13       		.uleb128 0x13
+ 1052 00b4 3F       		.uleb128 0x3f
+ 1053 00b5 0C       		.uleb128 0xc
+ 1054 00b6 3C       		.uleb128 0x3c
+ 1055 00b7 0C       		.uleb128 0xc
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccd3GY5y.s 			page 25
+
+
+ 1056 00b8 00       		.byte	0x0
+ 1057 00b9 00       		.byte	0x0
+ 1058 00ba 00       		.byte	0x0
+ 1059              		.section	.debug_pubnames,"",%progbits
+ 1060 0000 5F000000 		.4byte	0x5f
+ 1061 0004 0200     		.2byte	0x2
+ 1062 0006 00000000 		.4byte	.Ldebug_info0
+ 1063 000a B0010000 		.4byte	0x1b0
+ 1064 000e 25000000 		.4byte	0x25
+ 1065 0012 65786365 		.ascii	"exceptionHandlerInit\000"
+ 1065      7074696F 
+ 1065      6E48616E 
+ 1065      646C6572 
+ 1065      496E6974 
+ 1066 0027 38000000 		.4byte	0x38
+ 1067 002b 6C6F774C 		.ascii	"lowLevelInit\000"
+ 1067      6576656C 
+ 1067      496E6974 
+ 1067      00
+ 1068 0038 4B000000 		.4byte	0x4b
+ 1069 003c 6561496E 		.ascii	"eaInit\000"
+ 1069      697400
+ 1070 0043 66010000 		.4byte	0x166
+ 1071 0047 70486561 		.ascii	"pHeapStart\000"
+ 1071      70537461 
+ 1071      727400
+ 1072 0052 85010000 		.4byte	0x185
+ 1073 0056 70486561 		.ascii	"pHeapEnd\000"
+ 1073      70456E64 
+ 1073      00
+ 1074 005f 00000000 		.4byte	0x0
+ 1075              		.section	.debug_aranges,"",%progbits
+ 1076 0000 1C000000 		.4byte	0x1c
+ 1077 0004 0200     		.2byte	0x2
+ 1078 0006 00000000 		.4byte	.Ldebug_info0
+ 1079 000a 04       		.byte	0x4
+ 1080 000b 00       		.byte	0x0
+ 1081 000c 0000     		.2byte	0x0
+ 1082 000e 0000     		.2byte	0x0
+ 1083 0010 00000000 		.4byte	.Ltext0
+ 1084 0014 7C020000 		.4byte	.Letext0-.Ltext0
+ 1085 0018 00000000 		.4byte	0x0
+ 1086 001c 00000000 		.4byte	0x0
+ 1087              		.section	.debug_str,"MS",%progbits,1
+ 1088              	.LASF17:
+ 1089 0000 2F637967 		.ascii	"/cygdrive/c/armprojects/projekt/pwm_v1/startup\000"
+ 1089      64726976 
+ 1089      652F632F 
+ 1089      61726D70 
+ 1089      726F6A65 
+ 1090              	.LASF11:
+ 1091 002f 756E7369 		.ascii	"unsigned int\000"
+ 1091      676E6564 
+ 1091      20696E74 
+ 1091      00
+ 1092              	.LASF10:
+ 1093 003c 70486561 		.ascii	"pHeapStart\000"
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccd3GY5y.s 			page 26
+
+
+ 1093      70537461 
+ 1093      727400
+ 1094              	.LASF16:
+ 1095 0047 6672616D 		.ascii	"framework.c\000"
+ 1095      65776F72 
+ 1095      6B2E6300 
+ 1096              	.LASF1:
+ 1097 0053 6C6F774C 		.ascii	"lowLevelInit\000"
+ 1097      6576656C 
+ 1097      496E6974 
+ 1097      00
+ 1098              	.LASF18:
+ 1099 0060 2A656E64 		.ascii	"*end\000"
+ 1099      00
+ 1100              	.LASF0:
+ 1101 0065 65786365 		.ascii	"exceptionHandlerInit\000"
+ 1101      7074696F 
+ 1101      6E48616E 
+ 1101      646C6572 
+ 1101      496E6974 
+ 1102              	.LASF2:
+ 1103 007a 6561496E 		.ascii	"eaInit\000"
+ 1103      697400
+ 1104              	.LASF6:
+ 1105 0081 65786365 		.ascii	"exceptionHandlerDabort\000"
+ 1105      7074696F 
+ 1105      6E48616E 
+ 1105      646C6572 
+ 1105      4461626F 
+ 1106              	.LASF15:
+ 1107 0098 474E5520 		.ascii	"GNU C 4.1.1\000"
+ 1107      4320342E 
+ 1107      312E3100 
+ 1108              	.LASF5:
+ 1109 00a4 65786365 		.ascii	"exceptionHandlerFiq\000"
+ 1109      7074696F 
+ 1109      6E48616E 
+ 1109      646C6572 
+ 1109      46697100 
+ 1110              	.LASF4:
+ 1111 00b8 76616C75 		.ascii	"value\000"
+ 1111      6500
+ 1112              	.LASF7:
+ 1113 00be 65786365 		.ascii	"exceptionHandlerPabort\000"
+ 1113      7074696F 
+ 1113      6E48616E 
+ 1113      646C6572 
+ 1113      5061626F 
+ 1114              	.LASF12:
+ 1115 00d5 756E7369 		.ascii	"unsigned char\000"
+ 1115      676E6564 
+ 1115      20636861 
+ 1115      7200
+ 1116              	.LASF13:
+ 1117 00e3 70486561 		.ascii	"pHeapEnd\000"
+ 1117      70456E64 
+ 1117      00
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccd3GY5y.s 			page 27
+
+
+ 1118              	.LASF14:
+ 1119 00ec 63686172 		.ascii	"char\000"
+ 1119      00
+ 1120              	.LASF3:
+ 1121 00f1 70726F67 		.ascii	"programCounter\000"
+ 1121      72616D43 
+ 1121      6F756E74 
+ 1121      657200
+ 1122              	.LASF9:
+ 1123 0100 65786365 		.ascii	"exceptionHandlerUndef\000"
+ 1123      7074696F 
+ 1123      6E48616E 
+ 1123      646C6572 
+ 1123      556E6465 
+ 1124              	.LASF8:
+ 1125 0116 65786365 		.ascii	"exceptionHandlerSwi\000"
+ 1125      7074696F 
+ 1125      6E48616E 
+ 1125      646C6572 
+ 1125      53776900 
+ 1126              		.ident	"GCC: (GNU) 4.1.1"
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccd3GY5y.s 			page 28
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 framework.c
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccd3GY5y.s:13     .text:00000000 exceptionHandlerInit
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccd3GY5y.s:22     .text:00000000 $a
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccd3GY5y.s:56     .text:00000048 $d
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccd3GY5y.s:218    .text:00000178 exceptionHandlerFiq
+                            *COM*:00000004 pHeapStart
+                            *COM*:00000004 pHeapEnd
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccd3GY5y.s:378    .text:00000248 exceptionHandlerUndef
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccd3GY5y.s:338    .text:00000214 exceptionHandlerSwi
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccd3GY5y.s:298    .text:000001e0 exceptionHandlerPabort
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccd3GY5y.s:258    .text:000001ac exceptionHandlerDabort
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccd3GY5y.s:70     .text:0000006c lowLevelInit
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccd3GY5y.s:78     .text:0000006c $a
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccd3GY5y.s:158    .text:00000110 $d
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccd3GY5y.s:166    .text:0000011c eaInit
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccd3GY5y.s:172    .text:0000011c $a
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccd3GY5y.s:207    .text:00000170 $d
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccd3GY5y.s:224    .text:00000178 $a
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccd3GY5y.s:248    .text:000001a8 $d
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccd3GY5y.s:264    .text:000001ac $a
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccd3GY5y.s:288    .text:000001dc $d
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccd3GY5y.s:304    .text:000001e0 $a
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccd3GY5y.s:328    .text:00000210 $d
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccd3GY5y.s:344    .text:00000214 $a
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccd3GY5y.s:368    .text:00000244 $d
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccd3GY5y.s:384    .text:00000248 $a
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/ccd3GY5y.s:408    .text:00000278 $d
+
+UNDEFINED SYMBOLS
+end
+consolInit
+consolSendString
+consolSendNumber
