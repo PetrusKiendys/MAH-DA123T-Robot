@@ -14,6 +14,8 @@
  *
  *****************************************************************************/
 
+// TODO: make sure config/startup settings are adjusted for LPC2148
+
 /******************************************************************************
  * Includes
  *****************************************************************************/
@@ -24,33 +26,22 @@
 /******************************************************************************
  * Defines and typedefs
  *****************************************************************************/
-#define CRYSTAL_FREQUENCY FOSC
-#define PLL_FACTOR        PLL_MUL
-#define VPBDIV_FACTOR     PBSD
+#define CRYSTAL_FREQUENCY	FOSC
+#define PLL_FACTOR			PLL_MUL
+#define VPBDIV_FACTOR		PBSD
 
-#define P07 (1 << 7)
-#define	P15	(1 << 15)
-#define	P25	(1 << 25)
-#define P21 (1 << 21)
-#define	P23 (1 << 23)
-#define	P31 (1 << 31)
-
-#define TASK		2		// task 1 - use circulary loop
-						// task 2 - use constant PWM signal
-#define MODE_IN1	1		// mode 1 - Forward, Fast Current-Decay Mode
-						// mode 2 - Forward, Slow Current-Decay Mode
-						// mode 3 - Reverse, Fast Current-Decay Mode
-						// mode 4 - Reverse, Slow Current-Decay Mode
-						// mode 5 - Brake, Fast Current-Decay Mode
-						// mode 6 - Brake, No Current Control
-						// REMARK: only use "fast" modes
-#define MODE_IN2	3		// see above description..
+#define TEST_OUTPUT			(1 << 20)
+#define PINSEL0_P07_MASK	(1 << 15) | (1 << 14)
+#define PINSEL0_P07_PWM2	(1 << 15)
+#define PINSEL1_P020_MASK	0x00000300
+#define GPIO_IO_P20			0x00100000
+#define GPIO_IO_P7			0x00000080
 
 
 /*****************************************************************************
  * Public function prototypes
  ****************************************************************************/
-int runPwm(void);
+int main(void);
 
 /*****************************************************************************
  * Local function prototypes
@@ -59,8 +50,9 @@ static void initPwm(tU32 initialFreqValue);
 static void setPwmDutyPercent(tU32 dutyValue);
 static void setPwmDuty(tU32 dutyValue);
 static void delayMs(tU16 delayInMs);
-void setModeIn1();
-void setModeIn2();
+void put_on_other_port(void);
+void do_nothing(void);
+void init(void);
 
 /*****************************************************************************
  * Implementation of local functions
@@ -94,7 +86,6 @@ initPwm(tU32 initialFreqValue)
   PWM_LER = 0x05;                   //latch new values for MR0 and MR2
   PWM_PCR = 0x0400;                 //enable PWM2 in single edge control mode
   PWM_TCR = 0x09;                   //enable PWM and Counter
-
 
 }
 
@@ -165,6 +156,40 @@ delayMs(tU16 delayInMs)
     ;
 }
 
+void initPorts(void) {
+	// connect signal PWM2 to pin P0.7
+	PINSEL0 &= ~PINSEL0_P07_MASK;  //clear bits related to P0.7 (binds P0.7 to "GPIO Port 0.7" functionality)
+							 //COMMENT: this operation is equivalent to:
+							 //	PINSEL0 &= 0xFFFF3FFF
+							 //for more info see p.75 of manualLPC2148.pdf
+	PINSEL0 |= PINSEL0_P07_PWM2; //connect signal PWM2 to P0.7 (second alternative function)
+						   //for more info see p.75 of manualLPC2148.pdf
+
+						   // QUESTION: no need to set P0.7 as an output (via IODIR)?
+
+	// connect P0.20 to output
+	PINSEL1 &= ~PINSEL1_P020_MASK;	// clear bits 9:8 on P0.20
+								// which makes P0.20 a GPIO
+
+	IODIR |= GPIO_IO_P20;	// P0.20 becomes an output
+	//IOSET = 0x00000000;		// QUESTION: this statement doesn't do anything?
+
+
+}
+
+void init(void) {
+	tU32 freq;
+
+	//set frequency to 1000 Hz (1 kHz)
+	freq = ((CRYSTAL_FREQUENCY * PLL_FACTOR) / (VPBDIV_FACTOR * 1000));
+
+	//initialize PWM unit
+	initPwm(freq);
+
+	initPorts();
+
+}
+
 /*****************************************************************************
  * Implementation of public functions
  ****************************************************************************/
@@ -178,206 +203,107 @@ delayMs(tU16 delayInMs)
  *    Always 0, since return value is not used.
  *
  ****************************************************************************/
-void initPins() {
+int main(void) {
 
-	/*
-	   * connect signal PWM2 to pin P0.7
-	   */
-	  PINSEL0 &= ~0x0000c000;  //clear bits related to P0.7
-	  PINSEL0 |=  0x00008000;  //connect signal PWM2 to P0.7 (second alternative function)
+	init();
 
-	  PINSEL0 &= ~0xC0000000;	// set P0.15 to EINT2
-	  PINSEL0 |=  0x80000000;
+	//vary duty cycle
+	tU32 duty = 0;
 
-	  PINSEL1 &= ~0x000C0000;	// set P0.25 to GPIO Port 0.25
-	  /*
-	   * connect signal PWM5 to pin P0.21
-	   */
-
-	  PINSEL1 &= ~0x00000c00; //clear bits related to P0.21
-	  PINSEL1 |= 0x00000100; //connect signal PWM5 to P0.21 (second alternative function)
-
-	  PINSEL1 &= ~0x0000c000; //set P0.23 to GPIO
-
-	  PINSEL1 &= ~0xc0000000;  //set P0.31 to GPIO
-	  PINSEL1 |= 0x80000100;	// TODO: describe the pin functions
-}
-
-void setModeIn1() {
-
-	// REMARK: do not use the "slow" functions, the "mode" pin on the 3953 PWM motor driver is never changed!
-	if (MODE_IN1 == 1) {	// MODE_IN1 = Forward, Fast Current-Decay Mode
-		IODIR |= P07;	// ENABLE (P0.7)
-		IOCLR = P07;	// set to L
-
-		IODIR |= P15;	// PHASE (P0.15)
-		IOSET = P15;	// set to H
-
-		IODIR |= P25;	// BRAKE (P0.25)
-		IOSET = P25;	// set to H
-	}
-	//LOOK AT MODE_IN1
-	else if (MODE_IN1 == 2){ // MODE_IN1 = Forward, Slow Current-Decay Mode
-		IODIR |= P07; // ENABLE (P0.7)
-		IOCLR = P07; // set to L
-
-		IODIR |= P15; // PHASE (P0.15)
-		IOSET = P15; // set to H
-
-		IODIR |= P25; // BRAKE (P0.25)
-		IOSET = P25; // set to H
-	}
-	else if (MODE_IN1 == 3){ // Reverse, Fast Current-Decay Mode
-		IODIR |= P07; // ENABLE (P0.7)
-		IOCLR = P07; // set to L
-
-		IODIR |= P15; // PHASE (P0.15)
-		IOCLR = P15; // set to L
-
-		IODIR |= P25; // BRAKE (P0.25)
-		IOSET = P25; // set to H
-	} //LOOK AT MODE
-	else if (MODE_IN1 == 4){ // Reverse, Slow Current-Decay Mode
-		IODIR |= P07; // ENABLE (P0.7)
-		IOCLR = P07; // set to L
-
-		IODIR |= P15; // PHASE (P0.15)
-		IOCLR = P15; // set to L
-
-		IODIR |= P25; // BRAKE (P0.25)
-		IOSET = P25; // set to H
-	}
-	else if (MODE_IN1 == 5){ // Brake, Fast Current-Decay Mode
-		IODIR |= P07; // ENABLE (P0.7)
-		IOCLR = P07; // set to L
-
-		IODIR |= P15; // PHASE (P0.15)
-		IOCLR = P15; // set to L
-
-		IODIR |= P25; // BRAKE (P0.25)
-		IOCLR = P25; // set to L
-	}//LOOK AT MODE
-	else if (MODE_IN1 == 6){ // Brake, No Current Control
-		IODIR |= P07; // ENABLE (P0.7)
-		IOCLR = P07; // set to L
-
-		IODIR |= P15; // PHASE (P0.15)
-		IOCLR = P15; // set to L
-
-		IODIR |= P25; // BRAKE (P0.25)
-		IOCLR = P25; // set to L
-	}
-
-}
-void setModeIn2() {
-
-	if (MODE_IN2 == 1) {	// MODE_IN1 = Forward, Fast Current-Decay Mode
-		IODIR |= P21;	// ENABLE (P0.7)
-		IOCLR = P21;	// set to L
-
-		IODIR |= P23;	// PHASE (P0.15)
-		IOSET = P23;	// set to H
-
-		IODIR |= P31;	// BRAKE (P0.25)
-		IOSET = P31;	// set to H
-	}
-	//LOOK AT MODE_IN1
-	else if (MODE_IN2 == 2){ // MODE_IN1 = Forward, Slow Current-Decay Mode
-		IODIR |= P21; // ENABLE (P0.7)
-		IOCLR = P21; // set to L
-
-		IODIR |= P23; // PHASE (P0.15)
-		IOSET = P23; // set to H
-
-		IODIR |= P31; // BRAKE (P0.25)
-		IOSET = P31; // set to H
-	}
-	else if (MODE_IN2 == 3){ // Reverse, Fast Current-Decay Mode
-		IODIR |= P21; // ENABLE (P0.7)
-		IOCLR = P21; // set to L
-
-		IODIR |= P23; // PHASE (P0.15)
-		IOCLR = P23; // set to L
-
-		IODIR |= P31; // BRAKE (P0.25)
-		IOSET = P31; // set to H
-	} //LOOK AT MODE
-	else if (MODE_IN2 == 4){ // Reverse, Slow Current-Decay Mode
-		IODIR |= P21; // ENABLE (P0.7)
-		IOCLR = P21; // set to L
-
-		IODIR |= P23; // PHASE (P0.15)
-		IOCLR = P23; // set to L
-
-		IODIR |= P31; // BRAKE (P0.25)
-		IOSET = P31; // set to H
-	}
-	else if (MODE_IN2 == 5){ // Brake, Fast Current-Decay Mode
-		IODIR |= P21; // ENABLE (P0.7)
-		IOCLR = P21; // set to L
-
-		IODIR |= P23; // PHASE (P0.15)
-		IOCLR = P23; // set to L
-
-		IODIR |= P31; // BRAKE (P0.25)
-		IOCLR = P31; // set to L
-	}//LOOK AT MODE
-	else if (MODE_IN2 == 6){ // Brake, No Current Control
-		IODIR |= P21; // ENABLE (P0.7)
-		IOCLR = P21; // set to L
-
-		IODIR |= P23; // PHASE (P0.15)
-		IOCLR = P23; // set to L
-
-		IODIR |= P31; // BRAKE (P0.25)
-		IOCLR = P31; // set to L
-	}
-
-}
-
-int
-runPwm()
-{
-  tU32 duty;
-  tU32 freq;
-
-  //set frequency to 1000 Hz (1 kHz)
-  freq = ((CRYSTAL_FREQUENCY * PLL_FACTOR)/ (VPBDIV_FACTOR * 1000));
-
-  //initialize PWM unit
-  initPwm(freq);
-  
-  initPins();
-
-  //vary duty cycle
-  duty = 0;
-
-  setModeIn1();
-  setModeIn2();
-
-
-  while(1)
-  {
+	while (1) {
 		//set frequency value
 		setPwmDutyPercent(duty);
 
 		//wait 10 ms
 		delayMs(10);
 
-		// COMMENT: the duty sets the speed of the motor driver
-		// the value that can be set is 0-10000
-		// a higher value means a lower speed, conversely a low value means a higher speed
-
-		if (TASK == 1) {
-			//update duty cycle (0.00 - 100.00%, in steps of 0.10%)
-			duty += 10;
-			if (duty > 10000)
-				duty = 0;
-		}
-
-		else if (TASK == 2) {
+		//update duty cycle (0.00 - 100.00%, in steps of 0.10%)
+		duty += 10;
+		if (duty > 10000)
 			duty = 0;
-		}
 
+		put_on_other_port();
+		// TODO: read the output of PWM2 on the oscilloscope (what's the most performance efficient way to do this?)
+		//	1. move value of P0.07 to P0.20? (assembly code)
+		//	2. if-else statements that set/clear P0.20 depending on the value of P0.07
+
+		// COMMENT: Det jag gjorde fel första gången var att jag aldrig anropade put_on_other_port(void) eftersom den låg utanför den oändliga loopen... OMFG!!!
 	}
+
+	return 0;
+}
+
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+
+void test1(void) {	// test function for putting values on other port
+//	asm("MOV R0, 0x00000080");	// moves contents of P0.7 to R0
+//	asm("STR R0, 0x00100000");	// moves contents of R0 to P0.20
+}
+
+void test2(void) {	// test function for putting values on other port
+//	asm("LDR R0, P0.7");
+//	asm("STR R0, P0.20");
+}
+
+void test3(void) {	// test function for putting values on other port
+//	asm("MOV [0x00000080], [0x00100000]");
+}
+
+void test4(void) {	// test function for putting values on other port
+//	asm("LDR R0, =0x00000080");
+//	asm("STR R0, [0x00100000]");
+}
+
+void test5(void) {	// test function for putting values on other port
+	if (IOPIN & 0x00000080)
+		IOSET = 0x00100000;
+	else
+		IOCLR = 0x00100000;
+}
+
+void test6(void) {	// test function for putting values on other port
+	int i;
+
+	IOSET |= TEST_OUTPUT;
+
+	for (i = 0; i < 10000; i++) {
+		do_nothing();
+	}
+	delayMs(500);
+
+	IOCLR |= TEST_OUTPUT;
+
+	for (i = 0; i < 10000; i++) {
+		do_nothing();
+	}
+	delayMs(500);
+}
+
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+
+
+
+
+
+
+void put_on_other_port(void) {
+
+	// QUESTION: P0.7 can't be connected to P0.20?
+	int mask;
+
+	mask = IOPIN;
+	mask &= GPIO_IO_P7;
+
+	if (mask & GPIO_IO_P7)	// value on P0.7 is 0
+		IOCLR |= TEST_OUTPUT;
+	else
+		IOSET |= TEST_OUTPUT;
+
+
+}
+
+void do_nothing(void) {
+	asm("NOP");
 }
