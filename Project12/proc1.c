@@ -6,10 +6,7 @@
  */
 
 /*****************************************************************************
- *
- *    Exempel 1
- *
- *
+ * Process 1
  ****************************************************************************/
 #include "pre_emptive_os/api/osapi.h"
 #include "general.h"
@@ -19,9 +16,10 @@
 #include "startup/consol.h"
 #include "startup/config.h"
 #include "startup/framework.h"
-#include "motor/motor.c"
 
+#include "utils/utils.c"
 #include "LCD/LCD.h"  //  Funktionsprototyper för LCD-rutinerna
+#include "motor/motor.c"
 
 extern long const delayshort;
 extern long const delaylong;
@@ -31,7 +29,7 @@ extern tCntSem mutexLCD;
 /*****************************************************************************
  * Function prototypes
  ****************************************************************************/
-void initLCD(void);
+void LCD_clearDisplay(void);
 
 /****************************************************************************/
 
@@ -44,19 +42,17 @@ procEx1(void* arg)
 
 		osSemTake(&mutexLCD, 0, &error);
 
-		initLCD();
+		//LCD_clearDisplay();
 		runPwm();
-
 
 		osSemGive(&mutexLCD, &error);
 
-		osSleep(1000);
+		osSleep(100);		// this process is not so sleepy, it's a very active process!
 	}
 
 }
 
-// TODO: rename this function
-void initLCD(void) {
+void LCD_clearDisplay(void) {
 	delay(delayshort);
 	send_instruction(1);	//cleara displayen
 	delay(delaylong);
