@@ -33,6 +33,7 @@
 #include "startup/framework.h"
 
 #include "LCD/LCD.h"  //  Funktionsprototyper för LCD-rutinerna
+#include "I2C/i2c.h"  //  Funktionsprototyper för I2C-rutinerna
 
 // Dessa definitioner används av en del av EA's rutiner
 #define CRYSTAL_FREQUENCY FOSC

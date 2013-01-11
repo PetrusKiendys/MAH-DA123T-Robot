@@ -9,10 +9,6 @@
  *  Makefilen i mappen LCD generar lib_LDC.a i ARM-format, behövs pga asm instruktionerna i delay
  *
  ************************************************************************************************/
-
-
-
-
 #include "../startup/lpc2xxx.h"
 
 /* Med CCLK=60 MHz ger denna rutin en delay på pulses*66,666 ns + anropstiden */
