@@ -44,6 +44,7 @@
 
 #define IRQ_HANDLER  0                /* 0 = Jump to common IRQ handler
                                          1 = Load vector directly from VIC, i.e., LDR PC,[PC,#-0xFF0] */
+										// QUESTION: change this to 1?
 
 /* initialize the exception vector mapping */
 #ifndef RAM_EXEC
