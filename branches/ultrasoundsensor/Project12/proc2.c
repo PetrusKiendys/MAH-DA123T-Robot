@@ -88,6 +88,37 @@ static void delayMs(tU16 delayInMs) {
 //}
 
 
+tU8 getDistance(void)
+{
+	tU8 data[1];
+
+	IODIR &= ~pin4; // make pin4 to input
+	IOCLR |= pin4; // make pin4 high
+
+	data[0] = 0; // 8 mest signifikanta bitarna
+
+	// Sending data to I2C network
+	i2cStart();
+	i2cWrite(0x02, 0x1, 0x42, data, 0); // 0x42 Command "Read Distance" send buffer
+	i2cStop();
+
+	delay(1500); // If we want a delay of x µs we have to send 15•x with the function delay.
+	IODIR |= pin4; 	// make pin4 to output
+	delay(750);
+	IODIR &= ~pin4; // make pin4 to input
+	delay(1500);
+
+	// Reading data from I2C network
+	i2cStart();
+	i2cRead(0x03, data, 1); // storing data in pin4
+	i2cStop();
+
+	//wait 1000 ms
+	delayMs(1000);
+
+  return data[1];
+}
+
 void
 procEx2(void* arg)
 {
@@ -111,36 +142,75 @@ procEx2(void* arg)
     	while (1) {
     		tU8 data[1];
 
-    		IODIR &= ~pin4; // make pin4 to input
-    		IOCLR |= pin4; // make pin4 high
-
-    		data[0] = 0; // 8 mest signifikanta bitarna
-
-    	    // Sending data to I2C network
-    		i2cStart();
-    		i2cWrite(0x02, 0x1, 0x42, data, 0); // 0x42 Command "Read Distance" send buffer
-    		i2cStop();
-
-    		delay(1500); 	// If we want a delay of x µs we have to send 15•x with the function delay.
-    		IODIR |= pin4; 	// make pin4 to output
-    		delay(750);
-    		IODIR &= ~pin4; // make pin4 to input
-    		delay(1500);
-
-    		// Reading data from I2C network
-    		i2cStart();
-    		i2cRead(0x03, data, 1); // storing data in pin4
-    		i2cStop();
+    		data[0] = getDistance();
 
     		printf("\nDistance: %d cm", data[0]);
 
-    		//wait 1000 ms
-    		delayMs(1000);
+    		osSleep(300);
     	}
 
     osSemGive(&mutexLCD, &error);
 
-    osSleep(2000);
+    osSleep(1500);
   }
 }
+
+
+////// ORIGINAL /////
+//void
+//procEx2(void* arg)
+//{
+//  tU8 error;
+//
+//  for(;;)
+//  {
+//// Exempelkod för att visa hur flera processer kan dela på LCD
+//    osSemTake(&mutexLCD, 0, &error);
+//
+//    //initialize printf()-functionality
+//    	eaInit();
+//
+//    	//print welcome message
+//    	printf("Distance Measuring");
+//
+//    	//initialice i2c communication
+//    	i2cInit(10000);
+//
+//    	//enter forever loop...
+//    	while (1) {
+//    		tU8 data[1];
+//
+//    		IODIR &= ~pin4; // make pin4 to input
+//    		IOCLR |= pin4; // make pin4 high
+//
+//    		data[0] = 0; // 8 mest signifikanta bitarna
+//
+//    	    // Sending data to I2C network
+//    		i2cStart();
+//    		i2cWrite(0x02, 0x1, 0x42, data, 0); // 0x42 Command "Read Distance" send buffer
+//    		i2cStop();
+//
+//    		delay(1500); 	// If we want a delay of x µs we have to send 15•x with the function delay.
+//    		IODIR |= pin4; 	// make pin4 to output
+//    		delay(750);
+//    		IODIR &= ~pin4; // make pin4 to input
+//    		delay(1500);
+//
+//    		// Reading data from I2C network
+//    		i2cStart();
+//    		i2cRead(0x03, data, 1); // storing data in pin4
+//    		i2cStop();
+//
+//    		printf("\nDistance: %d cm", data[0]);
+//
+//    		//wait 1000 ms
+//    		delayMs(1000);
+//    		// osSleep(300);
+//    	}
+//
+//    osSemGive(&mutexLCD, &error);
+//
+//    osSleep(1500);
+//  }
+//}
 
