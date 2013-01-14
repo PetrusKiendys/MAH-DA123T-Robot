@@ -31,6 +31,9 @@ procEx3(void* arg)
   for(;;)
   {
     osSemTake(&mutexLCD, 0, &error);
+
+
+
     osSemGive(&mutexLCD, &error);
 
     osSleep(5000);		// this process is very sleepy and sleeps for a long time

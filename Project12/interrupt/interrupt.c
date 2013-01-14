@@ -25,7 +25,6 @@ void Timer1ISRirq (void)
 {
  tU16 ADvalue, DAvalue;
 
-
 /* AD-omvandling av AIN1 (P0.28)  */
 
  //start conversion av AIN1

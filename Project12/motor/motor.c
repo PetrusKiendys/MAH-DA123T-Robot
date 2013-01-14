@@ -63,8 +63,8 @@
  ****************************************************************************/
 static tU32 duty1;
 static tU32 duty2;
-static tU8 tacho1_counter;
-static tU8 tacho2_counter;
+static tU32 tacho1_counter;
+static tU32 tacho2_counter;
 
 /*****************************************************************************
  * Function prototypes
@@ -108,9 +108,6 @@ void delay_millis(long ms);
  ****************************************************************************/
 static void initPwm(tU32 initialFreqValue)
 {
-  /*
-   * initialize PWM
-   */
   PWM_PR  = 0x00000000;             //set prescale to 0
   PWM_MCR = 0x0002;                 //counter resets on MR0 match (period time)
   PWM_MR0 = initialFreqValue;       //MR0 = period cycle time
@@ -365,7 +362,7 @@ void init_io() {
 
 void Tacho1_ISR(void) {
 	// perform this when Tacho1 is triggered
-	printf("\nTacho1 ISR: %d", tacho1_counter);
+	printf("\n\nTacho1 ISR: %d", tacho1_counter);
 	tacho1_counter++;
 
 	// don't forget to reset the interrupt flag!
@@ -402,7 +399,6 @@ int runPwm() {
 
 	freq = ((CRYSTAL_FREQUENCY * PLL_FACTOR) / (VPBDIV_FACTOR * 1000));	//set frequency to 1000 Hz (1 kHz)
 	initPwm(freq);														//initialize PWM unit
-
 	initPins();
 
 	// initialize global variables
@@ -556,8 +552,8 @@ void dev_run(tU32 duty1, tU32 duty2) {
 		}
 
 		case 9: {
-			duty1 = 3000;
-			duty2 = 3000;
+			duty1 = 0;
+			duty2 = 0;
 			break;
 		}
 
