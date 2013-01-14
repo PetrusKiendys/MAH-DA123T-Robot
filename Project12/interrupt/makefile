@@ -50,7 +50,7 @@ EFLAGS  = -mthumb-interwork
 CODE    = ARM
 
 # List C source files here.
-CSRCS   = interrupt.c
+CSRCS   = interrupt_timer.c interrupt_tacho.c
 
 # List assembler source files here
 ASRCS   = 
