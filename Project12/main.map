@@ -883,6 +883,7 @@ osSemTake                                         pre_emptive_os/pre_emptive_os.
 osSemTryTake                                      pre_emptive_os/pre_emptive_os.a(count_sem.o)
 osSleep                                           pre_emptive_os/pre_emptive_os.a(kernel.o)
                                                   proc3.o
+                                                  proc2.o
                                                   proc1.o
                                                   main.o
 osStackUsage                                      pre_emptive_os/pre_emptive_os.a(stack_usage.o)
