@@ -45,8 +45,8 @@ procEx3(void* arg)
 
 
     static int switchCounter = 0; // sets to 0 first time
-    delay(delayshort);
-    send_instruction(1);	//cleara displayn
+ //   delay(delayshort);
+ //   send_instruction(1);	//cleara displayn
 
 
 
@@ -59,8 +59,8 @@ procEx3(void* arg)
     	    //printf("IOPIN = %x\n", IOPIN);
     		//delay(delaylong);
     		//send_character('E');
-    		delay(delaylong);
-    		send_character('U');
+ //   		delay(delaylong);
+ //   		send_character('U');
 
    // 		delay_millis(500);
 
@@ -72,8 +72,8 @@ procEx3(void* arg)
     	   	//printf("counterKLICKAD = %d\n", switchCounter);
 
     		for( i=0; i<switchCounter; i++ ) {
-				delay(delaylong);
-				send_character('I');
+//				delay(delaylong);
+//				send_character('I');
     		}
     	   	// Kalla på funktion som ändrar state eftersom countern ökat!
 

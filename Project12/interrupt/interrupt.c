@@ -60,28 +60,18 @@ void osISRExit(void);
 
 void Timer1ISRirq (void)
 {
- tU16 ADvalue, DAvalue, min, max, maxx, minn;
- int left, right, actual, diff; // desired
- static tU32 timeCounter = 0;
- static int desired = 170;
+	int ADvalue, DAvalue;
+ int actual, diff; // desired
+ static int desired = 160;		// börvärde
+
+ int first, second, third;
+ char aaa;
+ char bbb;
+ char ccc;
+ static int LCDCounter = 0;
+
 
  osISREnter();
-
- //timeCounter++;
- //printf("\ncounter: %d\n", timeCounter);
- /*static tU16 lastSend = 0;
- static int driving = 0; // is not driving if driving = 0;
- tU32 duty1;
- tU32 duty2;
- tU32 freq;
-
-*/
-
- //int mode1 = 0;
- //int mode2 = 0;
-
-
-
 
 
  // FÖR LJUSSENSOR
@@ -90,11 +80,10 @@ void Timer1ISRirq (void)
 /* AD-omvandling av AIN1 (P0.28)  */
 
 /* EA5
- lightValue = ADDR;
+   ADvalue = ADDR;
    ADCR = (ADCR & 0xFFFFFF00) | (1 << 2) | (1 << 24);
-   //wait till done
    while ((ADDR & 0x80000000) == 0);
-   lightValue = (ADDR >> 6) & 0x3FF;
+   ADvalue = (ADDR >> 6) & 0x3FF;
  */
 
 
@@ -108,203 +97,27 @@ void Timer1ISRirq (void)
 // Ovanstående är egentligen lite farligt, om AD-omvandlaren lägger av hänger sig allt!
 
 	//Hämta 16-bitar, skifta till 8-bit integer
-	ADvalue=(ADDR>>8) & 0xFF;		//VAD GÖR ADDR
-//	ADvalue=(ADDR>>6) & 0x3FF;
+	ADvalue=(ADDR>>8) & 0xFF;
 
 //Test, vi gör inget. Lägger ut samma värde som kom in
 	DAvalue = ADvalue;
-//	printf("DAvalue = %d\n", DAvalue);
 
 /* DA-omvandling     */
 	 DAvalue=DAvalue & 0xFF;	//maska ut 8 bitar för säkerhets skull
-	 DACR=DAvalue<<8;			//skifta 8 bitar, nolla i bit 16 -> snabb mode	// VAD GÖR DACR
-
-//	DAvalue=DAvalue & 0x3FF;	//maska ut 10 bitar för säkerhets skull
-//	DACR=DAvalue<<8;			//skifta 8 bitar, nolla i bit 16 -> snabb mode
-
-
-	//Skriv ut resultat i terminal
-//	printf("DAvalue =  %d \nlastSend = %d\n\n", DAvalue, lastSend);
-	//setIsValue(DAvalue);
-
-	//lastRead=DAvalue;
+	 DACR=DAvalue<<8;			//skifta 8 bitar, nolla i bit 16 -> snabb mode
 
 // SLUT LJUSSENSOR + ADOMVANDLING
 
-	// STYR MOTORER MED OMVANDLINGEN
-/*	if( DAvalue != lastSend) {
-		if( DAvalue < 80 ) { // Go Forward
-			setMode1(1);
-			setMode2(1);
-		} else if( DAvalue > 130 ) { // Go Backward
-			setMode1(3);
-			setMode2(3);
-		} else { // Break
-			setMode1(6);
-			setMode2(6);
-		}
-		lastSend = DAvalue;
-	}
-*/
 
-
-
-
-
-
-
-	// Kör Fram  om det är ljus bakgrund. Stanna vid svart!
-/*	if( DAvalue < 180){ // Go Forward(3), Go Backward(1)
-		setMode1(2);
-		setMode2(3);
-		printf("<180 DAvalue = %d\n", DAvalue);
-	}else if(DAvalue > 200) {
-		setMode1(3);
-		setMode2(2);
-		printf(">200 DAvalue = %d\n", DAvalue);
-	} else { // Break
-		printf("Else: DAvalue = %d\n", DAvalue);
-		setMode1(3);
-		setMode2(3);
-	}
-*/
-
-
-	//duty1 = 0;
-	//duty2 = 0;
-
-	 // Tryck på P0.14 och starta motorer att köra rakt
-
-		//set frequency value
-		//setPwmDutyPercent1(duty1);
-		//setPwmDutyPercent2(duty2);
-
-		//wait 10 ms
-
-
-		//delayMs(10);
-
-
-	  //set frequency to 1000 Hz (1 kHz)
-/**	  freq = ((CRYSTAL_FREQUENCY * PLL_FACTOR)/ (VPBDIV_FACTOR * 1000));
-
-	  //initialize PWM unit
-	  initPwm(freq);
-
-	  initPins();
-
-	  //vary duty cycle
-	//  duty1 = 0;
-	  //duty2 = 0;
-
-	  init_io();
-*/
-	 //dev_run2(driving);
-
-//	  if(IOPIN & P014){		// ej intryckt
-//		  //setMode1(3);
-//		  //setMode2(3);
-//	  } else {
-//		  setMode1(2); // kör fram
-//		  setMode2(2); // kör fram
-//
-//		  driving++;
-//		  if( driving == 10 )
-//			  driving = 0;
-//
-//		 dev_run2(driving);
-//	  	 //setTask(driving);
-//	  }
-
-
-	// FUNGERAR
-	/*	if(IOPIN & P014){		// ej intryckt
-			//setMode1(3);
-			//setMode2(3);
-		} else {
-			if( driving == 0 ) {
-
-				printf("driving = 0. BUTTON CLICKED\n");
-				//setMode1(1);
-				//setMode2(1);
-			   //dev_run2(8);
-
-				setModeVal1(2);
-				setModeVal2(2);
-
-				setTask(8);
-
-				driving = 1;
-
-			} else {
-
-
-				printf("driving = 1. BUTTON CLICKED\n");
-
-				//setMode1(2);
-				//setMode2(2);
-				//dev_run2(9);
-
-				setModeVal1(1);
-				setModeVal2(1);
-				setTask(9);
-
-				driving = 0;
-
-			}
-		}
-*/
-/*
-	if(IOPIN & P014){		// ej intryckt
-		//setMode1(3);
-		//setMode2(3);
-	} else {
-		if( driving == 0 ) {
-
-			setMode1(1);
-			setMode2(1);
-			duty1 = 10000;
-			duty2 = 10000;
-			setPwmDutyPercent1(duty1);
-			setPwmDutyPercent2(duty2);
-
-			driving = 1;
-		} else {
-
-
-			setMode1(2);
-			setMode2(2);
-
-			duty1 = 10000;
-			duty2 = 0;
-
-			setPwmDutyPercent1(duty1);
-			setPwmDutyPercent2(duty2);
-
-			driving = 0;
-		}
-	}
-*/
-
-	//setModeVal2(2);
-	//setModeVal1(2);
-
-//	min = 180;
-//	max = 190;
-
-//	minn = 170;
-//	maxx = 200;
-	//DAvalue = DAvalue*100;
-
-//	desired = 170;	// bör-värde
 
 	if(IOPIN & P014){		// ej intryckt
-			//setMode1(3);
-			//setMode2(3);
-	} else {
-		setPwmDutyPercent1(1000);
-		setPwmDutyPercent1(1000);
-		desired = DAvalue;
+
+	} else {				// P014 intryckt
+		setPwmDutyPercent1(10000);	// sätter hastighet till 0
+		setPwmDutyPercent1(10000);	// sätter hastighet till 0
+		desired = DAvalue;			// desired (börvärde) blir avläsningen
+
+		// Printar meddelande på displayen så vi vet att initiering gjorts
 		delay(delayshort);
 		send_instruction(1);	//cleara displayn
 		delay(delaylong);
@@ -323,101 +136,56 @@ void Timer1ISRirq (void)
 		send_character('S');
 	}
 
-	printf("desired = %d\n", desired);
-
-	actual = DAvalue;
-	diff = actual - desired; // pos: svart, neg: vit
 
 
-	printf("DAvalue = %d\n", DAvalue);
+	actual = DAvalue;		 // actual (ärvärde) blir det ljussensorn läser av
+	diff = actual - desired; // differens mellan är- och börvärde (pos: svart, neg: vit)
 
-	if( diff < 0 ) { // TURN LEFT
-		diff = diff * (-1);
-		printf("NEG diff = %d\n", diff);
-		setPwmDutyPercent1(500);	// höger hjul
-		setPwmDutyPercent2(1000+(diff*100));		// vänster hjul
-	} else if ( diff > 0 ) {
-		printf("POS diff = %d\n", diff);
-		setPwmDutyPercent1(1000+(diff*100));	// höger hjul
-		setPwmDutyPercent2(500);		// vänster hjul
-	} else {
-		printf("ZERO diff = %d\n", diff);
-		setPwmDutyPercent1(500);	// höger hjul
-		setPwmDutyPercent2(500);		// vänster hjul
+	first = DAvalue / 100;			// 100-talssiffran från DAValue
+	second = (DAvalue % 100) / 10; 	// 10-talssiffran från DAValue
+	third = DAvalue % 10;			// 1-talssiffran från DAValue
+
+	LCDCounter++; 					// ökar bara en räknare med 1
+
+	aaa = '0' + first;				// gör 100-talssifran till en char
+	bbb = '0' + second;				// gör 10-talssifran till en char
+	ccc = '0' + third;				// gör 1-talssifran till en char
+
+	if( (LCDCounter == 100) ) {	// om räknaren gått till 100 (skriver ut var 100:e värde)
+		delay(delayshort);
+		send_instruction(1);	//cleara displayn
+		delay(delaylong);
+		send_character(aaa);	//skriv ut 100-talssiffran
+		delay(delaylong);
+		send_character(bbb);	//skriv ut 10-talssiffran
+		delay(delaylong);
+		send_character(ccc);	//skriv ut 1-talssiffran
+		LCDCounter = 0;			// nollställ räknare
 	}
 
-	setMode1(2);
-	setMode2(2);
+	printf("DAvalue = %d\n", DAvalue); // printa DAValue i terminalen
 
+	if( diff < 0 ) { // Om differensen mellan är-börvärde är negativt (TURN LEFT)
+		diff = diff * (-1);	// gör differens positivt
+		//printf("NEG diff = %d\n", diff);			// skriv ut storleken på differensen
+		setPwmDutyPercent1(1000);					// höger hjul. Skicka hög hastighet
+		setPwmDutyPercent2(1500+(diff*350));		// vänster hjul. skicka lägre hastighet
 
+	} else if ( diff > 0 ) { // Om differensen mellan är-börvärde är positiv (TURN RIGHT)
+		//printf("POS diff = %d\n", diff);		// skriv ut storleken på differensen
+		setPwmDutyPercent1(1500+(diff*500));	// höger hjul. skicka lägre hastighet
+		setPwmDutyPercent2(1000);				// vänster hjul. Skicka hög hastighet
 
-//	left = 0;
-//	right = 0;
-//	setMode1(1);
-//	setMode2(2);
-//	setPwmDutyPercent1(right);	// RIGHT
-//	setPwmDutyPercent2(left);	// LEFT
-
-/*
-	if( DAvalue > max && DAvalue < maxx){ // Go Forward(3), Go Backward(1)
-		//setMode1(2);
-		//setMode2(3);
-	//	printf(">180 DAvalue = %d\n", DAvalue);
-		//setTask(9); // sväng vänster
-		setMode1(1);
-		setMode2(2);
-		left = 1000;
-		right = 1000;
-		setPwmDutyPercent1(right);	// RIGHT
-		setPwmDutyPercent2(left);	// LEFT
-		//setPwmDuty1(30000);
-		//setPwmDuty2(6000);
-	} else if(DAvalue < min && DAvalue > minn) {
-		//setMode1(3);
-		//setMode2(2);
-	//	printf("<200 DAvalue = %d\n", DAvalue);
-		//setTask(8); // sväng höger
-		setMode1(2);
-		setMode2(2);
-		left = 4000;
-		right = 1000;
-		setPwmDutyPercent1(right);	// RIGHT
-		setPwmDutyPercent2(left);	// LEFT
-		//setPwmDuty1(6000);
-		//setPwmDuty2(30000);
-
-	} else if(DAvalue < minn) {
-		setMode1(2);
-		setMode2(2);
-		left = 6500;
-		right = 1000;
-		setPwmDutyPercent1(right);	// RIGHT
-		setPwmDutyPercent2(left);	// LEFT
-	} else if(DAvalue > maxx) {
-		setMode1(1);
-		setMode2(2);
-		left = 2000;
-		right = 2000;
-		setPwmDutyPercent1(right);	// RIGHT
-		setPwmDutyPercent2(left);	// LEFT
-	} else { // Break
-	//	printf("Else: DAvalue = %d\n", DAvalue);
-		//setMode1(3);
-		//setMode2(3);
-		//setTask(1);
-		setMode1(2);
-		setMode2(2);
-		left = 100;
-		right = 1000;
-		setPwmDutyPercent1(right);
-		setPwmDutyPercent2(left);
-		//setPwmDuty1(6000);
-		//setPwmDuty2(6000);
+	} else { // Om differensen mellan är-börvärde är 0 (TURN LITTLE RIGHT)
+		// Borde köra rakt, men vi kör hellre lite åt höger så vi hellre kommer mot vitt än svart
+		//printf("ZERO diff = %d\n", diff); // skriv ut storleken på differensen (0)
+		setPwmDutyPercent1(700);				// höger hjul. kör lite långsammare än vänster
+		setPwmDutyPercent2(500);				// vänster hjul. kör lite snabbar än höger
 	}
-*/
-	//runPwm();
-	// SKRIV UT VÄRDE:
-	//printf("DAvalue = %d\n", DAvalue);
+
+	setMode1(2);	// Höger hjul kör framåt
+	setMode2(2);	// Vänster hjul kör framåt
+
 
 
 

@@ -142,7 +142,7 @@ static tU32 modeVal2 = 0;
  *                     of 0.01% (i.e., 10% = 1000).
  *
  ****************************************************************************/
-void setPwmDutyPercent1(volatile unsigned long dutyValue1)
+void setPwmDutyPercent1(int dutyValue1)
 {
 	printf("setPwmDutyPercent1, %d\n", dutyValue1);
 	PWM_MR2 = (PWM_MR0 * dutyValue1) / 10000; //update duty cycle
@@ -150,7 +150,7 @@ void setPwmDutyPercent1(volatile unsigned long dutyValue1)
 	PWM_LER = 0x04;                           //latch new values for MR2
 }
 
-void setPwmDutyPercent2(volatile unsigned long dutyValue2)
+void setPwmDutyPercent2(int dutyValue2)
 {
 	printf("setPwmDutyPercent2, %d\n", dutyValue2);
 	PWM_MR5 = (PWM_MR0 * dutyValue2) / 10000;  //update duty cycle
