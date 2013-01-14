@@ -41,7 +41,7 @@
 #define	P25	(1 << 25)
 #define	P31 (1 << 31)
 
-#define TASK	8		// task 1 - use circulary loop
+#define TASK	9		// task 1 - use circulary loop
 						// task 2 - use constant PWM signal
 						// ...
 //#define MODE	1		// mode 1 - Forward, Fast Current-Decay Mode
@@ -63,6 +63,8 @@
  ****************************************************************************/
 static tU32 duty1;
 static tU32 duty2;
+static tU8 tacho1_counter;
+static tU8 tacho2_counter;
 
 /*****************************************************************************
  * Function prototypes
@@ -75,8 +77,8 @@ void setMode1(short mode);
 void setMode2(short mode);
 void init_io(void);
 //void __attribute__ ((interrupt("IRQ"))) IRQ(void);
-void Tacho1_IRQ(void);
-void Tacho2_IRQ(void);
+void Tacho1_ISR(void);
+void Tacho2_ISR(void);
 //----------- DEV functions ------------------//
 void dev_run(tU32 duty1, tU32 duty2);
 void pwm_motor_init(void);
@@ -298,7 +300,7 @@ void init_EINT0(void)
    EXTMODE |= 0x00000001;
    EXTPOLAR &= ~(0x00000001);	// sets EINT0 to low-active (falling-edge sensitive)
 
-   EXTINT = 0x00000001;			// (re)activates the interrupt
+   EXTINT = 0x00000001;			// (re)activates EINT0
 }
 
 void init_EINT3(void)
@@ -309,7 +311,7 @@ void init_EINT3(void)
    EXTMODE |= 0x00000008;
    EXTPOLAR &= ~(0x00000008);	// sets EINT3 to low-active (falling-edge sensitive)
 
-   EXTINT = 0x00000008;			// (re)activates the interrupt
+   EXTINT = 0x00000008;			// (re)activates EINT3
 }
 
 void init_vic(void) {
@@ -320,14 +322,14 @@ void init_vic(void) {
 	VICVectCntl6 = 0x20 | 17;			// assigns EINT3 to priority slot 6 of VIC
 	VICVectCntl5 = 0x20 | 14;			// assigns EINT0 to priority slot 5 of VIC
 
-	VICVectAddr6 = (tU32)Tacho2_IRQ;	// binds the address of Tacho2_IRQ to the VIC
-	VICVectAddr5 = (tU32)Tacho1_IRQ;	// binds the address of Tacho1_IRQ to the VIC
+	VICVectAddr6 = (tU32)Tacho2_ISR;	// binds the address of Tacho2_ISR to the VIC
+	VICVectAddr5 = (tU32)Tacho1_ISR;	// binds the address of Tacho1_ISR to the VIC
 	// REMARK:	Writing to this register does not set the value for future reads from it.
 	// 			Rather, this register should be written near the end of an ISR, to update the priority hardware.
 
 	VICIntEnable =	  0x00024000;		// enables EINT0 and EINT3 as interrupts
 
-	// TODO: initialize this IRQ in main.c
+	// TODO: initialize this IRQ/ISR in main.c
 	// REMARK: confirm that this is the correct implementation
 //	pISR_IRQ = (unsigned int)IRQ;
 //	pISR_IRQ = (unsigned int)Tacho1_IRQ;
@@ -361,18 +363,34 @@ void init_io() {
 //
 //}
 
-void Tacho1_IRQ(void) {
+void Tacho1_ISR(void) {
 	// perform this when Tacho1 is triggered
+	printf("\nTacho1 ISR: %d", tacho1_counter);
+	tacho1_counter++;
+
 	// don't forget to reset the interrupt flag!
-//	VICVectAddr = 0x00;		//dummy write to VIC to signal end of interrupt
-							// QUESTION: have to use this statement?
+	EXTINT = 0x00000009;			// (re)activates EINT0 and EINT3
+
+	VICVectAddr = 0x00;				//dummy write to VIC to signal end of interrupt
+									// QUESTION: have to use this statement?
+									// EDIT: apparently so, see p. 58 4.12 Vector Address register of manualLPC2148.pdf for more info
+									//		 "Writing to this register does not set the value for future reads from it."
+									// 		 "Rather, this register should be written near the end of an ISR, to update the priority hardware."
 }
 
-void Tacho2_IRQ(void) {
+void Tacho2_ISR(void) {
 	// perform this when Tacho2 is triggered
+	printf("\nTacho2 ISR: %d", tacho2_counter);
+	tacho2_counter++;
+
 	// don't forget to reset the interrupt flag!
-//	VICVectAddr = 0x00;		//dummy write to VIC to signal end of interrupt
-							// QUESTION: have to use this statement?
+	EXTINT = 0x00000009;			// (re)activates EINT0 and EINT3
+
+	VICVectAddr = 0x00;				//dummy write to VIC to signal end of interrupt
+									// QUESTION: have to use this statement?
+									// EDIT: apparently so, see p. 58 4.12 Vector Address register of manualLPC2148.pdf for more info
+									//		 "Writing to this register does not set the value for future reads from it."
+									// 		 "Rather, this register should be written near the end of an ISR, to update the priority hardware."
 }
 
 int runPwm() {
@@ -387,9 +405,11 @@ int runPwm() {
 
 	initPins();
 
-	// initialize duty values
+	// initialize global variables
 	duty1 = 0;
 	duty2 = 0;
+	tacho1_counter = 0;
+	tacho2_counter = 0;
 
 	init_vic();
 
@@ -532,6 +552,12 @@ void dev_run(tU32 duty1, tU32 duty2) {
 			duty1 = 1000;
 			duty2 = 1000;
 
+			break;
+		}
+
+		case 9: {
+			duty1 = 3000;
+			duty2 = 3000;
 			break;
 		}
 
