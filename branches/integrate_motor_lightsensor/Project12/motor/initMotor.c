@@ -79,8 +79,8 @@ void initPwm(tU32 initialFreqValue)
   PWM_PCR = 0x2400;                 //enable PWM2 and in single edge control mode
   PWM_TCR = 0x09;                   //enable PWM and Counter
 
-
 }
+
 
 /*****************************************************************************
  *
