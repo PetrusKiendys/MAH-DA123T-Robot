@@ -218,14 +218,14 @@ initProc(void* arg)
 
 
 
- // Initiera timer 1 (som skall sköta avbrottet)
-
-  TIMER1_TCR = 0x02;          //stop and reset timer
-  TIMER1_PR  = 0x00;          //set prescaler to zero
-  TIMER1_MCR = 0x03;		  //ställ up matchregister 0 för avbrott och reset av timer 0
-  TIMER1_MR0 = 7500;		  //Detta värde avgör sampletiden, här 0.125 ms  (8000 Hz)
-  TIMER1_IR  = 0xff;          //reset all interrrupt flags
-  TIMER1_TCR = 0x01;          //start timer
+	// REMARK: this is where you set the sampling frequency of lightsensor input reading and processing?
+	// Initiera timer 1 (som skall sköta avbrottet)
+   TIMER1_TCR = 0x02;          //stop and reset timer
+   TIMER1_PR = 0x00;          //set prescaler to zero
+   TIMER1_MCR = 0x03; //ställ up matchregister 0 för avbrott och reset av timer 0
+   TIMER1_MR0 = 7500;	//Detta värde avgör sampletiden, här 0.125 ms  (8000 Hz)
+   TIMER1_IR = 0xff;          //reset all interrupt flags
+   TIMER1_TCR = 0x01;          //start timer
 
 
   // Initiera avbrott vid match på MR0
@@ -239,10 +239,6 @@ initProc(void* arg)
   VICIntEnable	|=	 0x000000020;		// enabla Timer1 som avbrott
 
 //*************slut ljudavbrottsinitering****************
-
-
-
-
 
   osDeleteProcess();
 }
