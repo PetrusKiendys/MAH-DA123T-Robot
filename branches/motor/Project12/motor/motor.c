@@ -24,6 +24,7 @@
 #include <lpc2xxx.h>
 #include "../startup/config.h"
 #include "../utils/lpc214x.h"
+#include "../interrupt/interrupt_tacho.c"
 
 /******************************************************************************
  * Defines and typedefs
@@ -63,8 +64,6 @@
  ****************************************************************************/
 static tU32 duty1;
 static tU32 duty2;
-static tU32 tacho1_counter;
-static tU32 tacho2_counter;
 
 /*****************************************************************************
  * Function prototypes
@@ -76,9 +75,7 @@ static void delayMs(tU16 delayInMs);
 void setMode1(short mode);
 void setMode2(short mode);
 void init_io(void);
-//void __attribute__ ((interrupt("IRQ"))) IRQ(void);
-void Tacho1_ISR(void);
-void Tacho2_ISR(void);
+void init(void);
 //----------- DEV functions ------------------//
 void dev_run(tU32 duty1, tU32 duty2);
 void pwm_motor_init(void);
@@ -327,10 +324,6 @@ void init_vic(void) {
 	VICIntEnable =	  0x00024000;		// enables EINT0 and EINT3 as interrupts
 
 	// TODO: initialize this IRQ/ISR in main.c
-	// REMARK: confirm that this is the correct implementation
-//	pISR_IRQ = (unsigned int)IRQ;
-//	pISR_IRQ = (unsigned int)Tacho1_IRQ;
-//	pISR_IRQ = (unsigned int)Tacho2_IRQ;
 }
 
 void init_io() {
@@ -353,69 +346,41 @@ void init_io() {
 	IODIR &= ~(P20);	// makes EINT0 and EINT3 inputs
 }
 
-
-//void __attribute__ ((interrupt("IRQ"))) IRQ(void){
-//
-//	// perform when interrupt is triggered
-//
-//}
-
-void Tacho1_ISR(void) {
-	// perform this when Tacho1 is triggered
-	printf("\n\nTacho1 ISR: %d", tacho1_counter);
-	tacho1_counter++;
-
-	// don't forget to reset the interrupt flag!
-	EXTINT = 0x00000009;			// (re)activates EINT0 and EINT3
-
-	VICVectAddr = 0x00;				//dummy write to VIC to signal end of interrupt
-									// QUESTION: have to use this statement?
-									// EDIT: apparently so, see p. 58 4.12 Vector Address register of manualLPC2148.pdf for more info
-									//		 "Writing to this register does not set the value for future reads from it."
-									// 		 "Rather, this register should be written near the end of an ISR, to update the priority hardware."
-}
-
-void Tacho2_ISR(void) {
-	// perform this when Tacho2 is triggered
-	printf("\nTacho2 ISR: %d", tacho2_counter);
-	tacho2_counter++;
-
-	// don't forget to reset the interrupt flag!
-	EXTINT = 0x00000009;			// (re)activates EINT0 and EINT3
-
-	VICVectAddr = 0x00;				//dummy write to VIC to signal end of interrupt
-									// QUESTION: have to use this statement?
-									// EDIT: apparently so, see p. 58 4.12 Vector Address register of manualLPC2148.pdf for more info
-									//		 "Writing to this register does not set the value for future reads from it."
-									// 		 "Rather, this register should be written near the end of an ISR, to update the priority hardware."
-}
-
-int runPwm() {
-	// TODO: restructure and clean up this function!
-
+void init() {
+	// declare global and local variables
 	tU32 freq;
 
+	// initialize I/O
 	init_io();
 
+	// initialize PWM
 	freq = ((CRYSTAL_FREQUENCY * PLL_FACTOR) / (VPBDIV_FACTOR * 1000));	//set frequency to 1000 Hz (1 kHz)
-	initPwm(freq);														//initialize PWM unit
+	initPwm(freq);
+
+	// initialize pins (on port P0)
 	initPins();
 
-	// initialize global variables
-	duty1 = 0;
-	duty2 = 0;
-	tacho1_counter = 0;
-	tacho2_counter = 0;
-
+	// initialize VIC
 	init_vic();
 
-	//set modes for UT1 and UT2
+	//set modes for UT1 and UT2 outputs
 	setMode1(FORWARD);
 	setMode2(FORWARD);
 
+	// initialize EINT (external interrupts)
 	init_EINT0();
 	init_EINT3();
 
+	// initializes the default PWM duty
+	duty1 = 0;
+	duty2 = 0;
+	setPwmDutyPercent1(duty1);
+	setPwmDutyPercent2(duty2);
+}
+
+int runPwm() {
+
+	init();
 	dev_run(duty1, duty2);
 
 	return 0;
