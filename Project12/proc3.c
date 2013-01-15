@@ -40,31 +40,32 @@ procEx3(void* arg)
 // Exempelkod för att visa hur flera processer kan dela på LCD
     osSemTake(&mutexLCD, 0, &error);
 
-    delay(delayshort);
-	send_instruction(1);	//cleara displayn
-	delay(delaylong);
-    send_instruction(2);  //cursorn till första positionen
-    delay(delaylong);
-    send_character('E');
-    delay(delayshort);
-    send_character('x');
-    delay(delayshort);
-    send_character('e');
-    delay(delayshort);
-    send_character('m');
-    delay(delayshort);
-    send_character('p');
-    delay(delayshort);
-    send_character('e');
-    delay(delayshort);
-    send_character('l');
-    delay(delayshort);
-    send_character('3');
+//    delay(delayshort);
+//	send_instruction(1);	//cleara displayn
+//	delay(delaylong);
+//    send_instruction(2);  //cursorn till första positionen
+//    delay(delaylong);
+//    send_character('E');
+//    delay(delayshort);
+//    send_character('x');
+//    delay(delayshort);
+//    send_character('e');
+//    delay(delayshort);
+//    send_character('m');
+//    delay(delayshort);
+//    send_character('p');
+//    delay(delayshort);
+//    send_character('e');
+//    delay(delayshort);
+//    send_character('l');
+//    delay(delayshort);
+//    send_character('3');
 
-    osSleep(300);		// för att infon säkert skall hinna synas
+//    osSleep(300);		// för att infon säkert skall hinna synas
 
     osSemGive(&mutexLCD, &error);
 
-    osSleep(3000);
+    //osSleep(3000);
+    osSleep(5000);
   }
 }

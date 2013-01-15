@@ -40,23 +40,24 @@ procEx1(void* arg)
 
    osSemTake(&mutexLCD, 0, &error);
 
-	delay(delayshort);
-	send_instruction(1);	//cleara displayen
-	delay(delaylong);
-	send_instruction(2);  //cursorn till första positionen
-	delay(delaylong);
-    send_character('E');
-    delay(delayshort);
-    send_character('x');
-    delay(delayshort);
-
-    send_character('1');
-
-    osSleep(300);		// för att infon säkert skall hinna synas
+//	delay(delayshort);
+//	send_instruction(1);	//cleara displayen
+//	delay(delaylong);
+//	send_instruction(2);  //cursorn till första positionen
+//	delay(delaylong);
+//    send_character('E');
+//    delay(delayshort);
+//    send_character('x');
+//    delay(delayshort);
+//
+//    send_character('1');
+//
+//    osSleep(300);		// för att infon säkert skall hinna synas
 
     osSemGive(&mutexLCD, &error);
 
 
-    osSleep(1000);
+    //osSleep(1000);
+    osSleep(5000);
   }
 }
