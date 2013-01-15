@@ -1,0 +1,18 @@
+main.o: main.c pre_emptive_os/api/osapi.h \
+  pre_emptive_os/api/../api/general.h general.h startup/lpc2xxx.h \
+  startup/printf_P.h startup/config.h startup/consol.h startup/ea_init.h \
+  startup/consol.h startup/config.h startup/framework.h LCD/LCD.h \
+  I2C/i2c.h I2C/../general.h
+proc1.o: proc1.c pre_emptive_os/api/osapi.h \
+  pre_emptive_os/api/../api/general.h general.h startup/lpc2xxx.h \
+  startup/printf_P.h startup/config.h startup/consol.h startup/ea_init.h \
+  startup/consol.h startup/config.h startup/framework.h LCD/LCD.h
+proc2.o: proc2.c pre_emptive_os/api/osapi.h \
+  pre_emptive_os/api/../api/general.h general.h startup/lpc2xxx.h \
+  startup/printf_P.h startup/config.h startup/consol.h startup/ea_init.h \
+  startup/consol.h startup/config.h startup/framework.h LCD/LCD.h \
+  I2C/i2c.h I2C/../general.h
+proc3.o: proc3.c pre_emptive_os/api/osapi.h \
+  pre_emptive_os/api/../api/general.h general.h startup/lpc2xxx.h \
+  startup/printf_P.h startup/config.h startup/consol.h startup/ea_init.h \
+  startup/consol.h startup/config.h startup/framework.h LCD/LCD.h
