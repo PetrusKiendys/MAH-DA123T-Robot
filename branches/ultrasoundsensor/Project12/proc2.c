@@ -114,7 +114,7 @@ tU8 getDistance(void)
 	i2cStop();
 
 	//wait 1000 ms
-	delayMs(1000);
+	//delayMs(1000);
 
   return data[1];
 }
@@ -144,9 +144,10 @@ procEx2(void* arg)
 
     		data[0] = getDistance();
 
-    		printf("\nDistance: %d cm", data[0]);
+    		printf("\nDistance: %d units", data[0]);
 
-    		osSleep(300);
+    		//osSleep(300);
+    		osSleep(40);
     	}
 
     osSemGive(&mutexLCD, &error);

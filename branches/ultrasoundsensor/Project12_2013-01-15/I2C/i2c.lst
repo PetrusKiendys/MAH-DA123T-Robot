@@ -1,0 +1,3148 @@
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cclFX2kZ.s 			page 1
+
+
+   1              		.file	"i2c.c"
+   2              		.section	.debug_abbrev,"",%progbits
+   3              	.Ldebug_abbrev0:
+   4              		.section	.debug_info,"",%progbits
+   5              	.Ldebug_info0:
+   6              		.section	.debug_line,"",%progbits
+   7              	.Ldebug_line0:
+   8 0000 FE000000 		.text
+   8      02001C00 
+   8      00000201 
+   8      FB0E0D00 
+   8      01010101 
+   9              	.Ltext0:
+  10              		.align	2
+  11              		.global	i2cCheckStatus
+  12              		.type	i2cCheckStatus, %function
+  13              	i2cCheckStatus:
+  14              	.LFB2:
+  15              		.file 1 "i2c.c"
+   1:i2c.c         **** /******************************************************************************
+   2:i2c.c         ****  *
+   3:i2c.c         ****  * Copyright:
+   4:i2c.c         ****  *    (C) 2005 Embedded Artists AB
+   5:i2c.c         ****  *
+   6:i2c.c         ****  * File:
+   7:i2c.c         ****  *    i2c.c
+   8:i2c.c         ****  *
+   9:i2c.c         ****  * Description:
+  10:i2c.c         ****  *    Implements a generic I2C function library for the LPC2xxx processor.
+  11:i2c.c         ****  *
+  12:i2c.c         ****  *****************************************************************************/
+  13:i2c.c         **** 
+  14:i2c.c         **** /******************************************************************************
+  15:i2c.c         ****  * Includes
+  16:i2c.c         ****  *****************************************************************************/
+  17:i2c.c         **** #include "i2c.h"
+  18:i2c.c         **** #include "../startup/lpc2xxx.h"
+  19:i2c.c         **** #include "../startup/config.h"
+  20:i2c.c         **** 
+  21:i2c.c         **** 
+  22:i2c.c         **** /******************************************************************************
+  23:i2c.c         ****  * Defines and typedefs
+  24:i2c.c         ****  *****************************************************************************/
+  25:i2c.c         **** #define CRYSTAL_FREQUENCY FOSC
+  26:i2c.c         **** #define PLL_FACTOR        PLL_MUL
+  27:i2c.c         **** #define VPBDIV_FACTOR     PBSD
+  28:i2c.c         **** 
+  29:i2c.c         **** //different modes
+  30:i2c.c         **** #define I2C_MODE_ACK0 0
+  31:i2c.c         **** #define I2C_MODE_ACK1 1
+  32:i2c.c         **** #define I2C_MODE_READ 2
+  33:i2c.c         **** 
+  34:i2c.c         **** 
+  35:i2c.c         **** /******************************************************************************
+  36:i2c.c         ****  *
+  37:i2c.c         ****  * Description:
+  38:i2c.c         ****  *    Checks the I2C status.
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cclFX2kZ.s 			page 2
+
+
+  39:i2c.c         ****  *
+  40:i2c.c         ****  *  Returns:
+  41:i2c.c         ****  *      00h Bus error
+  42:i2c.c         ****  *      08h START condition transmitted
+  43:i2c.c         ****  *      10h Repeated START condition transmitted
+  44:i2c.c         ****  *      18h SLA + W transmitted, ACK received
+  45:i2c.c         ****  *      20h SLA + W transmitted, ACK not received
+  46:i2c.c         ****  *      28h Data byte transmitted, ACK received
+  47:i2c.c         ****  *      30h Data byte transmitted, ACK not received
+  48:i2c.c         ****  *      38h Arbitration lost
+  49:i2c.c         ****  *      40h SLA + R transmitted, ACK received
+  50:i2c.c         ****  *      48h SLA + R transmitted, ACK not received
+  51:i2c.c         ****  *      50h Data byte received in master mode, ACK transmitted
+  52:i2c.c         ****  *      58h Data byte received in master mode, ACK not transmitted
+  53:i2c.c         ****  *      60h SLA + W received, ACK transmitted
+  54:i2c.c         ****  *      68h Arbitration lost, SLA + W received, ACK transmitted
+  55:i2c.c         ****  *      70h General call address received, ACK transmitted
+  56:i2c.c         ****  *      78h Arbitration lost, general call addr received, ACK transmitted
+  57:i2c.c         ****  *      80h Data byte received with own SLA, ACK transmitted
+  58:i2c.c         ****  *      88h Data byte received with own SLA, ACK not transmitted
+  59:i2c.c         ****  *      90h Data byte received after general call, ACK transmitted
+  60:i2c.c         ****  *      98h Data byte received after general call, ACK not transmitted
+  61:i2c.c         ****  *      A0h STOP or repeated START condition received in slave mode
+  62:i2c.c         ****  *      A8h SLA + R received, ACK transmitted
+  63:i2c.c         ****  *      B0h Arbitration lost, SLA + R received, ACK transmitted
+  64:i2c.c         ****  *      B8h Data byte transmitted in slave mode, ACK received
+  65:i2c.c         ****  *      C0h Data byte transmitted in slave mode, ACK not received
+  66:i2c.c         ****  *      C8h Last byte transmitted in slave mode, ACK received
+  67:i2c.c         ****  *      F8h No relevant status information, SI=0
+  68:i2c.c         ****  *      FFh Channel error
+  69:i2c.c         ****  *
+  70:i2c.c         ****  *****************************************************************************/
+  71:i2c.c         **** tU8
+  72:i2c.c         **** i2cCheckStatus(void)
+  73:i2c.c         **** {
+  16              		.loc 1 73 0
+  17              		@ Function supports interworking.
+  18              		@ args = 0, pretend = 0, frame = 4
+  19              		@ frame_needed = 1, uses_anonymous_args = 0
+  20 0000 0DC0A0E1 		mov	ip, sp
+  21              	.LCFI0:
+  22 0004 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+  23              	.LCFI1:
+  24 0008 04B04CE2 		sub	fp, ip, #4
+  25              	.LCFI2:
+  26 000c 04D04DE2 		sub	sp, sp, #4
+  27              	.LCFI3:
+  28              	.L2:
+  74:i2c.c         ****   tU8 status;
+  75:i2c.c         **** 
+  76:i2c.c         ****   //wait for I2C Status changed
+  77:i2c.c         ****   while( (I2C_I2CONSET & 0x08) == 0)   //while SI == 0
+  29              		.loc 1 77 0
+  30 0010 0E32A0E3 		mov	r3, #-536870912
+  31 0014 073983E2 		add	r3, r3, #114688
+  32 0018 003093E5 		ldr	r3, [r3, #0]
+  33 001c 083003E2 		and	r3, r3, #8
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cclFX2kZ.s 			page 3
+
+
+  34 0020 000053E3 		cmp	r3, #0
+  35 0024 F9FFFF0A 		beq	.L2
+  78:i2c.c         ****     ;
+  79:i2c.c         **** 
+  80:i2c.c         ****   //read I2C State
+  81:i2c.c         ****   status = I2C_I2STAT;
+  36              		.loc 1 81 0
+  37 0028 4E32A0E3 		mov	r3, #-536870908
+  38 002c 073983E2 		add	r3, r3, #114688
+  39 0030 003093E5 		ldr	r3, [r3, #0]
+  40 0034 0D304BE5 		strb	r3, [fp, #-13]
+  82:i2c.c         **** 
+  83:i2c.c         ****   //NOTE! SI flag is not cleared here
+  84:i2c.c         **** 
+  85:i2c.c         ****   return status;
+  41              		.loc 1 85 0
+  42 0038 0D305BE5 		ldrb	r3, [fp, #-13]	@ zero_extendqisi2
+  86:i2c.c         **** }
+  43              		.loc 1 86 0
+  44 003c 0300A0E1 		mov	r0, r3
+  45 0040 0CD04BE2 		sub	sp, fp, #12
+  46 0044 00689DE8 		ldmfd	sp, {fp, sp, lr}
+  47 0048 1EFF2FE1 		bx	lr
+  48              	.LFE2:
+  49              		.size	i2cCheckStatus, .-i2cCheckStatus
+  50              		.global	__udivsi3
+  51              		.align	2
+  52              		.global	i2cInit
+  53              		.type	i2cInit, %function
+  54              	i2cInit:
+  55              	.LFB3:
+  87:i2c.c         **** 
+  88:i2c.c         **** /******************************************************************************
+  89:i2c.c         ****  *
+  90:i2c.c         ****  * Description:
+  91:i2c.c         ****  *    Reset and initialize the I2C peripheral.
+  92:i2c.c         ****  *
+  93:i2c.c         ****  * Params:
+  94:i2c.c         ****  *    [in]  i2cFrequency  - frequency on clock signal in Hz (max 400 kHz)
+  95:i2c.c         ****  *
+  96:i2c.c         ****  *****************************************************************************/
+  97:i2c.c         **** void
+  98:i2c.c         **** i2cInit(tU32 i2cFrequency)
+  99:i2c.c         **** {
+  56              		.loc 1 99 0
+  57              		@ Function supports interworking.
+  58              		@ args = 0, pretend = 0, frame = 4
+  59              		@ frame_needed = 1, uses_anonymous_args = 0
+  60 004c 0DC0A0E1 		mov	ip, sp
+  61              	.LCFI4:
+  62 0050 10D82DE9 		stmfd	sp!, {r4, fp, ip, lr, pc}
+  63              	.LCFI5:
+  64 0054 04B04CE2 		sub	fp, ip, #4
+  65              	.LCFI6:
+  66 0058 04D04DE2 		sub	sp, sp, #4
+  67              	.LCFI7:
+  68 005c 14000BE5 		str	r0, [fp, #-20]
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cclFX2kZ.s 			page 4
+
+
+ 100:i2c.c         **** 	//connect I2C signals (SDA & SCL) to P0.2 and P0.3
+ 101:i2c.c         ****   PINSEL0 &= ~0x000000F0;
+  69              		.loc 1 101 0
+  70 0060 0E22A0E3 		mov	r2, #-536870912
+  71 0064 0B2982E2 		add	r2, r2, #180224
+  72 0068 0E32A0E3 		mov	r3, #-536870912
+  73 006c 0B3983E2 		add	r3, r3, #180224
+  74 0070 003093E5 		ldr	r3, [r3, #0]
+  75 0074 F030C3E3 		bic	r3, r3, #240
+  76 0078 003082E5 		str	r3, [r2, #0]
+ 102:i2c.c         ****   PINSEL0 |=  0x00000050;
+  77              		.loc 1 102 0
+  78 007c 0E22A0E3 		mov	r2, #-536870912
+  79 0080 0B2982E2 		add	r2, r2, #180224
+  80 0084 0E32A0E3 		mov	r3, #-536870912
+  81 0088 0B3983E2 		add	r3, r3, #180224
+  82 008c 003093E5 		ldr	r3, [r3, #0]
+  83 0090 503083E3 		orr	r3, r3, #80
+  84 0094 003082E5 		str	r3, [r2, #0]
+ 103:i2c.c         ****   //PINSEL0 |=  0x00000150;
+ 104:i2c.c         **** 
+ 105:i2c.c         ****   //clear flags
+ 106:i2c.c         ****   I2C_I2CONCLR = 0x6c;
+  85              		.loc 1 106 0
+  86 0098 0E32A0E3 		mov	r3, #-536870912
+  87 009c 073983E2 		add	r3, r3, #114688
+  88 00a0 183083E2 		add	r3, r3, #24
+  89 00a4 6C20A0E3 		mov	r2, #108
+  90 00a8 002083E5 		str	r2, [r3, #0]
+ 107:i2c.c         **** 
+ 108:i2c.c         ****   //set bit timing ans start with checking for maximum speed (400kHz)
+ 109:i2c.c         ****   if (i2cFrequency > 400000)
+  91              		.loc 1 109 0
+  92 00ac 14201BE5 		ldr	r2, [fp, #-20]
+  93 00b0 613AA0E3 		mov	r3, #397312
+  94 00b4 2A3D83E2 		add	r3, r3, #2688
+  95 00b8 030052E1 		cmp	r2, r3
+  96 00bc 0200009A 		bls	.L6
+ 110:i2c.c         ****     i2cFrequency = 400000;
+  97              		.loc 1 110 0
+  98 00c0 613AA0E3 		mov	r3, #397312
+  99 00c4 2A3D83E2 		add	r3, r3, #2688
+ 100 00c8 14300BE5 		str	r3, [fp, #-20]
+ 101              	.L6:
+ 111:i2c.c         ****   I2C_I2SCLH   = (((CRYSTAL_FREQUENCY * PLL_FACTOR) / VPBDIV_FACTOR) / i2cFrequency + 1) / 2;
+ 102              		.loc 1 111 0
+ 103 00cc 0E42A0E3 		mov	r4, #-536870912
+ 104 00d0 074984E2 		add	r4, r4, #114688
+ 105 00d4 104084E2 		add	r4, r4, #16
+ 106 00d8 E507A0E3 		mov	r0, #60030976
+ 107 00dc 790C40E2 		sub	r0, r0, #30976
+ 108 00e0 14101BE5 		ldr	r1, [fp, #-20]
+ 109 00e4 FEFFFFEB 		bl	__udivsi3
+ 110 00e8 0030A0E1 		mov	r3, r0
+ 111 00ec 013083E2 		add	r3, r3, #1
+ 112 00f0 A330A0E1 		mov	r3, r3, lsr #1
+ 113 00f4 003084E5 		str	r3, [r4, #0]
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cclFX2kZ.s 			page 5
+
+
+ 112:i2c.c         ****   I2C_I2SCLL   = (((CRYSTAL_FREQUENCY * PLL_FACTOR) / VPBDIV_FACTOR) / i2cFrequency) / 2;
+ 114              		.loc 1 112 0
+ 115 00f8 0E42A0E3 		mov	r4, #-536870912
+ 116 00fc 074984E2 		add	r4, r4, #114688
+ 117 0100 144084E2 		add	r4, r4, #20
+ 118 0104 7207A0E3 		mov	r0, #29884416
+ 119 0108 070980E2 		add	r0, r0, #114688
+ 120 010c 0E0D80E2 		add	r0, r0, #896
+ 121 0110 14101BE5 		ldr	r1, [fp, #-20]
+ 122 0114 FEFFFFEB 		bl	__udivsi3
+ 123 0118 0030A0E1 		mov	r3, r0
+ 124 011c 003084E5 		str	r3, [r4, #0]
+ 113:i2c.c         **** 
+ 114:i2c.c         ****   //reset registers
+ 115:i2c.c         ****   I2C_I2ADR    = 0x00;
+ 125              		.loc 1 115 0
+ 126 0120 CE32A0E3 		mov	r3, #-536870900
+ 127 0124 073983E2 		add	r3, r3, #114688
+ 128 0128 0020A0E3 		mov	r2, #0
+ 129 012c 002083E5 		str	r2, [r3, #0]
+ 116:i2c.c         ****   I2C_I2CONSET = 0x40;
+ 130              		.loc 1 116 0
+ 131 0130 0E32A0E3 		mov	r3, #-536870912
+ 132 0134 073983E2 		add	r3, r3, #114688
+ 133 0138 4020A0E3 		mov	r2, #64
+ 134 013c 002083E5 		str	r2, [r3, #0]
+ 117:i2c.c         **** }
+ 135              		.loc 1 117 0
+ 136 0140 10D04BE2 		sub	sp, fp, #16
+ 137 0144 10689DE8 		ldmfd	sp, {r4, fp, sp, lr}
+ 138 0148 1EFF2FE1 		bx	lr
+ 139              	.LFE3:
+ 140              		.size	i2cInit, .-i2cInit
+ 141              		.align	2
+ 142              		.global	i2cStart
+ 143              		.type	i2cStart, %function
+ 144              	i2cStart:
+ 145              	.LFB4:
+ 118:i2c.c         **** 
+ 119:i2c.c         **** /******************************************************************************
+ 120:i2c.c         ****  *
+ 121:i2c.c         ****  * Description:
+ 122:i2c.c         ****  *    Generates a start condition on I2C when bus is free.
+ 123:i2c.c         ****  *    Master mode will also automatically be entered.
+ 124:i2c.c         ****  *
+ 125:i2c.c         ****  * Returns:
+ 126:i2c.c         ****  *    I2C_CODE_OK or I2C status code
+ 127:i2c.c         ****  *
+ 128:i2c.c         ****  *****************************************************************************/
+ 129:i2c.c         **** tS8
+ 130:i2c.c         **** i2cStart(void)
+ 131:i2c.c         **** {
+ 146              		.loc 1 131 0
+ 147              		@ Function supports interworking.
+ 148              		@ args = 0, pretend = 0, frame = 4
+ 149              		@ frame_needed = 1, uses_anonymous_args = 0
+ 150 014c 0DC0A0E1 		mov	ip, sp
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cclFX2kZ.s 			page 6
+
+
+ 151              	.LCFI8:
+ 152 0150 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 153              	.LCFI9:
+ 154 0154 04B04CE2 		sub	fp, ip, #4
+ 155              	.LCFI10:
+ 156 0158 04D04DE2 		sub	sp, sp, #4
+ 157              	.LCFI11:
+ 132:i2c.c         ****   tU8   status  = 0;
+ 158              		.loc 1 132 0
+ 159 015c 0030A0E3 		mov	r3, #0
+ 160 0160 0E304BE5 		strb	r3, [fp, #-14]
+ 133:i2c.c         ****   tS8   retCode = 0;
+ 161              		.loc 1 133 0
+ 162 0164 0030A0E3 		mov	r3, #0
+ 163 0168 0D304BE5 		strb	r3, [fp, #-13]
+ 134:i2c.c         **** 
+ 135:i2c.c         ****   //issue a start condition
+ 136:i2c.c         ****   I2C_I2CONSET |= 0x20;   //STA = 1, set start flag
+ 164              		.loc 1 136 0
+ 165 016c 0E22A0E3 		mov	r2, #-536870912
+ 166 0170 072982E2 		add	r2, r2, #114688
+ 167 0174 0E32A0E3 		mov	r3, #-536870912
+ 168 0178 073983E2 		add	r3, r3, #114688
+ 169 017c 003093E5 		ldr	r3, [r3, #0]
+ 170 0180 203083E3 		orr	r3, r3, #32
+ 171 0184 003082E5 		str	r3, [r2, #0]
+ 172              	.L10:
+ 137:i2c.c         **** 
+ 138:i2c.c         ****   //wait until START transmitted
+ 139:i2c.c         ****   while(1)
+ 140:i2c.c         ****   {
+ 141:i2c.c         ****     status = i2cCheckStatus();
+ 173              		.loc 1 141 0
+ 174 0188 FEFFFFEB 		bl	i2cCheckStatus
+ 175 018c 0030A0E1 		mov	r3, r0
+ 176 0190 0E304BE5 		strb	r3, [fp, #-14]
+ 142:i2c.c         **** 
+ 143:i2c.c         ****     //start transmitted
+ 144:i2c.c         ****     if((status == 0x08) || (status == 0x10))
+ 177              		.loc 1 144 0
+ 178 0194 0E305BE5 		ldrb	r3, [fp, #-14]	@ zero_extendqisi2
+ 179 0198 080053E3 		cmp	r3, #8
+ 180 019c 0200000A 		beq	.L11
+ 181 01a0 0E305BE5 		ldrb	r3, [fp, #-14]	@ zero_extendqisi2
+ 182 01a4 100053E3 		cmp	r3, #16
+ 183 01a8 0200001A 		bne	.L13
+ 184              	.L11:
+ 145:i2c.c         ****     {
+ 146:i2c.c         ****       retCode = I2C_CODE_OK;
+ 185              		.loc 1 146 0
+ 186 01ac 0130A0E3 		mov	r3, #1
+ 187 01b0 0D304BE5 		strb	r3, [fp, #-13]
+ 147:i2c.c         ****       break;
+ 188              		.loc 1 147 0
+ 189 01b4 0B0000EA 		b	.L14
+ 190              	.L13:
+ 148:i2c.c         ****     }
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cclFX2kZ.s 			page 7
+
+
+ 149:i2c.c         **** 
+ 150:i2c.c         ****     //error
+ 151:i2c.c         ****     else if(status != 0xf8)
+ 191              		.loc 1 151 0
+ 192 01b8 0E305BE5 		ldrb	r3, [fp, #-14]	@ zero_extendqisi2
+ 193 01bc F80053E3 		cmp	r3, #248
+ 194 01c0 0200000A 		beq	.L15
+ 152:i2c.c         ****     {
+ 153:i2c.c         ****       retCode = (tS8) status;
+ 195              		.loc 1 153 0
+ 196 01c4 0E305BE5 		ldrb	r3, [fp, #-14]
+ 197 01c8 0D304BE5 		strb	r3, [fp, #-13]
+ 154:i2c.c         ****       break;
+ 198              		.loc 1 154 0
+ 199 01cc 050000EA 		b	.L14
+ 200              	.L15:
+ 155:i2c.c         ****     }
+ 156:i2c.c         **** 
+ 157:i2c.c         ****     else
+ 158:i2c.c         ****     {
+ 159:i2c.c         ****       //clear SI flag
+ 160:i2c.c         ****       I2C_I2CONCLR = 0x08;
+ 201              		.loc 1 160 0
+ 202 01d0 0E32A0E3 		mov	r3, #-536870912
+ 203 01d4 073983E2 		add	r3, r3, #114688
+ 204 01d8 183083E2 		add	r3, r3, #24
+ 205 01dc 0820A0E3 		mov	r2, #8
+ 206 01e0 002083E5 		str	r2, [r3, #0]
+ 161:i2c.c         ****     }    
+ 162:i2c.c         ****   }
+ 207              		.loc 1 162 0
+ 208 01e4 E7FFFFEA 		b	.L10
+ 209              	.L14:
+ 163:i2c.c         **** 
+ 164:i2c.c         ****   //clear start flag
+ 165:i2c.c         ****   I2C_I2CONCLR = 0x20;
+ 210              		.loc 1 165 0
+ 211 01e8 0E32A0E3 		mov	r3, #-536870912
+ 212 01ec 073983E2 		add	r3, r3, #114688
+ 213 01f0 183083E2 		add	r3, r3, #24
+ 214 01f4 2020A0E3 		mov	r2, #32
+ 215 01f8 002083E5 		str	r2, [r3, #0]
+ 166:i2c.c         **** 
+ 167:i2c.c         ****   return retCode;
+ 216              		.loc 1 167 0
+ 217 01fc 0D305BE5 		ldrb	r3, [fp, #-13]	@ zero_extendqisi2
+ 168:i2c.c         **** }
+ 218              		.loc 1 168 0
+ 219 0200 0300A0E1 		mov	r0, r3
+ 220 0204 0CD04BE2 		sub	sp, fp, #12
+ 221 0208 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 222 020c 1EFF2FE1 		bx	lr
+ 223              	.LFE4:
+ 224              		.size	i2cStart, .-i2cStart
+ 225              		.align	2
+ 226              		.global	i2cRepeatStart
+ 227              		.type	i2cRepeatStart, %function
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cclFX2kZ.s 			page 8
+
+
+ 228              	i2cRepeatStart:
+ 229              	.LFB5:
+ 169:i2c.c         **** 
+ 170:i2c.c         **** /******************************************************************************
+ 171:i2c.c         ****  *
+ 172:i2c.c         ****  * Description:
+ 173:i2c.c         ****  *    Generates a start condition on I2C when bus is free.
+ 174:i2c.c         ****  *    Master mode will also automatically be entered.
+ 175:i2c.c         ****  *
+ 176:i2c.c         ****  * Returns:
+ 177:i2c.c         ****  *    I2C_CODE_OK or I2C status code
+ 178:i2c.c         ****  *
+ 179:i2c.c         ****  *****************************************************************************/
+ 180:i2c.c         **** tS8
+ 181:i2c.c         **** i2cRepeatStart(void)
+ 182:i2c.c         **** {
+ 230              		.loc 1 182 0
+ 231              		@ Function supports interworking.
+ 232              		@ args = 0, pretend = 0, frame = 4
+ 233              		@ frame_needed = 1, uses_anonymous_args = 0
+ 234 0210 0DC0A0E1 		mov	ip, sp
+ 235              	.LCFI12:
+ 236 0214 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 237              	.LCFI13:
+ 238 0218 04B04CE2 		sub	fp, ip, #4
+ 239              	.LCFI14:
+ 240 021c 04D04DE2 		sub	sp, sp, #4
+ 241              	.LCFI15:
+ 183:i2c.c         ****   tU8   status  = 0;
+ 242              		.loc 1 183 0
+ 243 0220 0030A0E3 		mov	r3, #0
+ 244 0224 0E304BE5 		strb	r3, [fp, #-14]
+ 184:i2c.c         ****   tS8   retCode = 0;
+ 245              		.loc 1 184 0
+ 246 0228 0030A0E3 		mov	r3, #0
+ 247 022c 0D304BE5 		strb	r3, [fp, #-13]
+ 185:i2c.c         **** 
+ 186:i2c.c         ****   //issue a start condition
+ 187:i2c.c         ****   I2C_I2CONSET |= 0x20;   //STA = 1, set start flag
+ 248              		.loc 1 187 0
+ 249 0230 0E22A0E3 		mov	r2, #-536870912
+ 250 0234 072982E2 		add	r2, r2, #114688
+ 251 0238 0E32A0E3 		mov	r3, #-536870912
+ 252 023c 073983E2 		add	r3, r3, #114688
+ 253 0240 003093E5 		ldr	r3, [r3, #0]
+ 254 0244 203083E3 		orr	r3, r3, #32
+ 255 0248 003082E5 		str	r3, [r2, #0]
+ 188:i2c.c         ****   I2C_I2CONCLR = 0x08;    //clear SI flag
+ 256              		.loc 1 188 0
+ 257 024c 0E32A0E3 		mov	r3, #-536870912
+ 258 0250 073983E2 		add	r3, r3, #114688
+ 259 0254 183083E2 		add	r3, r3, #24
+ 260 0258 0820A0E3 		mov	r2, #8
+ 261 025c 002083E5 		str	r2, [r3, #0]
+ 262              	.L19:
+ 189:i2c.c         **** 
+ 190:i2c.c         ****   //wait until START transmitted
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cclFX2kZ.s 			page 9
+
+
+ 191:i2c.c         ****   while(1)
+ 192:i2c.c         ****   {
+ 193:i2c.c         ****     status = i2cCheckStatus();
+ 263              		.loc 1 193 0
+ 264 0260 FEFFFFEB 		bl	i2cCheckStatus
+ 265 0264 0030A0E1 		mov	r3, r0
+ 266 0268 0E304BE5 		strb	r3, [fp, #-14]
+ 194:i2c.c         **** 
+ 195:i2c.c         ****     //start transmitted
+ 196:i2c.c         ****     if((status == 0x08) || (status == 0x10))
+ 267              		.loc 1 196 0
+ 268 026c 0E305BE5 		ldrb	r3, [fp, #-14]	@ zero_extendqisi2
+ 269 0270 080053E3 		cmp	r3, #8
+ 270 0274 0200000A 		beq	.L20
+ 271 0278 0E305BE5 		ldrb	r3, [fp, #-14]	@ zero_extendqisi2
+ 272 027c 100053E3 		cmp	r3, #16
+ 273 0280 0200001A 		bne	.L22
+ 274              	.L20:
+ 197:i2c.c         ****     {
+ 198:i2c.c         ****       retCode = I2C_CODE_OK;
+ 275              		.loc 1 198 0
+ 276 0284 0130A0E3 		mov	r3, #1
+ 277 0288 0D304BE5 		strb	r3, [fp, #-13]
+ 199:i2c.c         ****       break;
+ 278              		.loc 1 199 0
+ 279 028c 0B0000EA 		b	.L23
+ 280              	.L22:
+ 200:i2c.c         ****     }
+ 201:i2c.c         **** 
+ 202:i2c.c         ****     //error
+ 203:i2c.c         ****     else if(status != 0xf8)
+ 281              		.loc 1 203 0
+ 282 0290 0E305BE5 		ldrb	r3, [fp, #-14]	@ zero_extendqisi2
+ 283 0294 F80053E3 		cmp	r3, #248
+ 284 0298 0200000A 		beq	.L24
+ 204:i2c.c         ****     {
+ 205:i2c.c         ****       retCode = (tS8) status;
+ 285              		.loc 1 205 0
+ 286 029c 0E305BE5 		ldrb	r3, [fp, #-14]
+ 287 02a0 0D304BE5 		strb	r3, [fp, #-13]
+ 206:i2c.c         ****       break;
+ 288              		.loc 1 206 0
+ 289 02a4 050000EA 		b	.L23
+ 290              	.L24:
+ 207:i2c.c         ****     }
+ 208:i2c.c         **** 
+ 209:i2c.c         ****     else
+ 210:i2c.c         ****     {
+ 211:i2c.c         ****       //clear SI flag
+ 212:i2c.c         ****       I2C_I2CONCLR = 0x08;
+ 291              		.loc 1 212 0
+ 292 02a8 0E32A0E3 		mov	r3, #-536870912
+ 293 02ac 073983E2 		add	r3, r3, #114688
+ 294 02b0 183083E2 		add	r3, r3, #24
+ 295 02b4 0820A0E3 		mov	r2, #8
+ 296 02b8 002083E5 		str	r2, [r3, #0]
+ 213:i2c.c         ****     }    
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cclFX2kZ.s 			page 10
+
+
+ 214:i2c.c         ****   }
+ 297              		.loc 1 214 0
+ 298 02bc E7FFFFEA 		b	.L19
+ 299              	.L23:
+ 215:i2c.c         **** 
+ 216:i2c.c         ****   //clear start flag
+ 217:i2c.c         ****   I2C_I2CONCLR = 0x20;
+ 300              		.loc 1 217 0
+ 301 02c0 0E32A0E3 		mov	r3, #-536870912
+ 302 02c4 073983E2 		add	r3, r3, #114688
+ 303 02c8 183083E2 		add	r3, r3, #24
+ 304 02cc 2020A0E3 		mov	r2, #32
+ 305 02d0 002083E5 		str	r2, [r3, #0]
+ 218:i2c.c         **** 
+ 219:i2c.c         ****   return retCode;
+ 306              		.loc 1 219 0
+ 307 02d4 0D305BE5 		ldrb	r3, [fp, #-13]	@ zero_extendqisi2
+ 220:i2c.c         **** }
+ 308              		.loc 1 220 0
+ 309 02d8 0300A0E1 		mov	r0, r3
+ 310 02dc 0CD04BE2 		sub	sp, fp, #12
+ 311 02e0 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 312 02e4 1EFF2FE1 		bx	lr
+ 313              	.LFE5:
+ 314              		.size	i2cRepeatStart, .-i2cRepeatStart
+ 315              		.align	2
+ 316              		.global	i2cStop
+ 317              		.type	i2cStop, %function
+ 318              	i2cStop:
+ 319              	.LFB6:
+ 221:i2c.c         **** 
+ 222:i2c.c         **** /******************************************************************************
+ 223:i2c.c         ****  *
+ 224:i2c.c         ****  * Description:
+ 225:i2c.c         ****  *    Generates a stop condition in master mode or recovers from an error
+ 226:i2c.c         ****  *    condition in slave mode.
+ 227:i2c.c         ****  *
+ 228:i2c.c         ****  * Returns:
+ 229:i2c.c         ****  *    I2C_CODE_OK
+ 230:i2c.c         ****  *
+ 231:i2c.c         ****  *****************************************************************************/
+ 232:i2c.c         **** tS8
+ 233:i2c.c         **** i2cStop(void)
+ 234:i2c.c         **** {
+ 320              		.loc 1 234 0
+ 321              		@ Function supports interworking.
+ 322              		@ args = 0, pretend = 0, frame = 0
+ 323              		@ frame_needed = 1, uses_anonymous_args = 0
+ 324 02e8 0DC0A0E1 		mov	ip, sp
+ 325              	.LCFI16:
+ 326 02ec 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 327              	.LCFI17:
+ 328 02f0 04B04CE2 		sub	fp, ip, #4
+ 329              	.LCFI18:
+ 235:i2c.c         ****   I2C_I2CONSET |= 0x10;  //STO = 1, set stop flag
+ 330              		.loc 1 235 0
+ 331 02f4 0E22A0E3 		mov	r2, #-536870912
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cclFX2kZ.s 			page 11
+
+
+ 332 02f8 072982E2 		add	r2, r2, #114688
+ 333 02fc 0E32A0E3 		mov	r3, #-536870912
+ 334 0300 073983E2 		add	r3, r3, #114688
+ 335 0304 003093E5 		ldr	r3, [r3, #0]
+ 336 0308 103083E3 		orr	r3, r3, #16
+ 337 030c 003082E5 		str	r3, [r2, #0]
+ 236:i2c.c         ****   I2C_I2CONCLR = 0x08;   //clear SI flag
+ 338              		.loc 1 236 0
+ 339 0310 0E32A0E3 		mov	r3, #-536870912
+ 340 0314 073983E2 		add	r3, r3, #114688
+ 341 0318 183083E2 		add	r3, r3, #24
+ 342 031c 0820A0E3 		mov	r2, #8
+ 343 0320 002083E5 		str	r2, [r3, #0]
+ 344              	.L28:
+ 237:i2c.c         **** 
+ 238:i2c.c         ****   //wait for STOP detected (while STO = 1)
+ 239:i2c.c         ****   while((I2C_I2CONSET & 0x10) == 0x10)
+ 345              		.loc 1 239 0
+ 346 0324 0E32A0E3 		mov	r3, #-536870912
+ 347 0328 073983E2 		add	r3, r3, #114688
+ 348 032c 003093E5 		ldr	r3, [r3, #0]
+ 349 0330 103003E2 		and	r3, r3, #16
+ 350 0334 000053E3 		cmp	r3, #0
+ 351 0338 F9FFFF1A 		bne	.L28
+ 240:i2c.c         ****     ;
+ 241:i2c.c         **** 
+ 242:i2c.c         ****   return I2C_CODE_OK;
+ 352              		.loc 1 242 0
+ 353 033c 0130A0E3 		mov	r3, #1
+ 243:i2c.c         **** }
+ 354              		.loc 1 243 0
+ 355 0340 0300A0E1 		mov	r0, r3
+ 356 0344 0CD04BE2 		sub	sp, fp, #12
+ 357 0348 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 358 034c 1EFF2FE1 		bx	lr
+ 359              	.LFE6:
+ 360              		.size	i2cStop, .-i2cStop
+ 361              		.align	2
+ 362              		.global	i2cPutChar
+ 363              		.type	i2cPutChar, %function
+ 364              	i2cPutChar:
+ 365              	.LFB7:
+ 244:i2c.c         **** 
+ 245:i2c.c         **** /******************************************************************************
+ 246:i2c.c         ****  *
+ 247:i2c.c         ****  * Description:
+ 248:i2c.c         ****  *    Sends a character on the I2C network
+ 249:i2c.c         ****  *
+ 250:i2c.c         ****  * Params:
+ 251:i2c.c         ****  *    [in] data - the character to send
+ 252:i2c.c         ****  *
+ 253:i2c.c         ****  * Returns:
+ 254:i2c.c         ****  *    I2C_CODE_OK   - successful
+ 255:i2c.c         ****  *    I2C_CODE_BUSY - data register is not ready -> byte was not sent
+ 256:i2c.c         ****  *
+ 257:i2c.c         ****  *****************************************************************************/
+ 258:i2c.c         **** tS8
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cclFX2kZ.s 			page 12
+
+
+ 259:i2c.c         **** i2cPutChar(tU8 data)
+ 260:i2c.c         **** {
+ 366              		.loc 1 260 0
+ 367              		@ Function supports interworking.
+ 368              		@ args = 0, pretend = 0, frame = 8
+ 369              		@ frame_needed = 1, uses_anonymous_args = 0
+ 370 0350 0DC0A0E1 		mov	ip, sp
+ 371              	.LCFI19:
+ 372 0354 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 373              	.LCFI20:
+ 374 0358 04B04CE2 		sub	fp, ip, #4
+ 375              	.LCFI21:
+ 376 035c 08D04DE2 		sub	sp, sp, #8
+ 377              	.LCFI22:
+ 378 0360 0030A0E1 		mov	r3, r0
+ 379 0364 14304BE5 		strb	r3, [fp, #-20]
+ 261:i2c.c         ****   tS8 retCode = 0;
+ 380              		.loc 1 261 0
+ 381 0368 0030A0E3 		mov	r3, #0
+ 382 036c 0D304BE5 		strb	r3, [fp, #-13]
+ 262:i2c.c         **** 
+ 263:i2c.c         ****   //check if I2C Data register can be accessed
+ 264:i2c.c         ****   if((I2C_I2CONSET & 0x08) != 0)    //if SI = 1
+ 383              		.loc 1 264 0
+ 384 0370 0E32A0E3 		mov	r3, #-536870912
+ 385 0374 073983E2 		add	r3, r3, #114688
+ 386 0378 003093E5 		ldr	r3, [r3, #0]
+ 387 037c 083003E2 		and	r3, r3, #8
+ 388 0380 000053E3 		cmp	r3, #0
+ 389 0384 0B00000A 		beq	.L32
+ 265:i2c.c         ****   {
+ 266:i2c.c         ****     /* send data */
+ 267:i2c.c         ****     I2C_I2DAT    = data;
+ 390              		.loc 1 267 0
+ 391 0388 8E32A0E3 		mov	r3, #-536870904
+ 392 038c 073983E2 		add	r3, r3, #114688
+ 393 0390 14205BE5 		ldrb	r2, [fp, #-20]	@ zero_extendqisi2
+ 394 0394 002083E5 		str	r2, [r3, #0]
+ 268:i2c.c         ****     I2C_I2CONCLR = 0x08;       //clear SI flag
+ 395              		.loc 1 268 0
+ 396 0398 0E32A0E3 		mov	r3, #-536870912
+ 397 039c 073983E2 		add	r3, r3, #114688
+ 398 03a0 183083E2 		add	r3, r3, #24
+ 399 03a4 0820A0E3 		mov	r2, #8
+ 400 03a8 002083E5 		str	r2, [r3, #0]
+ 269:i2c.c         ****     retCode    = I2C_CODE_OK;
+ 401              		.loc 1 269 0
+ 402 03ac 0130A0E3 		mov	r3, #1
+ 403 03b0 0D304BE5 		strb	r3, [fp, #-13]
+ 404 03b4 010000EA 		b	.L34
+ 405              	.L32:
+ 270:i2c.c         ****   }
+ 271:i2c.c         ****   else
+ 272:i2c.c         ****   {
+ 273:i2c.c         ****     //data register not ready
+ 274:i2c.c         ****     retCode = I2C_CODE_BUSY;
+ 406              		.loc 1 274 0
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cclFX2kZ.s 			page 13
+
+
+ 407 03b8 0130E0E3 		mvn	r3, #1
+ 408 03bc 0D304BE5 		strb	r3, [fp, #-13]
+ 409              	.L34:
+ 275:i2c.c         ****   }
+ 276:i2c.c         **** 
+ 277:i2c.c         ****   return retCode;
+ 410              		.loc 1 277 0
+ 411 03c0 0D305BE5 		ldrb	r3, [fp, #-13]	@ zero_extendqisi2
+ 278:i2c.c         **** }
+ 412              		.loc 1 278 0
+ 413 03c4 0300A0E1 		mov	r0, r3
+ 414 03c8 0CD04BE2 		sub	sp, fp, #12
+ 415 03cc 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 416 03d0 1EFF2FE1 		bx	lr
+ 417              	.LFE7:
+ 418              		.size	i2cPutChar, .-i2cPutChar
+ 419              		.align	2
+ 420              		.global	i2cGetChar
+ 421              		.type	i2cGetChar, %function
+ 422              	i2cGetChar:
+ 423              	.LFB8:
+ 279:i2c.c         **** 
+ 280:i2c.c         **** /******************************************************************************
+ 281:i2c.c         ****  *
+ 282:i2c.c         ****  * Description:
+ 283:i2c.c         ****  *    Read a character. I2C master mode is used.
+ 284:i2c.c         ****  *    This function is also used to prepare if the master shall generate
+ 285:i2c.c         ****  *    acknowledge or not acknowledge.
+ 286:i2c.c         ****  *
+ 287:i2c.c         ****  * Params:
+ 288:i2c.c         ****  *    [in]  mode  - I2C_MODE_ACK0 Set ACK=0. Slave sends next byte
+ 289:i2c.c         ****  *                  I2C_MODE_ACK1 Set ACK=1. Slave sends last byte
+ 290:i2c.c         ****  *                  I2C_MODE_READ Read data from data register
+ 291:i2c.c         ****  *    [out] pData - a pointer to where the data shall be saved.
+ 292:i2c.c         ****  *
+ 293:i2c.c         ****  * Returns:
+ 294:i2c.c         ****  *    I2C_CODE_OK    - successful
+ 295:i2c.c         ****  *    I2C_CODE_EMPTY - no data is available
+ 296:i2c.c         ****  *
+ 297:i2c.c         ****  *****************************************************************************/
+ 298:i2c.c         **** tS8
+ 299:i2c.c         **** i2cGetChar(tU8  mode,
+ 300:i2c.c         ****            tU8* pData)
+ 301:i2c.c         **** {
+ 424              		.loc 1 301 0
+ 425              		@ Function supports interworking.
+ 426              		@ args = 0, pretend = 0, frame = 12
+ 427              		@ frame_needed = 1, uses_anonymous_args = 0
+ 428 03d4 0DC0A0E1 		mov	ip, sp
+ 429              	.LCFI23:
+ 430 03d8 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 431              	.LCFI24:
+ 432 03dc 04B04CE2 		sub	fp, ip, #4
+ 433              	.LCFI25:
+ 434 03e0 0CD04DE2 		sub	sp, sp, #12
+ 435              	.LCFI26:
+ 436 03e4 0030A0E1 		mov	r3, r0
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cclFX2kZ.s 			page 14
+
+
+ 437 03e8 18100BE5 		str	r1, [fp, #-24]
+ 438 03ec 14304BE5 		strb	r3, [fp, #-20]
+ 302:i2c.c         ****   tS8 retCode = I2C_CODE_OK;
+ 439              		.loc 1 302 0
+ 440 03f0 0130A0E3 		mov	r3, #1
+ 441 03f4 0D304BE5 		strb	r3, [fp, #-13]
+ 303:i2c.c         **** 
+ 304:i2c.c         ****   if(mode == I2C_MODE_ACK0)
+ 442              		.loc 1 304 0
+ 443 03f8 14305BE5 		ldrb	r3, [fp, #-20]	@ zero_extendqisi2
+ 444 03fc 000053E3 		cmp	r3, #0
+ 445 0400 0C00001A 		bne	.L37
+ 305:i2c.c         ****   {
+ 306:i2c.c         ****     //the operation mode is changed from master transmit to master receive
+ 307:i2c.c         ****     //set ACK=0 (informs slave to send next byte)
+ 308:i2c.c         ****     I2C_I2CONSET |= 0x04;   //AA=1
+ 446              		.loc 1 308 0
+ 447 0404 0E22A0E3 		mov	r2, #-536870912
+ 448 0408 072982E2 		add	r2, r2, #114688
+ 449 040c 0E32A0E3 		mov	r3, #-536870912
+ 450 0410 073983E2 		add	r3, r3, #114688
+ 451 0414 003093E5 		ldr	r3, [r3, #0]
+ 452 0418 043083E3 		orr	r3, r3, #4
+ 453 041c 003082E5 		str	r3, [r2, #0]
+ 309:i2c.c         ****     I2C_I2CONCLR = 0x08;    //clear SI flag
+ 454              		.loc 1 309 0
+ 455 0420 0E32A0E3 		mov	r3, #-536870912
+ 456 0424 073983E2 		add	r3, r3, #114688
+ 457 0428 183083E2 		add	r3, r3, #24
+ 458 042c 0820A0E3 		mov	r2, #8
+ 459 0430 002083E5 		str	r2, [r3, #0]
+ 460 0434 1F0000EA 		b	.L39
+ 461              	.L37:
+ 310:i2c.c         ****   }
+ 311:i2c.c         ****   else if(mode == I2C_MODE_ACK1)
+ 462              		.loc 1 311 0
+ 463 0438 14305BE5 		ldrb	r3, [fp, #-20]	@ zero_extendqisi2
+ 464 043c 010053E3 		cmp	r3, #1
+ 465 0440 0A00001A 		bne	.L40
+ 312:i2c.c         ****   {
+ 313:i2c.c         ****     //set ACK=1 (informs slave to send last byte)
+ 314:i2c.c         ****     I2C_I2CONCLR = 0x04;     
+ 466              		.loc 1 314 0
+ 467 0444 0E32A0E3 		mov	r3, #-536870912
+ 468 0448 073983E2 		add	r3, r3, #114688
+ 469 044c 183083E2 		add	r3, r3, #24
+ 470 0450 0420A0E3 		mov	r2, #4
+ 471 0454 002083E5 		str	r2, [r3, #0]
+ 315:i2c.c         ****     I2C_I2CONCLR = 0x08;   //clear SI flag
+ 472              		.loc 1 315 0
+ 473 0458 0E32A0E3 		mov	r3, #-536870912
+ 474 045c 073983E2 		add	r3, r3, #114688
+ 475 0460 183083E2 		add	r3, r3, #24
+ 476 0464 0820A0E3 		mov	r2, #8
+ 477 0468 002083E5 		str	r2, [r3, #0]
+ 478 046c 110000EA 		b	.L39
+ 479              	.L40:
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cclFX2kZ.s 			page 15
+
+
+ 316:i2c.c         ****   }
+ 317:i2c.c         ****   else if(mode == I2C_MODE_READ)
+ 480              		.loc 1 317 0
+ 481 0470 14305BE5 		ldrb	r3, [fp, #-20]	@ zero_extendqisi2
+ 482 0474 020053E3 		cmp	r3, #2
+ 483 0478 0E00001A 		bne	.L39
+ 318:i2c.c         ****   {
+ 319:i2c.c         ****     //check if I2C Data register can be accessed
+ 320:i2c.c         ****     if((I2C_I2CONSET & 0x08) != 0)    //SI = 1
+ 484              		.loc 1 320 0
+ 485 047c 0E32A0E3 		mov	r3, #-536870912
+ 486 0480 073983E2 		add	r3, r3, #114688
+ 487 0484 003093E5 		ldr	r3, [r3, #0]
+ 488 0488 083003E2 		and	r3, r3, #8
+ 489 048c 000053E3 		cmp	r3, #0
+ 490 0490 0600000A 		beq	.L43
+ 321:i2c.c         ****     {
+ 322:i2c.c         ****       //read data
+ 323:i2c.c         ****       *pData = (tU8)I2C_I2DAT;
+ 491              		.loc 1 323 0
+ 492 0494 8E32A0E3 		mov	r3, #-536870904
+ 493 0498 073983E2 		add	r3, r3, #114688
+ 494 049c 003093E5 		ldr	r3, [r3, #0]
+ 495 04a0 FF3003E2 		and	r3, r3, #255
+ 496 04a4 18201BE5 		ldr	r2, [fp, #-24]
+ 497 04a8 0030C2E5 		strb	r3, [r2, #0]
+ 498 04ac 010000EA 		b	.L39
+ 499              	.L43:
+ 324:i2c.c         ****     }
+ 325:i2c.c         ****     else
+ 326:i2c.c         ****     {
+ 327:i2c.c         ****       //No data available
+ 328:i2c.c         ****       retCode = I2C_CODE_EMPTY;
+ 500              		.loc 1 328 0
+ 501 04b0 0030E0E3 		mvn	r3, #0
+ 502 04b4 0D304BE5 		strb	r3, [fp, #-13]
+ 503              	.L39:
+ 329:i2c.c         ****     }
+ 330:i2c.c         ****   }
+ 331:i2c.c         **** 
+ 332:i2c.c         ****   return retCode;
+ 504              		.loc 1 332 0
+ 505 04b8 0D305BE5 		ldrb	r3, [fp, #-13]	@ zero_extendqisi2
+ 333:i2c.c         **** }
+ 506              		.loc 1 333 0
+ 507 04bc 0300A0E1 		mov	r0, r3
+ 508 04c0 0CD04BE2 		sub	sp, fp, #12
+ 509 04c4 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 510 04c8 1EFF2FE1 		bx	lr
+ 511              	.LFE8:
+ 512              		.size	i2cGetChar, .-i2cGetChar
+ 513              		.align	2
+ 514              		.global	i2cWaitAfterTransmit
+ 515              		.type	i2cWaitAfterTransmit, %function
+ 516              	i2cWaitAfterTransmit:
+ 517              	.LFB9:
+ 334:i2c.c         **** 
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cclFX2kZ.s 			page 16
+
+
+ 335:i2c.c         **** 
+ 336:i2c.c         **** /******************************************************************************
+ 337:i2c.c         ****  *
+ 338:i2c.c         ****  * Description:
+ 339:i2c.c         ****  *    Wait after transmission of a byte until done
+ 340:i2c.c         ****  *
+ 341:i2c.c         ****  * Returns:
+ 342:i2c.c         ****  *    I2C_CODE_OK    - successful / done
+ 343:i2c.c         ****  *    I2C_CODE_ERROR - an error occured
+ 344:i2c.c         ****  *
+ 345:i2c.c         ****  *****************************************************************************/
+ 346:i2c.c         **** tS8
+ 347:i2c.c         **** i2cWaitAfterTransmit(void)
+ 348:i2c.c         **** {
+ 518              		.loc 1 348 0
+ 519              		@ Function supports interworking.
+ 520              		@ args = 0, pretend = 0, frame = 8
+ 521              		@ frame_needed = 1, uses_anonymous_args = 0
+ 522 04cc 0DC0A0E1 		mov	ip, sp
+ 523              	.LCFI27:
+ 524 04d0 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 525              	.LCFI28:
+ 526 04d4 04B04CE2 		sub	fp, ip, #4
+ 527              	.LCFI29:
+ 528 04d8 08D04DE2 		sub	sp, sp, #8
+ 529              	.LCFI30:
+ 349:i2c.c         ****   tU8 status = 0;
+ 530              		.loc 1 349 0
+ 531 04dc 0030A0E3 		mov	r3, #0
+ 532 04e0 0D304BE5 		strb	r3, [fp, #-13]
+ 533              	.L47:
+ 350:i2c.c         **** 
+ 351:i2c.c         ****   //wait until data transmitted
+ 352:i2c.c         ****   while(1)
+ 353:i2c.c         ****   {
+ 354:i2c.c         ****     //get new status
+ 355:i2c.c         ****     status = i2cCheckStatus();
+ 534              		.loc 1 355 0
+ 535 04e4 FEFFFFEB 		bl	i2cCheckStatus
+ 536 04e8 0030A0E1 		mov	r3, r0
+ 537 04ec 0D304BE5 		strb	r3, [fp, #-13]
+ 356:i2c.c         **** 
+ 357:i2c.c         ****     /* 
+ 358:i2c.c         ****      * SLA+W transmitted, ACK received or
+ 359:i2c.c         ****      * data byte transmitted, ACK received
+ 360:i2c.c         ****      */
+ 361:i2c.c         ****     if( (status == 0x18) || (status == 0x28) )
+ 538              		.loc 1 361 0
+ 539 04f0 0D305BE5 		ldrb	r3, [fp, #-13]	@ zero_extendqisi2
+ 540 04f4 180053E3 		cmp	r3, #24
+ 541 04f8 0200000A 		beq	.L48
+ 542 04fc 0D305BE5 		ldrb	r3, [fp, #-13]	@ zero_extendqisi2
+ 543 0500 280053E3 		cmp	r3, #40
+ 544 0504 0200001A 		bne	.L50
+ 545              	.L48:
+ 362:i2c.c         ****     {
+ 363:i2c.c         ****       //data transmitted and ACK received
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cclFX2kZ.s 			page 17
+
+
+ 364:i2c.c         ****       return I2C_CODE_OK;
+ 546              		.loc 1 364 0
+ 547 0508 0130A0E3 		mov	r3, #1
+ 548 050c 14300BE5 		str	r3, [fp, #-20]
+ 549 0510 040000EA 		b	.L51
+ 550              	.L50:
+ 365:i2c.c         ****     }
+ 366:i2c.c         **** 
+ 367:i2c.c         ****     //no relevant status information
+ 368:i2c.c         ****     else if(status != 0xf8 )
+ 551              		.loc 1 368 0
+ 552 0514 0D305BE5 		ldrb	r3, [fp, #-13]	@ zero_extendqisi2
+ 553 0518 F80053E3 		cmp	r3, #248
+ 554 051c F0FFFF0A 		beq	.L47
+ 369:i2c.c         ****     {
+ 370:i2c.c         ****       //error
+ 371:i2c.c         ****       return I2C_CODE_ERROR;
+ 555              		.loc 1 371 0
+ 556 0520 0030A0E3 		mov	r3, #0
+ 557 0524 14300BE5 		str	r3, [fp, #-20]
+ 558              	.L51:
+ 372:i2c.c         ****     }
+ 373:i2c.c         ****   }
+ 559              		.loc 1 373 0
+ 560 0528 14301BE5 		ldr	r3, [fp, #-20]
+ 374:i2c.c         **** }
+ 561              		.loc 1 374 0
+ 562 052c 0300A0E1 		mov	r0, r3
+ 563 0530 0CD04BE2 		sub	sp, fp, #12
+ 564 0534 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 565 0538 1EFF2FE1 		bx	lr
+ 566              	.LFE9:
+ 567              		.size	i2cWaitAfterTransmit, .-i2cWaitAfterTransmit
+ 568              		.align	2
+ 569              		.global	i2cPutCharAndWait
+ 570              		.type	i2cPutCharAndWait, %function
+ 571              	i2cPutCharAndWait:
+ 572              	.LFB10:
+ 375:i2c.c         **** 
+ 376:i2c.c         **** 
+ 377:i2c.c         **** /******************************************************************************
+ 378:i2c.c         ****  *
+ 379:i2c.c         ****  * Description:
+ 380:i2c.c         ****  *    Sends a character on the I2C network and wait until done
+ 381:i2c.c         ****  *
+ 382:i2c.c         ****  * Params:
+ 383:i2c.c         ****  *    [in] data - the character to send
+ 384:i2c.c         ****  *
+ 385:i2c.c         ****  * Returns:
+ 386:i2c.c         ****  *    I2C_CODE_OK    - successful
+ 387:i2c.c         ****  *    I2C_CODE_BUSY  - data register is not ready -> byte was not sent
+ 388:i2c.c         ****  *    I2C_CODE_ERROR - an error occured
+ 389:i2c.c         ****  *
+ 390:i2c.c         ****  *****************************************************************************/
+ 391:i2c.c         **** tS8
+ 392:i2c.c         **** i2cPutCharAndWait(tU8 data)
+ 393:i2c.c         **** {
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cclFX2kZ.s 			page 18
+
+
+ 573              		.loc 1 393 0
+ 574              		@ Function supports interworking.
+ 575              		@ args = 0, pretend = 0, frame = 8
+ 576              		@ frame_needed = 1, uses_anonymous_args = 0
+ 577 053c 0DC0A0E1 		mov	ip, sp
+ 578              	.LCFI31:
+ 579 0540 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 580              	.LCFI32:
+ 581 0544 04B04CE2 		sub	fp, ip, #4
+ 582              	.LCFI33:
+ 583 0548 08D04DE2 		sub	sp, sp, #8
+ 584              	.LCFI34:
+ 585 054c 0030A0E1 		mov	r3, r0
+ 586 0550 14304BE5 		strb	r3, [fp, #-20]
+ 394:i2c.c         ****   tS8 retCode;
+ 395:i2c.c         ****   
+ 396:i2c.c         ****   retCode = i2cPutChar(data);
+ 587              		.loc 1 396 0
+ 588 0554 14305BE5 		ldrb	r3, [fp, #-20]	@ zero_extendqisi2
+ 589 0558 0300A0E1 		mov	r0, r3
+ 590 055c FEFFFFEB 		bl	i2cPutChar
+ 591 0560 0030A0E1 		mov	r3, r0
+ 592 0564 0D304BE5 		strb	r3, [fp, #-13]
+ 397:i2c.c         ****   while(retCode == (tS8)I2C_CODE_BUSY)
+ 593              		.loc 1 397 0
+ 594 0568 040000EA 		b	.L56
+ 595              	.L57:
+ 398:i2c.c         ****     retCode = i2cPutChar(data);
+ 596              		.loc 1 398 0
+ 597 056c 14305BE5 		ldrb	r3, [fp, #-20]	@ zero_extendqisi2
+ 598 0570 0300A0E1 		mov	r0, r3
+ 599 0574 FEFFFFEB 		bl	i2cPutChar
+ 600 0578 0030A0E1 		mov	r3, r0
+ 601 057c 0D304BE5 		strb	r3, [fp, #-13]
+ 602              	.L56:
+ 603              		.loc 1 397 0
+ 604 0580 0D305BE5 		ldrb	r3, [fp, #-13]	@ zero_extendqisi2
+ 605 0584 FE0053E3 		cmp	r3, #254
+ 606 0588 F7FFFF0A 		beq	.L57
+ 399:i2c.c         **** 
+ 400:i2c.c         ****   if(retCode == I2C_CODE_OK)
+ 607              		.loc 1 400 0
+ 608 058c 0D305BE5 		ldrb	r3, [fp, #-13]	@ zero_extendqisi2
+ 609 0590 010053E3 		cmp	r3, #1
+ 610 0594 0200001A 		bne	.L59
+ 401:i2c.c         ****     retCode = i2cWaitAfterTransmit();
+ 611              		.loc 1 401 0
+ 612 0598 FEFFFFEB 		bl	i2cWaitAfterTransmit
+ 613 059c 0030A0E1 		mov	r3, r0
+ 614 05a0 0D304BE5 		strb	r3, [fp, #-13]
+ 615              	.L59:
+ 402:i2c.c         **** 
+ 403:i2c.c         ****   return retCode;
+ 616              		.loc 1 403 0
+ 617 05a4 0D305BE5 		ldrb	r3, [fp, #-13]	@ zero_extendqisi2
+ 404:i2c.c         **** }
+ 618              		.loc 1 404 0
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cclFX2kZ.s 			page 19
+
+
+ 619 05a8 0300A0E1 		mov	r0, r3
+ 620 05ac 0CD04BE2 		sub	sp, fp, #12
+ 621 05b0 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 622 05b4 1EFF2FE1 		bx	lr
+ 623              	.LFE10:
+ 624              		.size	i2cPutCharAndWait, .-i2cPutCharAndWait
+ 625              		.align	2
+ 626              		.global	i2cWrite
+ 627              		.type	i2cWrite, %function
+ 628              	i2cWrite:
+ 629              	.LFB11:
+ 405:i2c.c         **** 
+ 406:i2c.c         **** 
+ 407:i2c.c         **** /******************************************************************************
+ 408:i2c.c         ****  *
+ 409:i2c.c         ****  * Description:
+ 410:i2c.c         ****  *    Sends data on the I2C network
+ 411:i2c.c         ****  *
+ 412:i2c.c         ****  *    Note: No stop condition is generated after the transmission - this must
+ 413:i2c.c         ****  *          be done after calling this function.
+ 414:i2c.c         ****  *
+ 415:i2c.c         ****  * Params:
+ 416:i2c.c         ****  *    [in] addr     - address
+ 417:i2c.c         ****  *    [in] extraCmd - controls if 0, 1 or 2 extra bytes shall be transmitted
+ 418:i2c.c         ****  *                    before data buffer
+ 419:i2c.c         ****  *    [in] extra    - byte of word to be transmitted before data buffer
+ 420:i2c.c         ****  *    [in] pData    - data to transmit
+ 421:i2c.c         ****  *    [in] len      - number of bytes to transmit
+ 422:i2c.c         ****  *
+ 423:i2c.c         ****  * Returns:
+ 424:i2c.c         ****  *    I2C_CODE_OK    - successful
+ 425:i2c.c         ****  *    I2C_CODE_ERROR - an error occured
+ 426:i2c.c         ****  *
+ 427:i2c.c         ****  *****************************************************************************/
+ 428:i2c.c         **** tS8
+ 429:i2c.c         **** i2cWrite(tU8  addr,
+ 430:i2c.c         ****          tU8  extraCmd,
+ 431:i2c.c         ****          tU16 extra,
+ 432:i2c.c         ****          tU8* pData,
+ 433:i2c.c         ****          tU16 len)
+ 434:i2c.c         **** {
+ 630              		.loc 1 434 0
+ 631              		@ Function supports interworking.
+ 632              		@ args = 4, pretend = 0, frame = 24
+ 633              		@ frame_needed = 1, uses_anonymous_args = 0
+ 634 05b8 0DC0A0E1 		mov	ip, sp
+ 635              	.LCFI35:
+ 636 05bc 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 637              	.LCFI36:
+ 638 05c0 04B04CE2 		sub	fp, ip, #4
+ 639              	.LCFI37:
+ 640 05c4 18D04DE2 		sub	sp, sp, #24
+ 641              	.LCFI38:
+ 642 05c8 20300BE5 		str	r3, [fp, #-32]
+ 643 05cc 04C09BE5 		ldr	ip, [fp, #4]
+ 644 05d0 0030A0E1 		mov	r3, r0
+ 645 05d4 14304BE5 		strb	r3, [fp, #-20]
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cclFX2kZ.s 			page 20
+
+
+ 646 05d8 0130A0E1 		mov	r3, r1
+ 647 05dc 18304BE5 		strb	r3, [fp, #-24]
+ 648 05e0 BC214BE1 		strh	r2, [fp, #-28]	@ movhi
+ 649 05e4 B4C24BE1 		strh	ip, [fp, #-36]	@ movhi
+ 435:i2c.c         ****   tS8 retCode = 0;
+ 650              		.loc 1 435 0
+ 651 05e8 0030A0E3 		mov	r3, #0
+ 652 05ec 0E304BE5 		strb	r3, [fp, #-14]
+ 436:i2c.c         ****   tU8 i       = 0;
+ 653              		.loc 1 436 0
+ 654 05f0 0030A0E3 		mov	r3, #0
+ 655 05f4 0D304BE5 		strb	r3, [fp, #-13]
+ 437:i2c.c         **** 
+ 438:i2c.c         ****   do
+ 439:i2c.c         ****   {
+ 440:i2c.c         ****     //generate Start condition
+ 441:i2c.c         ****     retCode = i2cStart();
+ 656              		.loc 1 441 0
+ 657 05f8 FEFFFFEB 		bl	i2cStart
+ 658 05fc 0030A0E1 		mov	r3, r0
+ 659 0600 0E304BE5 		strb	r3, [fp, #-14]
+ 442:i2c.c         ****     if(retCode != I2C_CODE_OK)
+ 660              		.loc 1 442 0
+ 661 0604 0E305BE5 		ldrb	r3, [fp, #-14]	@ zero_extendqisi2
+ 662 0608 010053E3 		cmp	r3, #1
+ 663 060c 3C00001A 		bne	.L63
+ 443:i2c.c         ****       break;
+ 444:i2c.c         ****     
+ 445:i2c.c         ****     //Transmit slave address
+ 446:i2c.c         ****     retCode = i2cPutCharAndWait(addr);
+ 664              		.loc 1 446 0
+ 665 0610 14305BE5 		ldrb	r3, [fp, #-20]	@ zero_extendqisi2
+ 666 0614 0300A0E1 		mov	r0, r3
+ 667 0618 FEFFFFEB 		bl	i2cPutCharAndWait
+ 668 061c 0030A0E1 		mov	r3, r0
+ 669 0620 0E304BE5 		strb	r3, [fp, #-14]
+ 447:i2c.c         ****     if(retCode != I2C_CODE_OK)
+ 670              		.loc 1 447 0
+ 671 0624 0E305BE5 		ldrb	r3, [fp, #-14]	@ zero_extendqisi2
+ 672 0628 010053E3 		cmp	r3, #1
+ 673 062c 3400001A 		bne	.L63
+ 448:i2c.c         ****       break;
+ 449:i2c.c         **** 
+ 450:i2c.c         ****     //Transmit MSB of extra word (if wanted)
+ 451:i2c.c         ****    	if (extraCmd == I2C_EXTRA_WORD)
+ 674              		.loc 1 451 0
+ 675 0630 18305BE5 		ldrb	r3, [fp, #-24]	@ zero_extendqisi2
+ 676 0634 020053E3 		cmp	r3, #2
+ 677 0638 0B00001A 		bne	.L66
+ 452:i2c.c         ****   	{
+ 453:i2c.c         ****       retCode = i2cPutCharAndWait((tU8)(extra >> 8));
+ 678              		.loc 1 453 0
+ 679 063c BC315BE1 		ldrh	r3, [fp, #-28]
+ 680 0640 2334A0E1 		mov	r3, r3, lsr #8
+ 681 0644 0338A0E1 		mov	r3, r3, asl #16
+ 682 0648 2338A0E1 		mov	r3, r3, lsr #16
+ 683 064c FF3003E2 		and	r3, r3, #255
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cclFX2kZ.s 			page 21
+
+
+ 684 0650 0300A0E1 		mov	r0, r3
+ 685 0654 FEFFFFEB 		bl	i2cPutCharAndWait
+ 686 0658 0030A0E1 		mov	r3, r0
+ 687 065c 0E304BE5 		strb	r3, [fp, #-14]
+ 454:i2c.c         ****       if(retCode != I2C_CODE_OK)
+ 688              		.loc 1 454 0
+ 689 0660 0E305BE5 		ldrb	r3, [fp, #-14]	@ zero_extendqisi2
+ 690 0664 010053E3 		cmp	r3, #1
+ 691 0668 2500001A 		bne	.L63
+ 692              	.L66:
+ 455:i2c.c         ****         break;
+ 456:i2c.c         ****     }
+ 457:i2c.c         **** 
+ 458:i2c.c         ****     //Transmit LSB of extra work (if wanted)
+ 459:i2c.c         ****    	if ((extraCmd == I2C_EXTRA_BYTE) || (extraCmd == I2C_EXTRA_WORD))
+ 693              		.loc 1 459 0
+ 694 066c 18305BE5 		ldrb	r3, [fp, #-24]	@ zero_extendqisi2
+ 695 0670 010053E3 		cmp	r3, #1
+ 696 0674 0200000A 		beq	.L68
+ 697 0678 18305BE5 		ldrb	r3, [fp, #-24]	@ zero_extendqisi2
+ 698 067c 020053E3 		cmp	r3, #2
+ 699 0680 0900001A 		bne	.L70
+ 700              	.L68:
+ 460:i2c.c         ****    	{
+ 461:i2c.c         ****       retCode = i2cPutCharAndWait((tU8)(extra & 0xff));
+ 701              		.loc 1 461 0
+ 702 0684 BC315BE1 		ldrh	r3, [fp, #-28]	@ movhi
+ 703 0688 FF3003E2 		and	r3, r3, #255
+ 704 068c FF3003E2 		and	r3, r3, #255
+ 705 0690 0300A0E1 		mov	r0, r3
+ 706 0694 FEFFFFEB 		bl	i2cPutCharAndWait
+ 707 0698 0030A0E1 		mov	r3, r0
+ 708 069c 0E304BE5 		strb	r3, [fp, #-14]
+ 462:i2c.c         ****       if(retCode != I2C_CODE_OK)
+ 709              		.loc 1 462 0
+ 710 06a0 0E305BE5 		ldrb	r3, [fp, #-14]	@ zero_extendqisi2
+ 711 06a4 010053E3 		cmp	r3, #1
+ 712 06a8 1500001A 		bne	.L63
+ 713              	.L70:
+ 463:i2c.c         ****         break;
+ 464:i2c.c         **** 	  }
+ 465:i2c.c         **** 
+ 466:i2c.c         ****     //wait until address transmitted and transmit data
+ 467:i2c.c         ****     for(i = 0; i < len; i++)
+ 714              		.loc 1 467 0
+ 715 06ac 0030A0E3 		mov	r3, #0
+ 716 06b0 0D304BE5 		strb	r3, [fp, #-13]
+ 717 06b4 0E0000EA 		b	.L71
+ 718              	.L72:
+ 468:i2c.c         ****     {
+ 469:i2c.c         ****       retCode = i2cPutCharAndWait(*pData);
+ 719              		.loc 1 469 0
+ 720 06b8 20301BE5 		ldr	r3, [fp, #-32]
+ 721 06bc 0030D3E5 		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 722 06c0 0300A0E1 		mov	r0, r3
+ 723 06c4 FEFFFFEB 		bl	i2cPutCharAndWait
+ 724 06c8 0030A0E1 		mov	r3, r0
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cclFX2kZ.s 			page 22
+
+
+ 725 06cc 0E304BE5 		strb	r3, [fp, #-14]
+ 470:i2c.c         ****       if(retCode != I2C_CODE_OK)
+ 726              		.loc 1 470 0
+ 727 06d0 0E305BE5 		ldrb	r3, [fp, #-14]	@ zero_extendqisi2
+ 728 06d4 010053E3 		cmp	r3, #1
+ 729 06d8 0900001A 		bne	.L63
+ 471:i2c.c         ****         break;
+ 472:i2c.c         ****       pData++;
+ 730              		.loc 1 472 0
+ 731 06dc 20301BE5 		ldr	r3, [fp, #-32]
+ 732 06e0 013083E2 		add	r3, r3, #1
+ 733 06e4 20300BE5 		str	r3, [fp, #-32]
+ 734              		.loc 1 467 0
+ 735 06e8 0D305BE5 		ldrb	r3, [fp, #-13]
+ 736 06ec 013083E2 		add	r3, r3, #1
+ 737 06f0 0D304BE5 		strb	r3, [fp, #-13]
+ 738              	.L71:
+ 739 06f4 0D205BE5 		ldrb	r2, [fp, #-13]	@ zero_extendqisi2
+ 740 06f8 B4325BE1 		ldrh	r3, [fp, #-36]
+ 741 06fc 020053E1 		cmp	r3, r2
+ 742 0700 ECFFFF8A 		bhi	.L72
+ 743              	.L63:
+ 473:i2c.c         ****     }
+ 474:i2c.c         ****   } while(0);
+ 475:i2c.c         **** 
+ 476:i2c.c         ****   return retCode;
+ 744              		.loc 1 476 0
+ 745 0704 0E305BE5 		ldrb	r3, [fp, #-14]	@ zero_extendqisi2
+ 477:i2c.c         **** }
+ 746              		.loc 1 477 0
+ 747 0708 0300A0E1 		mov	r0, r3
+ 748 070c 0CD04BE2 		sub	sp, fp, #12
+ 749 0710 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 750 0714 1EFF2FE1 		bx	lr
+ 751              	.LFE11:
+ 752              		.size	i2cWrite, .-i2cWrite
+ 753              		.align	2
+ 754              		.global	i2cPoll
+ 755              		.type	i2cPoll, %function
+ 756              	i2cPoll:
+ 757              	.LFB12:
+ 478:i2c.c         **** 
+ 479:i2c.c         **** 
+ 480:i2c.c         **** /******************************************************************************
+ 481:i2c.c         ****  *
+ 482:i2c.c         ****  * Description:
+ 483:i2c.c         ****  *    Waits till slave device returns ACK (after busy period)
+ 484:i2c.c         ****  *
+ 485:i2c.c         ****  * Params:
+ 486:i2c.c         ****  *    [in] addr  - address
+ 487:i2c.c         ****  *
+ 488:i2c.c         ****  * Returns:
+ 489:i2c.c         ****  *    I2C_CODE_OK or I2C_CODE_ERROR
+ 490:i2c.c         ****  *
+ 491:i2c.c         ****  *****************************************************************************/
+ 492:i2c.c         **** tS8 
+ 493:i2c.c         **** i2cPoll(tU8 addr)
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cclFX2kZ.s 			page 23
+
+
+ 494:i2c.c         **** {
+ 758              		.loc 1 494 0
+ 759              		@ Function supports interworking.
+ 760              		@ args = 0, pretend = 0, frame = 8
+ 761              		@ frame_needed = 1, uses_anonymous_args = 0
+ 762 0718 0DC0A0E1 		mov	ip, sp
+ 763              	.LCFI39:
+ 764 071c 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 765              	.LCFI40:
+ 766 0720 04B04CE2 		sub	fp, ip, #4
+ 767              	.LCFI41:
+ 768 0724 08D04DE2 		sub	sp, sp, #8
+ 769              	.LCFI42:
+ 770 0728 0030A0E1 		mov	r3, r0
+ 771 072c 14304BE5 		strb	r3, [fp, #-20]
+ 495:i2c.c         ****   tS8 retCode  = I2C_CODE_OK;
+ 772              		.loc 1 495 0
+ 773 0730 0130A0E3 		mov	r3, #1
+ 774 0734 0E304BE5 		strb	r3, [fp, #-14]
+ 496:i2c.c         ****   tU8 status   = 0;
+ 775              		.loc 1 496 0
+ 776 0738 0030A0E3 		mov	r3, #0
+ 777 073c 0D304BE5 		strb	r3, [fp, #-13]
+ 497:i2c.c         ****   volatile tU8 deviceReady = FALSE;
+ 778              		.loc 1 497 0
+ 779 0740 0030A0E3 		mov	r3, #0
+ 780 0744 0F304BE5 		strb	r3, [fp, #-15]
+ 498:i2c.c         **** 
+ 499:i2c.c         ****   while(deviceReady == FALSE)
+ 781              		.loc 1 499 0
+ 782 0748 2D0000EA 		b	.L76
+ 783              	.L77:
+ 500:i2c.c         ****   {
+ 501:i2c.c         ****     //Generate Start condition
+ 502:i2c.c         ****     retCode = i2cStart();
+ 784              		.loc 1 502 0
+ 785 074c FEFFFFEB 		bl	i2cStart
+ 786 0750 0030A0E1 		mov	r3, r0
+ 787 0754 0E304BE5 		strb	r3, [fp, #-14]
+ 503:i2c.c         **** 
+ 504:i2c.c         ****     //Transmit SLA+W
+ 505:i2c.c         ****     if(retCode == I2C_CODE_OK)
+ 788              		.loc 1 505 0
+ 789 0758 0E305BE5 		ldrb	r3, [fp, #-14]	@ zero_extendqisi2
+ 790 075c 010053E3 		cmp	r3, #1
+ 791 0760 0D00001A 		bne	.L78
+ 506:i2c.c         ****     {
+ 507:i2c.c         ****       //write SLA+W
+ 508:i2c.c         ****       retCode = i2cPutChar(addr);
+ 792              		.loc 1 508 0
+ 793 0764 14305BE5 		ldrb	r3, [fp, #-20]	@ zero_extendqisi2
+ 794 0768 0300A0E1 		mov	r0, r3
+ 795 076c FEFFFFEB 		bl	i2cPutChar
+ 796 0770 0030A0E1 		mov	r3, r0
+ 797 0774 0E304BE5 		strb	r3, [fp, #-14]
+ 509:i2c.c         ****       while(retCode == (tS8)I2C_CODE_BUSY)
+ 798              		.loc 1 509 0
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cclFX2kZ.s 			page 24
+
+
+ 799 0778 040000EA 		b	.L80
+ 800              	.L81:
+ 510:i2c.c         ****         retCode = i2cPutChar(addr);
+ 801              		.loc 1 510 0
+ 802 077c 14305BE5 		ldrb	r3, [fp, #-20]	@ zero_extendqisi2
+ 803 0780 0300A0E1 		mov	r0, r3
+ 804 0784 FEFFFFEB 		bl	i2cPutChar
+ 805 0788 0030A0E1 		mov	r3, r0
+ 806 078c 0E304BE5 		strb	r3, [fp, #-14]
+ 807              	.L80:
+ 808              		.loc 1 509 0
+ 809 0790 0E305BE5 		ldrb	r3, [fp, #-14]	@ zero_extendqisi2
+ 810 0794 FE0053E3 		cmp	r3, #254
+ 811 0798 F7FFFF0A 		beq	.L81
+ 812              	.L78:
+ 511:i2c.c         ****     }
+ 512:i2c.c         **** 
+ 513:i2c.c         ****     if(retCode == I2C_CODE_OK)
+ 813              		.loc 1 513 0
+ 814 079c 0E305BE5 		ldrb	r3, [fp, #-14]	@ zero_extendqisi2
+ 815 07a0 010053E3 		cmp	r3, #1
+ 816 07a4 1500001A 		bne	.L82
+ 514:i2c.c         ****     {
+ 515:i2c.c         ****       //Wait until SLA+W transmitted
+ 516:i2c.c         ****       //Get new status
+ 517:i2c.c         ****       status = i2cCheckStatus();
+ 817              		.loc 1 517 0
+ 818 07a8 FEFFFFEB 		bl	i2cCheckStatus
+ 819 07ac 0030A0E1 		mov	r3, r0
+ 820 07b0 0D304BE5 		strb	r3, [fp, #-13]
+ 518:i2c.c         **** 
+ 519:i2c.c         ****       if(status == 0x18)
+ 821              		.loc 1 519 0
+ 822 07b4 0D305BE5 		ldrb	r3, [fp, #-13]	@ zero_extendqisi2
+ 823 07b8 180053E3 		cmp	r3, #24
+ 824 07bc 0200001A 		bne	.L84
+ 520:i2c.c         ****       {
+ 521:i2c.c         ****         //data transmitted and ACK received
+ 522:i2c.c         ****         deviceReady = TRUE;
+ 825              		.loc 1 522 0
+ 826 07c0 0130A0E3 		mov	r3, #1
+ 827 07c4 0F304BE5 		strb	r3, [fp, #-15]
+ 828 07c8 0C0000EA 		b	.L82
+ 829              	.L84:
+ 523:i2c.c         ****       }
+ 524:i2c.c         ****       else if(status == 0x20)
+ 830              		.loc 1 524 0
+ 831 07cc 0D305BE5 		ldrb	r3, [fp, #-13]	@ zero_extendqisi2
+ 832 07d0 200053E3 		cmp	r3, #32
+ 833 07d4 0200001A 		bne	.L86
+ 525:i2c.c         ****       {
+ 526:i2c.c         ****         //data transmitted and ACK not received
+ 527:i2c.c         ****         //send start bit, start again
+ 528:i2c.c         ****         deviceReady = FALSE;
+ 834              		.loc 1 528 0
+ 835 07d8 0030A0E3 		mov	r3, #0
+ 836 07dc 0F304BE5 		strb	r3, [fp, #-15]
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cclFX2kZ.s 			page 25
+
+
+ 837 07e0 060000EA 		b	.L82
+ 838              	.L86:
+ 529:i2c.c         ****       }
+ 530:i2c.c         ****       else if( status != 0xf8 )
+ 839              		.loc 1 530 0
+ 840 07e4 0D305BE5 		ldrb	r3, [fp, #-13]	@ zero_extendqisi2
+ 841 07e8 F80053E3 		cmp	r3, #248
+ 842 07ec 0300000A 		beq	.L82
+ 531:i2c.c         ****       {
+ 532:i2c.c         ****         //error
+ 533:i2c.c         ****         retCode = I2C_CODE_ERROR;
+ 843              		.loc 1 533 0
+ 844 07f0 0030A0E3 		mov	r3, #0
+ 845 07f4 0E304BE5 		strb	r3, [fp, #-14]
+ 534:i2c.c         ****         deviceReady = TRUE;
+ 846              		.loc 1 534 0
+ 847 07f8 0130A0E3 		mov	r3, #1
+ 848 07fc 0F304BE5 		strb	r3, [fp, #-15]
+ 849              	.L82:
+ 535:i2c.c         ****       }
+ 536:i2c.c         ****     }
+ 537:i2c.c         **** 
+ 538:i2c.c         ****     //Generate Stop condition
+ 539:i2c.c         ****     i2cStop();
+ 850              		.loc 1 539 0
+ 851 0800 FEFFFFEB 		bl	i2cStop
+ 852              	.L76:
+ 853              		.loc 1 499 0
+ 854 0804 0F305BE5 		ldrb	r3, [fp, #-15]
+ 855 0808 FF3003E2 		and	r3, r3, #255
+ 856 080c 000053E3 		cmp	r3, #0
+ 857 0810 CDFFFF0A 		beq	.L77
+ 540:i2c.c         ****   }
+ 541:i2c.c         **** 
+ 542:i2c.c         ****   return retCode;
+ 858              		.loc 1 542 0
+ 859 0814 0E305BE5 		ldrb	r3, [fp, #-14]	@ zero_extendqisi2
+ 543:i2c.c         **** }
+ 860              		.loc 1 543 0
+ 861 0818 0300A0E1 		mov	r0, r3
+ 862 081c 0CD04BE2 		sub	sp, fp, #12
+ 863 0820 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 864 0824 1EFF2FE1 		bx	lr
+ 865              	.LFE12:
+ 866              		.size	i2cPoll, .-i2cPoll
+ 867              		.align	2
+ 868              		.global	i2cRead
+ 869              		.type	i2cRead, %function
+ 870              	i2cRead:
+ 871              	.LFB13:
+ 544:i2c.c         **** 
+ 545:i2c.c         **** 
+ 546:i2c.c         **** /******************************************************************************
+ 547:i2c.c         ****  *
+ 548:i2c.c         ****  * Description:
+ 549:i2c.c         ****  *    Read a specified number of bytes from the I2C network.
+ 550:i2c.c         ****  *
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cclFX2kZ.s 			page 26
+
+
+ 551:i2c.c         ****  *    Note: No start condition is generated in the beginningis must be
+ 552:i2c.c         ****  *          done before calling this function.
+ 553:i2c.c         ****  *
+ 554:i2c.c         ****  * Params:
+ 555:i2c.c         ****  *    [in] addr - address
+ 556:i2c.c         ****  *    [in] pBuf - receive buffer
+ 557:i2c.c         ****  *    [in] len  - number of bytes to receive
+ 558:i2c.c         ****  *
+ 559:i2c.c         ****  * Returns:
+ 560:i2c.c         ****  *    I2C_CODE_OK or I2C status code
+ 561:i2c.c         ****  *
+ 562:i2c.c         ****  *****************************************************************************/
+ 563:i2c.c         **** tS8
+ 564:i2c.c         **** i2cRead(tU8  addr,
+ 565:i2c.c         ****         tU8* pBuf,
+ 566:i2c.c         ****         tU16 len)
+ 567:i2c.c         **** {
+ 872              		.loc 1 567 0
+ 873              		@ Function supports interworking.
+ 874              		@ args = 0, pretend = 0, frame = 16
+ 875              		@ frame_needed = 1, uses_anonymous_args = 0
+ 876 0828 0DC0A0E1 		mov	ip, sp
+ 877              	.LCFI43:
+ 878 082c 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 879              	.LCFI44:
+ 880 0830 04B04CE2 		sub	fp, ip, #4
+ 881              	.LCFI45:
+ 882 0834 10D04DE2 		sub	sp, sp, #16
+ 883              	.LCFI46:
+ 884 0838 0030A0E1 		mov	r3, r0
+ 885 083c 18100BE5 		str	r1, [fp, #-24]
+ 886 0840 14304BE5 		strb	r3, [fp, #-20]
+ 887 0844 BC214BE1 		strh	r2, [fp, #-28]	@ movhi
+ 568:i2c.c         ****   tS8 retCode = 0;
+ 888              		.loc 1 568 0
+ 889 0848 0030A0E3 		mov	r3, #0
+ 890 084c 0F304BE5 		strb	r3, [fp, #-15]
+ 569:i2c.c         ****   tU8 status  = 0;
+ 891              		.loc 1 569 0
+ 892 0850 0030A0E3 		mov	r3, #0
+ 893 0854 0E304BE5 		strb	r3, [fp, #-14]
+ 570:i2c.c         ****   tU8 i       = 0;
+ 894              		.loc 1 570 0
+ 895 0858 0030A0E3 		mov	r3, #0
+ 896 085c 0D304BE5 		strb	r3, [fp, #-13]
+ 571:i2c.c         **** 
+ 572:i2c.c         ****   //write SLA+R
+ 573:i2c.c         ****   retCode = i2cPutChar(addr);
+ 897              		.loc 1 573 0
+ 898 0860 14305BE5 		ldrb	r3, [fp, #-20]	@ zero_extendqisi2
+ 899 0864 0300A0E1 		mov	r0, r3
+ 900 0868 FEFFFFEB 		bl	i2cPutChar
+ 901 086c 0030A0E1 		mov	r3, r0
+ 902 0870 0F304BE5 		strb	r3, [fp, #-15]
+ 574:i2c.c         ****   while(retCode == (tS8)I2C_CODE_BUSY)
+ 903              		.loc 1 574 0
+ 904 0874 040000EA 		b	.L92
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cclFX2kZ.s 			page 27
+
+
+ 905              	.L93:
+ 575:i2c.c         ****     retCode = i2cPutChar(addr);
+ 906              		.loc 1 575 0
+ 907 0878 14305BE5 		ldrb	r3, [fp, #-20]	@ zero_extendqisi2
+ 908 087c 0300A0E1 		mov	r0, r3
+ 909 0880 FEFFFFEB 		bl	i2cPutChar
+ 910 0884 0030A0E1 		mov	r3, r0
+ 911 0888 0F304BE5 		strb	r3, [fp, #-15]
+ 912              	.L92:
+ 913              		.loc 1 574 0
+ 914 088c 0F305BE5 		ldrb	r3, [fp, #-15]	@ zero_extendqisi2
+ 915 0890 FE0053E3 		cmp	r3, #254
+ 916 0894 F7FFFF0A 		beq	.L93
+ 576:i2c.c         **** 
+ 577:i2c.c         ****   if(retCode == I2C_CODE_OK )
+ 917              		.loc 1 577 0
+ 918 0898 0F305BE5 		ldrb	r3, [fp, #-15]	@ zero_extendqisi2
+ 919 089c 010053E3 		cmp	r3, #1
+ 920 08a0 3D00001A 		bne	.L95
+ 578:i2c.c         ****   {
+ 579:i2c.c         ****     //wait until address transmitted and receive data
+ 580:i2c.c         ****     for(i = 1; i <= len; i++ )
+ 921              		.loc 1 580 0
+ 922 08a4 0130A0E3 		mov	r3, #1
+ 923 08a8 0D304BE5 		strb	r3, [fp, #-13]
+ 924 08ac 360000EA 		b	.L97
+ 925              	.L98:
+ 581:i2c.c         ****     {
+ 582:i2c.c         ****       //wait until data transmitted
+ 583:i2c.c         ****       while(1)
+ 584:i2c.c         ****       {
+ 585:i2c.c         ****         //get new status
+ 586:i2c.c         ****         status = i2cCheckStatus();
+ 926              		.loc 1 586 0
+ 927 08b0 FEFFFFEB 		bl	i2cCheckStatus
+ 928 08b4 0030A0E1 		mov	r3, r0
+ 929 08b8 0E304BE5 		strb	r3, [fp, #-14]
+ 587:i2c.c         **** 
+ 588:i2c.c         ****         /*
+ 589:i2c.c         ****          * SLA+R transmitted, ACK received or
+ 590:i2c.c         ****          * SLA+R transmitted, ACK not received
+ 591:i2c.c         ****          * data byte received in master mode, ACK transmitted
+ 592:i2c.c         ****          */
+ 593:i2c.c         ****         if((status == 0x40 ) || (status == 0x48 ) || (status == 0x50 ))
+ 930              		.loc 1 593 0
+ 931 08bc 0E305BE5 		ldrb	r3, [fp, #-14]	@ zero_extendqisi2
+ 932 08c0 400053E3 		cmp	r3, #64
+ 933 08c4 0500000A 		beq	.L99
+ 934 08c8 0E305BE5 		ldrb	r3, [fp, #-14]	@ zero_extendqisi2
+ 935 08cc 480053E3 		cmp	r3, #72
+ 936 08d0 0200000A 		beq	.L99
+ 937 08d4 0E305BE5 		ldrb	r3, [fp, #-14]	@ zero_extendqisi2
+ 938 08d8 500053E3 		cmp	r3, #80
+ 939 08dc 2000001A 		bne	.L102
+ 940              	.L99:
+ 594:i2c.c         ****         {
+ 595:i2c.c         ****           //data received
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cclFX2kZ.s 			page 28
+
+
+ 596:i2c.c         ****           if(i == len)
+ 941              		.loc 1 596 0
+ 942 08e0 0D205BE5 		ldrb	r2, [fp, #-13]	@ zero_extendqisi2
+ 943 08e4 BC315BE1 		ldrh	r3, [fp, #-28]
+ 944 08e8 020053E1 		cmp	r3, r2
+ 945 08ec 0500001A 		bne	.L103
+ 597:i2c.c         ****           {
+ 598:i2c.c         ****             //Set generate NACK
+ 599:i2c.c         ****             retCode = i2cGetChar(I2C_MODE_ACK1, pBuf);
+ 946              		.loc 1 599 0
+ 947 08f0 0100A0E3 		mov	r0, #1
+ 948 08f4 18101BE5 		ldr	r1, [fp, #-24]
+ 949 08f8 FEFFFFEB 		bl	i2cGetChar
+ 950 08fc 0030A0E1 		mov	r3, r0
+ 951 0900 0F304BE5 		strb	r3, [fp, #-15]
+ 952 0904 040000EA 		b	.L105
+ 953              	.L103:
+ 600:i2c.c         ****           }
+ 601:i2c.c         ****           else
+ 602:i2c.c         ****           {
+ 603:i2c.c         ****             retCode = i2cGetChar(I2C_MODE_ACK0, pBuf);
+ 954              		.loc 1 603 0
+ 955 0908 0000A0E3 		mov	r0, #0
+ 956 090c 18101BE5 		ldr	r1, [fp, #-24]
+ 957 0910 FEFFFFEB 		bl	i2cGetChar
+ 958 0914 0030A0E1 		mov	r3, r0
+ 959 0918 0F304BE5 		strb	r3, [fp, #-15]
+ 960              	.L105:
+ 604:i2c.c         ****           }
+ 605:i2c.c         **** 
+ 606:i2c.c         ****           //Read data
+ 607:i2c.c         ****           retCode = i2cGetChar(I2C_MODE_READ, pBuf);
+ 961              		.loc 1 607 0
+ 962 091c 0200A0E3 		mov	r0, #2
+ 963 0920 18101BE5 		ldr	r1, [fp, #-24]
+ 964 0924 FEFFFFEB 		bl	i2cGetChar
+ 965 0928 0030A0E1 		mov	r3, r0
+ 966 092c 0F304BE5 		strb	r3, [fp, #-15]
+ 608:i2c.c         ****           while(retCode == (tS8)I2C_CODE_EMPTY)
+ 967              		.loc 1 608 0
+ 968 0930 040000EA 		b	.L106
+ 969              	.L107:
+ 609:i2c.c         ****             retCode = i2cGetChar(I2C_MODE_READ, pBuf);
+ 970              		.loc 1 609 0
+ 971 0934 0200A0E3 		mov	r0, #2
+ 972 0938 18101BE5 		ldr	r1, [fp, #-24]
+ 973 093c FEFFFFEB 		bl	i2cGetChar
+ 974 0940 0030A0E1 		mov	r3, r0
+ 975 0944 0F304BE5 		strb	r3, [fp, #-15]
+ 976              	.L106:
+ 977              		.loc 1 608 0
+ 978 0948 0F305BE5 		ldrb	r3, [fp, #-15]	@ zero_extendqisi2
+ 979 094c FF0053E3 		cmp	r3, #255
+ 980 0950 F7FFFF0A 		beq	.L107
+ 610:i2c.c         ****           pBuf++;
+ 981              		.loc 1 610 0
+ 982 0954 18301BE5 		ldr	r3, [fp, #-24]
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cclFX2kZ.s 			page 29
+
+
+ 983 0958 013083E2 		add	r3, r3, #1
+ 984 095c 18300BE5 		str	r3, [fp, #-24]
+ 611:i2c.c         ****           break;
+ 985              		.loc 1 611 0
+ 986 0960 060000EA 		b	.L109
+ 987              	.L102:
+ 612:i2c.c         ****         }
+ 613:i2c.c         **** 
+ 614:i2c.c         ****         //no relevant status information
+ 615:i2c.c         ****         else if(status != 0xf8 )
+ 988              		.loc 1 615 0
+ 989 0964 0E305BE5 		ldrb	r3, [fp, #-14]	@ zero_extendqisi2
+ 990 0968 F80053E3 		cmp	r3, #248
+ 991 096c CFFFFF0A 		beq	.L98
+ 616:i2c.c         ****         {
+ 617:i2c.c         ****           //error
+ 618:i2c.c         ****           i = len;
+ 992              		.loc 1 618 0
+ 993 0970 BC315BE1 		ldrh	r3, [fp, #-28]	@ movhi
+ 994 0974 0D304BE5 		strb	r3, [fp, #-13]
+ 619:i2c.c         ****           retCode = I2C_CODE_ERROR;
+ 995              		.loc 1 619 0
+ 996 0978 0030A0E3 		mov	r3, #0
+ 997 097c 0F304BE5 		strb	r3, [fp, #-15]
+ 998              	.L109:
+ 999              		.loc 1 580 0
+ 1000 0980 0D305BE5 		ldrb	r3, [fp, #-13]
+ 1001 0984 013083E2 		add	r3, r3, #1
+ 1002 0988 0D304BE5 		strb	r3, [fp, #-13]
+ 1003              	.L97:
+ 1004 098c 0D205BE5 		ldrb	r2, [fp, #-13]	@ zero_extendqisi2
+ 1005 0990 BC315BE1 		ldrh	r3, [fp, #-28]
+ 1006 0994 020053E1 		cmp	r3, r2
+ 1007 0998 C4FFFF2A 		bcs	.L98
+ 1008              	.L95:
+ 620:i2c.c         ****           break;
+ 621:i2c.c         ****         }
+ 622:i2c.c         ****       }
+ 623:i2c.c         ****     }
+ 624:i2c.c         ****   }
+ 625:i2c.c         **** 
+ 626:i2c.c         ****   //Generate Stop condition
+ 627:i2c.c         ****   i2cStop();
+ 1009              		.loc 1 627 0
+ 1010 099c FEFFFFEB 		bl	i2cStop
+ 628:i2c.c         **** 
+ 629:i2c.c         ****   return retCode;
+ 1011              		.loc 1 629 0
+ 1012 09a0 0F305BE5 		ldrb	r3, [fp, #-15]	@ zero_extendqisi2
+ 630:i2c.c         **** }
+ 1013              		.loc 1 630 0
+ 1014 09a4 0300A0E1 		mov	r0, r3
+ 1015 09a8 0CD04BE2 		sub	sp, fp, #12
+ 1016 09ac 00689DE8 		ldmfd	sp, {fp, sp, lr}
+ 1017 09b0 1EFF2FE1 		bx	lr
+ 1018              	.LFE13:
+ 1019              		.size	i2cRead, .-i2cRead
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cclFX2kZ.s 			page 30
+
+
+ 1020              		.section	.debug_frame,"",%progbits
+ 1021              	.Lframe0:
+ 1022 0000 0C000000 		.4byte	.LECIE0-.LSCIE0
+ 1023              	.LSCIE0:
+ 1024 0004 FFFFFFFF 		.4byte	0xffffffff
+ 1025 0008 01       		.byte	0x1
+ 1026 0009 00       		.ascii	"\000"
+ 1027 000a 01       		.uleb128 0x1
+ 1028 000b 7C       		.sleb128 -4
+ 1029 000c 0E       		.byte	0xe
+ 1030 000d 0C       		.byte	0xc
+ 1031 000e 0D       		.uleb128 0xd
+ 1032 000f 00       		.uleb128 0x0
+ 1033              		.align	2
+ 1034              	.LECIE0:
+ 1035              	.LSFDE0:
+ 1036 0010 1C000000 		.4byte	.LEFDE0-.LASFDE0
+ 1037              	.LASFDE0:
+ 1038 0014 00000000 		.4byte	.Lframe0
+ 1039 0018 00000000 		.4byte	.LFB2
+ 1040 001c 4C000000 		.4byte	.LFE2-.LFB2
+ 1041 0020 44       		.byte	0x4
+ 1042              		.4byte	.LCFI0-.LFB2
+ 1043 0021 0D       		.byte	0xd
+ 1044 0022 0C       		.uleb128 0xc
+ 1045 0023 44       		.byte	0x4
+ 1046              		.4byte	.LCFI1-.LCFI0
+ 1047 0024 8E       		.byte	0x8e
+ 1048 0025 02       		.uleb128 0x2
+ 1049 0026 8D       		.byte	0x8d
+ 1050 0027 03       		.uleb128 0x3
+ 1051 0028 8B       		.byte	0x8b
+ 1052 0029 04       		.uleb128 0x4
+ 1053 002a 44       		.byte	0x4
+ 1054              		.4byte	.LCFI2-.LCFI1
+ 1055 002b 0C       		.byte	0xc
+ 1056 002c 0B       		.uleb128 0xb
+ 1057 002d 04       		.uleb128 0x4
+ 1058 002e 0000     		.align	2
+ 1059              	.LEFDE0:
+ 1060              	.LSFDE2:
+ 1061 0030 1C000000 		.4byte	.LEFDE2-.LASFDE2
+ 1062              	.LASFDE2:
+ 1063 0034 00000000 		.4byte	.Lframe0
+ 1064 0038 4C000000 		.4byte	.LFB3
+ 1065 003c 00010000 		.4byte	.LFE3-.LFB3
+ 1066 0040 44       		.byte	0x4
+ 1067              		.4byte	.LCFI4-.LFB3
+ 1068 0041 0D       		.byte	0xd
+ 1069 0042 0C       		.uleb128 0xc
+ 1070 0043 44       		.byte	0x4
+ 1071              		.4byte	.LCFI5-.LCFI4
+ 1072 0044 8E       		.byte	0x8e
+ 1073 0045 02       		.uleb128 0x2
+ 1074 0046 8D       		.byte	0x8d
+ 1075 0047 03       		.uleb128 0x3
+ 1076 0048 8B       		.byte	0x8b
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cclFX2kZ.s 			page 31
+
+
+ 1077 0049 04       		.uleb128 0x4
+ 1078 004a 84       		.byte	0x84
+ 1079 004b 05       		.uleb128 0x5
+ 1080 004c 44       		.byte	0x4
+ 1081              		.4byte	.LCFI6-.LCFI5
+ 1082 004d 0C       		.byte	0xc
+ 1083 004e 0B       		.uleb128 0xb
+ 1084 004f 04       		.uleb128 0x4
+ 1085              		.align	2
+ 1086              	.LEFDE2:
+ 1087              	.LSFDE4:
+ 1088 0050 1C000000 		.4byte	.LEFDE4-.LASFDE4
+ 1089              	.LASFDE4:
+ 1090 0054 00000000 		.4byte	.Lframe0
+ 1091 0058 4C010000 		.4byte	.LFB4
+ 1092 005c C4000000 		.4byte	.LFE4-.LFB4
+ 1093 0060 44       		.byte	0x4
+ 1094              		.4byte	.LCFI8-.LFB4
+ 1095 0061 0D       		.byte	0xd
+ 1096 0062 0C       		.uleb128 0xc
+ 1097 0063 44       		.byte	0x4
+ 1098              		.4byte	.LCFI9-.LCFI8
+ 1099 0064 8E       		.byte	0x8e
+ 1100 0065 02       		.uleb128 0x2
+ 1101 0066 8D       		.byte	0x8d
+ 1102 0067 03       		.uleb128 0x3
+ 1103 0068 8B       		.byte	0x8b
+ 1104 0069 04       		.uleb128 0x4
+ 1105 006a 44       		.byte	0x4
+ 1106              		.4byte	.LCFI10-.LCFI9
+ 1107 006b 0C       		.byte	0xc
+ 1108 006c 0B       		.uleb128 0xb
+ 1109 006d 04       		.uleb128 0x4
+ 1110 006e 0000     		.align	2
+ 1111              	.LEFDE4:
+ 1112              	.LSFDE6:
+ 1113 0070 1C000000 		.4byte	.LEFDE6-.LASFDE6
+ 1114              	.LASFDE6:
+ 1115 0074 00000000 		.4byte	.Lframe0
+ 1116 0078 10020000 		.4byte	.LFB5
+ 1117 007c D8000000 		.4byte	.LFE5-.LFB5
+ 1118 0080 44       		.byte	0x4
+ 1119              		.4byte	.LCFI12-.LFB5
+ 1120 0081 0D       		.byte	0xd
+ 1121 0082 0C       		.uleb128 0xc
+ 1122 0083 44       		.byte	0x4
+ 1123              		.4byte	.LCFI13-.LCFI12
+ 1124 0084 8E       		.byte	0x8e
+ 1125 0085 02       		.uleb128 0x2
+ 1126 0086 8D       		.byte	0x8d
+ 1127 0087 03       		.uleb128 0x3
+ 1128 0088 8B       		.byte	0x8b
+ 1129 0089 04       		.uleb128 0x4
+ 1130 008a 44       		.byte	0x4
+ 1131              		.4byte	.LCFI14-.LCFI13
+ 1132 008b 0C       		.byte	0xc
+ 1133 008c 0B       		.uleb128 0xb
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cclFX2kZ.s 			page 32
+
+
+ 1134 008d 04       		.uleb128 0x4
+ 1135 008e 0000     		.align	2
+ 1136              	.LEFDE6:
+ 1137              	.LSFDE8:
+ 1138 0090 1C000000 		.4byte	.LEFDE8-.LASFDE8
+ 1139              	.LASFDE8:
+ 1140 0094 00000000 		.4byte	.Lframe0
+ 1141 0098 E8020000 		.4byte	.LFB6
+ 1142 009c 68000000 		.4byte	.LFE6-.LFB6
+ 1143 00a0 44       		.byte	0x4
+ 1144              		.4byte	.LCFI16-.LFB6
+ 1145 00a1 0D       		.byte	0xd
+ 1146 00a2 0C       		.uleb128 0xc
+ 1147 00a3 44       		.byte	0x4
+ 1148              		.4byte	.LCFI17-.LCFI16
+ 1149 00a4 8E       		.byte	0x8e
+ 1150 00a5 02       		.uleb128 0x2
+ 1151 00a6 8D       		.byte	0x8d
+ 1152 00a7 03       		.uleb128 0x3
+ 1153 00a8 8B       		.byte	0x8b
+ 1154 00a9 04       		.uleb128 0x4
+ 1155 00aa 44       		.byte	0x4
+ 1156              		.4byte	.LCFI18-.LCFI17
+ 1157 00ab 0C       		.byte	0xc
+ 1158 00ac 0B       		.uleb128 0xb
+ 1159 00ad 04       		.uleb128 0x4
+ 1160 00ae 0000     		.align	2
+ 1161              	.LEFDE8:
+ 1162              	.LSFDE10:
+ 1163 00b0 1C000000 		.4byte	.LEFDE10-.LASFDE10
+ 1164              	.LASFDE10:
+ 1165 00b4 00000000 		.4byte	.Lframe0
+ 1166 00b8 50030000 		.4byte	.LFB7
+ 1167 00bc 84000000 		.4byte	.LFE7-.LFB7
+ 1168 00c0 44       		.byte	0x4
+ 1169              		.4byte	.LCFI19-.LFB7
+ 1170 00c1 0D       		.byte	0xd
+ 1171 00c2 0C       		.uleb128 0xc
+ 1172 00c3 44       		.byte	0x4
+ 1173              		.4byte	.LCFI20-.LCFI19
+ 1174 00c4 8E       		.byte	0x8e
+ 1175 00c5 02       		.uleb128 0x2
+ 1176 00c6 8D       		.byte	0x8d
+ 1177 00c7 03       		.uleb128 0x3
+ 1178 00c8 8B       		.byte	0x8b
+ 1179 00c9 04       		.uleb128 0x4
+ 1180 00ca 44       		.byte	0x4
+ 1181              		.4byte	.LCFI21-.LCFI20
+ 1182 00cb 0C       		.byte	0xc
+ 1183 00cc 0B       		.uleb128 0xb
+ 1184 00cd 04       		.uleb128 0x4
+ 1185 00ce 0000     		.align	2
+ 1186              	.LEFDE10:
+ 1187              	.LSFDE12:
+ 1188 00d0 1C000000 		.4byte	.LEFDE12-.LASFDE12
+ 1189              	.LASFDE12:
+ 1190 00d4 00000000 		.4byte	.Lframe0
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cclFX2kZ.s 			page 33
+
+
+ 1191 00d8 D4030000 		.4byte	.LFB8
+ 1192 00dc F8000000 		.4byte	.LFE8-.LFB8
+ 1193 00e0 44       		.byte	0x4
+ 1194              		.4byte	.LCFI23-.LFB8
+ 1195 00e1 0D       		.byte	0xd
+ 1196 00e2 0C       		.uleb128 0xc
+ 1197 00e3 44       		.byte	0x4
+ 1198              		.4byte	.LCFI24-.LCFI23
+ 1199 00e4 8E       		.byte	0x8e
+ 1200 00e5 02       		.uleb128 0x2
+ 1201 00e6 8D       		.byte	0x8d
+ 1202 00e7 03       		.uleb128 0x3
+ 1203 00e8 8B       		.byte	0x8b
+ 1204 00e9 04       		.uleb128 0x4
+ 1205 00ea 44       		.byte	0x4
+ 1206              		.4byte	.LCFI25-.LCFI24
+ 1207 00eb 0C       		.byte	0xc
+ 1208 00ec 0B       		.uleb128 0xb
+ 1209 00ed 04       		.uleb128 0x4
+ 1210 00ee 0000     		.align	2
+ 1211              	.LEFDE12:
+ 1212              	.LSFDE14:
+ 1213 00f0 1C000000 		.4byte	.LEFDE14-.LASFDE14
+ 1214              	.LASFDE14:
+ 1215 00f4 00000000 		.4byte	.Lframe0
+ 1216 00f8 CC040000 		.4byte	.LFB9
+ 1217 00fc 70000000 		.4byte	.LFE9-.LFB9
+ 1218 0100 44       		.byte	0x4
+ 1219              		.4byte	.LCFI27-.LFB9
+ 1220 0101 0D       		.byte	0xd
+ 1221 0102 0C       		.uleb128 0xc
+ 1222 0103 44       		.byte	0x4
+ 1223              		.4byte	.LCFI28-.LCFI27
+ 1224 0104 8E       		.byte	0x8e
+ 1225 0105 02       		.uleb128 0x2
+ 1226 0106 8D       		.byte	0x8d
+ 1227 0107 03       		.uleb128 0x3
+ 1228 0108 8B       		.byte	0x8b
+ 1229 0109 04       		.uleb128 0x4
+ 1230 010a 44       		.byte	0x4
+ 1231              		.4byte	.LCFI29-.LCFI28
+ 1232 010b 0C       		.byte	0xc
+ 1233 010c 0B       		.uleb128 0xb
+ 1234 010d 04       		.uleb128 0x4
+ 1235 010e 0000     		.align	2
+ 1236              	.LEFDE14:
+ 1237              	.LSFDE16:
+ 1238 0110 1C000000 		.4byte	.LEFDE16-.LASFDE16
+ 1239              	.LASFDE16:
+ 1240 0114 00000000 		.4byte	.Lframe0
+ 1241 0118 3C050000 		.4byte	.LFB10
+ 1242 011c 7C000000 		.4byte	.LFE10-.LFB10
+ 1243 0120 44       		.byte	0x4
+ 1244              		.4byte	.LCFI31-.LFB10
+ 1245 0121 0D       		.byte	0xd
+ 1246 0122 0C       		.uleb128 0xc
+ 1247 0123 44       		.byte	0x4
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cclFX2kZ.s 			page 34
+
+
+ 1248              		.4byte	.LCFI32-.LCFI31
+ 1249 0124 8E       		.byte	0x8e
+ 1250 0125 02       		.uleb128 0x2
+ 1251 0126 8D       		.byte	0x8d
+ 1252 0127 03       		.uleb128 0x3
+ 1253 0128 8B       		.byte	0x8b
+ 1254 0129 04       		.uleb128 0x4
+ 1255 012a 44       		.byte	0x4
+ 1256              		.4byte	.LCFI33-.LCFI32
+ 1257 012b 0C       		.byte	0xc
+ 1258 012c 0B       		.uleb128 0xb
+ 1259 012d 04       		.uleb128 0x4
+ 1260 012e 0000     		.align	2
+ 1261              	.LEFDE16:
+ 1262              	.LSFDE18:
+ 1263 0130 1C000000 		.4byte	.LEFDE18-.LASFDE18
+ 1264              	.LASFDE18:
+ 1265 0134 00000000 		.4byte	.Lframe0
+ 1266 0138 B8050000 		.4byte	.LFB11
+ 1267 013c 60010000 		.4byte	.LFE11-.LFB11
+ 1268 0140 44       		.byte	0x4
+ 1269              		.4byte	.LCFI35-.LFB11
+ 1270 0141 0D       		.byte	0xd
+ 1271 0142 0C       		.uleb128 0xc
+ 1272 0143 44       		.byte	0x4
+ 1273              		.4byte	.LCFI36-.LCFI35
+ 1274 0144 8E       		.byte	0x8e
+ 1275 0145 02       		.uleb128 0x2
+ 1276 0146 8D       		.byte	0x8d
+ 1277 0147 03       		.uleb128 0x3
+ 1278 0148 8B       		.byte	0x8b
+ 1279 0149 04       		.uleb128 0x4
+ 1280 014a 44       		.byte	0x4
+ 1281              		.4byte	.LCFI37-.LCFI36
+ 1282 014b 0C       		.byte	0xc
+ 1283 014c 0B       		.uleb128 0xb
+ 1284 014d 04       		.uleb128 0x4
+ 1285 014e 0000     		.align	2
+ 1286              	.LEFDE18:
+ 1287              	.LSFDE20:
+ 1288 0150 1C000000 		.4byte	.LEFDE20-.LASFDE20
+ 1289              	.LASFDE20:
+ 1290 0154 00000000 		.4byte	.Lframe0
+ 1291 0158 18070000 		.4byte	.LFB12
+ 1292 015c 10010000 		.4byte	.LFE12-.LFB12
+ 1293 0160 44       		.byte	0x4
+ 1294              		.4byte	.LCFI39-.LFB12
+ 1295 0161 0D       		.byte	0xd
+ 1296 0162 0C       		.uleb128 0xc
+ 1297 0163 44       		.byte	0x4
+ 1298              		.4byte	.LCFI40-.LCFI39
+ 1299 0164 8E       		.byte	0x8e
+ 1300 0165 02       		.uleb128 0x2
+ 1301 0166 8D       		.byte	0x8d
+ 1302 0167 03       		.uleb128 0x3
+ 1303 0168 8B       		.byte	0x8b
+ 1304 0169 04       		.uleb128 0x4
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cclFX2kZ.s 			page 35
+
+
+ 1305 016a 44       		.byte	0x4
+ 1306              		.4byte	.LCFI41-.LCFI40
+ 1307 016b 0C       		.byte	0xc
+ 1308 016c 0B       		.uleb128 0xb
+ 1309 016d 04       		.uleb128 0x4
+ 1310 016e 0000     		.align	2
+ 1311              	.LEFDE20:
+ 1312              	.LSFDE22:
+ 1313 0170 1C000000 		.4byte	.LEFDE22-.LASFDE22
+ 1314              	.LASFDE22:
+ 1315 0174 00000000 		.4byte	.Lframe0
+ 1316 0178 28080000 		.4byte	.LFB13
+ 1317 017c 8C010000 		.4byte	.LFE13-.LFB13
+ 1318 0180 44       		.byte	0x4
+ 1319              		.4byte	.LCFI43-.LFB13
+ 1320 0181 0D       		.byte	0xd
+ 1321 0182 0C       		.uleb128 0xc
+ 1322 0183 44       		.byte	0x4
+ 1323              		.4byte	.LCFI44-.LCFI43
+ 1324 0184 8E       		.byte	0x8e
+ 1325 0185 02       		.uleb128 0x2
+ 1326 0186 8D       		.byte	0x8d
+ 1327 0187 03       		.uleb128 0x3
+ 1328 0188 8B       		.byte	0x8b
+ 1329 0189 04       		.uleb128 0x4
+ 1330 018a 44       		.byte	0x4
+ 1331              		.4byte	.LCFI45-.LCFI44
+ 1332 018b 0C       		.byte	0xc
+ 1333 018c 0B       		.uleb128 0xb
+ 1334 018d 04       		.uleb128 0x4
+ 1335 018e 0000     		.align	2
+ 1336              	.LEFDE22:
+ 1337              		.text
+ 1338              	.Letext0:
+ 1339              		.section	.debug_loc,"",%progbits
+ 1340              	.Ldebug_loc0:
+ 1341              	.LLST0:
+ 1342 0000 00000000 		.4byte	.LFB2-.Ltext0
+ 1343 0004 04000000 		.4byte	.LCFI0-.Ltext0
+ 1344 0008 0100     		.2byte	0x1
+ 1345 000a 5D       		.byte	0x5d
+ 1346 000b 04000000 		.4byte	.LCFI0-.Ltext0
+ 1347 000f 0C000000 		.4byte	.LCFI2-.Ltext0
+ 1348 0013 0100     		.2byte	0x1
+ 1349 0015 5C       		.byte	0x5c
+ 1350 0016 0C000000 		.4byte	.LCFI2-.Ltext0
+ 1351 001a 4C000000 		.4byte	.LFE2-.Ltext0
+ 1352 001e 0200     		.2byte	0x2
+ 1353 0020 7B       		.byte	0x7b
+ 1354 0021 04       		.sleb128 4
+ 1355 0022 00000000 		.4byte	0x0
+ 1356 0026 00000000 		.4byte	0x0
+ 1357              	.LLST1:
+ 1358 002a 4C000000 		.4byte	.LFB3-.Ltext0
+ 1359 002e 50000000 		.4byte	.LCFI4-.Ltext0
+ 1360 0032 0100     		.2byte	0x1
+ 1361 0034 5D       		.byte	0x5d
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cclFX2kZ.s 			page 36
+
+
+ 1362 0035 50000000 		.4byte	.LCFI4-.Ltext0
+ 1363 0039 58000000 		.4byte	.LCFI6-.Ltext0
+ 1364 003d 0100     		.2byte	0x1
+ 1365 003f 5C       		.byte	0x5c
+ 1366 0040 58000000 		.4byte	.LCFI6-.Ltext0
+ 1367 0044 4C010000 		.4byte	.LFE3-.Ltext0
+ 1368 0048 0200     		.2byte	0x2
+ 1369 004a 7B       		.byte	0x7b
+ 1370 004b 04       		.sleb128 4
+ 1371 004c 00000000 		.4byte	0x0
+ 1372 0050 00000000 		.4byte	0x0
+ 1373              	.LLST2:
+ 1374 0054 4C010000 		.4byte	.LFB4-.Ltext0
+ 1375 0058 50010000 		.4byte	.LCFI8-.Ltext0
+ 1376 005c 0100     		.2byte	0x1
+ 1377 005e 5D       		.byte	0x5d
+ 1378 005f 50010000 		.4byte	.LCFI8-.Ltext0
+ 1379 0063 58010000 		.4byte	.LCFI10-.Ltext0
+ 1380 0067 0100     		.2byte	0x1
+ 1381 0069 5C       		.byte	0x5c
+ 1382 006a 58010000 		.4byte	.LCFI10-.Ltext0
+ 1383 006e 10020000 		.4byte	.LFE4-.Ltext0
+ 1384 0072 0200     		.2byte	0x2
+ 1385 0074 7B       		.byte	0x7b
+ 1386 0075 04       		.sleb128 4
+ 1387 0076 00000000 		.4byte	0x0
+ 1388 007a 00000000 		.4byte	0x0
+ 1389              	.LLST3:
+ 1390 007e 10020000 		.4byte	.LFB5-.Ltext0
+ 1391 0082 14020000 		.4byte	.LCFI12-.Ltext0
+ 1392 0086 0100     		.2byte	0x1
+ 1393 0088 5D       		.byte	0x5d
+ 1394 0089 14020000 		.4byte	.LCFI12-.Ltext0
+ 1395 008d 1C020000 		.4byte	.LCFI14-.Ltext0
+ 1396 0091 0100     		.2byte	0x1
+ 1397 0093 5C       		.byte	0x5c
+ 1398 0094 1C020000 		.4byte	.LCFI14-.Ltext0
+ 1399 0098 E8020000 		.4byte	.LFE5-.Ltext0
+ 1400 009c 0200     		.2byte	0x2
+ 1401 009e 7B       		.byte	0x7b
+ 1402 009f 04       		.sleb128 4
+ 1403 00a0 00000000 		.4byte	0x0
+ 1404 00a4 00000000 		.4byte	0x0
+ 1405              	.LLST4:
+ 1406 00a8 E8020000 		.4byte	.LFB6-.Ltext0
+ 1407 00ac EC020000 		.4byte	.LCFI16-.Ltext0
+ 1408 00b0 0100     		.2byte	0x1
+ 1409 00b2 5D       		.byte	0x5d
+ 1410 00b3 EC020000 		.4byte	.LCFI16-.Ltext0
+ 1411 00b7 F4020000 		.4byte	.LCFI18-.Ltext0
+ 1412 00bb 0100     		.2byte	0x1
+ 1413 00bd 5C       		.byte	0x5c
+ 1414 00be F4020000 		.4byte	.LCFI18-.Ltext0
+ 1415 00c2 50030000 		.4byte	.LFE6-.Ltext0
+ 1416 00c6 0200     		.2byte	0x2
+ 1417 00c8 7B       		.byte	0x7b
+ 1418 00c9 04       		.sleb128 4
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cclFX2kZ.s 			page 37
+
+
+ 1419 00ca 00000000 		.4byte	0x0
+ 1420 00ce 00000000 		.4byte	0x0
+ 1421              	.LLST5:
+ 1422 00d2 50030000 		.4byte	.LFB7-.Ltext0
+ 1423 00d6 54030000 		.4byte	.LCFI19-.Ltext0
+ 1424 00da 0100     		.2byte	0x1
+ 1425 00dc 5D       		.byte	0x5d
+ 1426 00dd 54030000 		.4byte	.LCFI19-.Ltext0
+ 1427 00e1 5C030000 		.4byte	.LCFI21-.Ltext0
+ 1428 00e5 0100     		.2byte	0x1
+ 1429 00e7 5C       		.byte	0x5c
+ 1430 00e8 5C030000 		.4byte	.LCFI21-.Ltext0
+ 1431 00ec D4030000 		.4byte	.LFE7-.Ltext0
+ 1432 00f0 0200     		.2byte	0x2
+ 1433 00f2 7B       		.byte	0x7b
+ 1434 00f3 04       		.sleb128 4
+ 1435 00f4 00000000 		.4byte	0x0
+ 1436 00f8 00000000 		.4byte	0x0
+ 1437              	.LLST6:
+ 1438 00fc D4030000 		.4byte	.LFB8-.Ltext0
+ 1439 0100 D8030000 		.4byte	.LCFI23-.Ltext0
+ 1440 0104 0100     		.2byte	0x1
+ 1441 0106 5D       		.byte	0x5d
+ 1442 0107 D8030000 		.4byte	.LCFI23-.Ltext0
+ 1443 010b E0030000 		.4byte	.LCFI25-.Ltext0
+ 1444 010f 0100     		.2byte	0x1
+ 1445 0111 5C       		.byte	0x5c
+ 1446 0112 E0030000 		.4byte	.LCFI25-.Ltext0
+ 1447 0116 CC040000 		.4byte	.LFE8-.Ltext0
+ 1448 011a 0200     		.2byte	0x2
+ 1449 011c 7B       		.byte	0x7b
+ 1450 011d 04       		.sleb128 4
+ 1451 011e 00000000 		.4byte	0x0
+ 1452 0122 00000000 		.4byte	0x0
+ 1453              	.LLST7:
+ 1454 0126 CC040000 		.4byte	.LFB9-.Ltext0
+ 1455 012a D0040000 		.4byte	.LCFI27-.Ltext0
+ 1456 012e 0100     		.2byte	0x1
+ 1457 0130 5D       		.byte	0x5d
+ 1458 0131 D0040000 		.4byte	.LCFI27-.Ltext0
+ 1459 0135 D8040000 		.4byte	.LCFI29-.Ltext0
+ 1460 0139 0100     		.2byte	0x1
+ 1461 013b 5C       		.byte	0x5c
+ 1462 013c D8040000 		.4byte	.LCFI29-.Ltext0
+ 1463 0140 3C050000 		.4byte	.LFE9-.Ltext0
+ 1464 0144 0200     		.2byte	0x2
+ 1465 0146 7B       		.byte	0x7b
+ 1466 0147 04       		.sleb128 4
+ 1467 0148 00000000 		.4byte	0x0
+ 1468 014c 00000000 		.4byte	0x0
+ 1469              	.LLST8:
+ 1470 0150 3C050000 		.4byte	.LFB10-.Ltext0
+ 1471 0154 40050000 		.4byte	.LCFI31-.Ltext0
+ 1472 0158 0100     		.2byte	0x1
+ 1473 015a 5D       		.byte	0x5d
+ 1474 015b 40050000 		.4byte	.LCFI31-.Ltext0
+ 1475 015f 48050000 		.4byte	.LCFI33-.Ltext0
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cclFX2kZ.s 			page 38
+
+
+ 1476 0163 0100     		.2byte	0x1
+ 1477 0165 5C       		.byte	0x5c
+ 1478 0166 48050000 		.4byte	.LCFI33-.Ltext0
+ 1479 016a B8050000 		.4byte	.LFE10-.Ltext0
+ 1480 016e 0200     		.2byte	0x2
+ 1481 0170 7B       		.byte	0x7b
+ 1482 0171 04       		.sleb128 4
+ 1483 0172 00000000 		.4byte	0x0
+ 1484 0176 00000000 		.4byte	0x0
+ 1485              	.LLST9:
+ 1486 017a B8050000 		.4byte	.LFB11-.Ltext0
+ 1487 017e BC050000 		.4byte	.LCFI35-.Ltext0
+ 1488 0182 0100     		.2byte	0x1
+ 1489 0184 5D       		.byte	0x5d
+ 1490 0185 BC050000 		.4byte	.LCFI35-.Ltext0
+ 1491 0189 C4050000 		.4byte	.LCFI37-.Ltext0
+ 1492 018d 0100     		.2byte	0x1
+ 1493 018f 5C       		.byte	0x5c
+ 1494 0190 C4050000 		.4byte	.LCFI37-.Ltext0
+ 1495 0194 18070000 		.4byte	.LFE11-.Ltext0
+ 1496 0198 0200     		.2byte	0x2
+ 1497 019a 7B       		.byte	0x7b
+ 1498 019b 04       		.sleb128 4
+ 1499 019c 00000000 		.4byte	0x0
+ 1500 01a0 00000000 		.4byte	0x0
+ 1501              	.LLST10:
+ 1502 01a4 18070000 		.4byte	.LFB12-.Ltext0
+ 1503 01a8 1C070000 		.4byte	.LCFI39-.Ltext0
+ 1504 01ac 0100     		.2byte	0x1
+ 1505 01ae 5D       		.byte	0x5d
+ 1506 01af 1C070000 		.4byte	.LCFI39-.Ltext0
+ 1507 01b3 24070000 		.4byte	.LCFI41-.Ltext0
+ 1508 01b7 0100     		.2byte	0x1
+ 1509 01b9 5C       		.byte	0x5c
+ 1510 01ba 24070000 		.4byte	.LCFI41-.Ltext0
+ 1511 01be 28080000 		.4byte	.LFE12-.Ltext0
+ 1512 01c2 0200     		.2byte	0x2
+ 1513 01c4 7B       		.byte	0x7b
+ 1514 01c5 04       		.sleb128 4
+ 1515 01c6 00000000 		.4byte	0x0
+ 1516 01ca 00000000 		.4byte	0x0
+ 1517              	.LLST11:
+ 1518 01ce 28080000 		.4byte	.LFB13-.Ltext0
+ 1519 01d2 2C080000 		.4byte	.LCFI43-.Ltext0
+ 1520 01d6 0100     		.2byte	0x1
+ 1521 01d8 5D       		.byte	0x5d
+ 1522 01d9 2C080000 		.4byte	.LCFI43-.Ltext0
+ 1523 01dd 34080000 		.4byte	.LCFI45-.Ltext0
+ 1524 01e1 0100     		.2byte	0x1
+ 1525 01e3 5C       		.byte	0x5c
+ 1526 01e4 34080000 		.4byte	.LCFI45-.Ltext0
+ 1527 01e8 B4090000 		.4byte	.LFE13-.Ltext0
+ 1528 01ec 0200     		.2byte	0x2
+ 1529 01ee 7B       		.byte	0x7b
+ 1530 01ef 04       		.sleb128 4
+ 1531 01f0 00000000 		.4byte	0x0
+ 1532 01f4 00000000 		.4byte	0x0
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cclFX2kZ.s 			page 39
+
+
+ 1533              		.section	.debug_info
+ 1534 0000 47040000 		.4byte	0x447
+ 1535 0004 0200     		.2byte	0x2
+ 1536 0006 00000000 		.4byte	.Ldebug_abbrev0
+ 1537 000a 04       		.byte	0x4
+ 1538 000b 01       		.uleb128 0x1
+ 1539 000c 00000000 		.4byte	.Ldebug_line0
+ 1540 0010 B4090000 		.4byte	.Letext0
+ 1541 0014 00000000 		.4byte	.Ltext0
+ 1542 0018 474E5520 		.ascii	"GNU C 4.1.1\000"
+ 1542      4320342E 
+ 1542      312E3100 
+ 1543 0024 01       		.byte	0x1
+ 1544 0025 6932632E 		.ascii	"i2c.c\000"
+ 1544      6300
+ 1545 002b 2F637967 		.ascii	"/cygdrive/c/ultraljudprojects/Project12/I2C\000"
+ 1545      64726976 
+ 1545      652F632F 
+ 1545      756C7472 
+ 1545      616C6A75 
+ 1546 0057 02       		.uleb128 0x2
+ 1547 0058 8E000000 		.4byte	0x8e
+ 1548 005c 01       		.byte	0x1
+ 1549 005d 69326343 		.ascii	"i2cCheckStatus\000"
+ 1549      6865636B 
+ 1549      53746174 
+ 1549      757300
+ 1550 006c 01       		.byte	0x1
+ 1551 006d 49       		.byte	0x49
+ 1552 006e 01       		.byte	0x1
+ 1553 006f 8E000000 		.4byte	0x8e
+ 1554 0073 00000000 		.4byte	.LFB2
+ 1555 0077 4C000000 		.4byte	.LFE2
+ 1556 007b 00000000 		.4byte	.LLST0
+ 1557 007f 03       		.uleb128 0x3
+ 1558 0080 00000000 		.4byte	.LASF0
+ 1559 0084 01       		.byte	0x1
+ 1560 0085 4A       		.byte	0x4a
+ 1561 0086 8E000000 		.4byte	0x8e
+ 1562 008a 02       		.byte	0x2
+ 1563 008b 91       		.byte	0x91
+ 1564 008c 6F       		.sleb128 -17
+ 1565 008d 00       		.byte	0x0
+ 1566 008e 04       		.uleb128 0x4
+ 1567 008f 756E7369 		.ascii	"unsigned char\000"
+ 1567      676E6564 
+ 1567      20636861 
+ 1567      7200
+ 1568 009d 01       		.byte	0x1
+ 1569 009e 08       		.byte	0x8
+ 1570 009f 05       		.uleb128 0x5
+ 1571 00a0 D4000000 		.4byte	0xd4
+ 1572 00a4 01       		.byte	0x1
+ 1573 00a5 69326349 		.ascii	"i2cInit\000"
+ 1573      6E697400 
+ 1574 00ad 01       		.byte	0x1
+ 1575 00ae 63       		.byte	0x63
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cclFX2kZ.s 			page 40
+
+
+ 1576 00af 01       		.byte	0x1
+ 1577 00b0 4C000000 		.4byte	.LFB3
+ 1578 00b4 4C010000 		.4byte	.LFE3
+ 1579 00b8 2A000000 		.4byte	.LLST1
+ 1580 00bc 06       		.uleb128 0x6
+ 1581 00bd 69326346 		.ascii	"i2cFrequency\000"
+ 1581      72657175 
+ 1581      656E6379 
+ 1581      00
+ 1582 00ca 01       		.byte	0x1
+ 1583 00cb 62       		.byte	0x62
+ 1584 00cc D4000000 		.4byte	0xd4
+ 1585 00d0 02       		.byte	0x2
+ 1586 00d1 91       		.byte	0x91
+ 1587 00d2 68       		.sleb128 -24
+ 1588 00d3 00       		.byte	0x0
+ 1589 00d4 04       		.uleb128 0x4
+ 1590 00d5 756E7369 		.ascii	"unsigned int\000"
+ 1590      676E6564 
+ 1590      20696E74 
+ 1590      00
+ 1591 00e2 04       		.byte	0x4
+ 1592 00e3 07       		.byte	0x7
+ 1593 00e4 02       		.uleb128 0x2
+ 1594 00e5 23010000 		.4byte	0x123
+ 1595 00e9 01       		.byte	0x1
+ 1596 00ea 69326353 		.ascii	"i2cStart\000"
+ 1596      74617274 
+ 1596      00
+ 1597 00f3 01       		.byte	0x1
+ 1598 00f4 83       		.byte	0x83
+ 1599 00f5 01       		.byte	0x1
+ 1600 00f6 23010000 		.4byte	0x123
+ 1601 00fa 4C010000 		.4byte	.LFB4
+ 1602 00fe 10020000 		.4byte	.LFE4
+ 1603 0102 54000000 		.4byte	.LLST2
+ 1604 0106 03       		.uleb128 0x3
+ 1605 0107 00000000 		.4byte	.LASF0
+ 1606 010b 01       		.byte	0x1
+ 1607 010c 84       		.byte	0x84
+ 1608 010d 8E000000 		.4byte	0x8e
+ 1609 0111 02       		.byte	0x2
+ 1610 0112 91       		.byte	0x91
+ 1611 0113 6E       		.sleb128 -18
+ 1612 0114 03       		.uleb128 0x3
+ 1613 0115 07000000 		.4byte	.LASF1
+ 1614 0119 01       		.byte	0x1
+ 1615 011a 85       		.byte	0x85
+ 1616 011b 23010000 		.4byte	0x123
+ 1617 011f 02       		.byte	0x2
+ 1618 0120 91       		.byte	0x91
+ 1619 0121 6F       		.sleb128 -17
+ 1620 0122 00       		.byte	0x0
+ 1621 0123 04       		.uleb128 0x4
+ 1622 0124 63686172 		.ascii	"char\000"
+ 1622      00
+ 1623 0129 01       		.byte	0x1
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cclFX2kZ.s 			page 41
+
+
+ 1624 012a 08       		.byte	0x8
+ 1625 012b 02       		.uleb128 0x2
+ 1626 012c 70010000 		.4byte	0x170
+ 1627 0130 01       		.byte	0x1
+ 1628 0131 69326352 		.ascii	"i2cRepeatStart\000"
+ 1628      65706561 
+ 1628      74537461 
+ 1628      727400
+ 1629 0140 01       		.byte	0x1
+ 1630 0141 B6       		.byte	0xb6
+ 1631 0142 01       		.byte	0x1
+ 1632 0143 23010000 		.4byte	0x123
+ 1633 0147 10020000 		.4byte	.LFB5
+ 1634 014b E8020000 		.4byte	.LFE5
+ 1635 014f 7E000000 		.4byte	.LLST3
+ 1636 0153 03       		.uleb128 0x3
+ 1637 0154 00000000 		.4byte	.LASF0
+ 1638 0158 01       		.byte	0x1
+ 1639 0159 B7       		.byte	0xb7
+ 1640 015a 8E000000 		.4byte	0x8e
+ 1641 015e 02       		.byte	0x2
+ 1642 015f 91       		.byte	0x91
+ 1643 0160 6E       		.sleb128 -18
+ 1644 0161 03       		.uleb128 0x3
+ 1645 0162 07000000 		.4byte	.LASF1
+ 1646 0166 01       		.byte	0x1
+ 1647 0167 B8       		.byte	0xb8
+ 1648 0168 23010000 		.4byte	0x123
+ 1649 016c 02       		.byte	0x2
+ 1650 016d 91       		.byte	0x91
+ 1651 016e 6F       		.sleb128 -17
+ 1652 016f 00       		.byte	0x0
+ 1653 0170 07       		.uleb128 0x7
+ 1654 0171 01       		.byte	0x1
+ 1655 0172 69326353 		.ascii	"i2cStop\000"
+ 1655      746F7000 
+ 1656 017a 01       		.byte	0x1
+ 1657 017b EA       		.byte	0xea
+ 1658 017c 01       		.byte	0x1
+ 1659 017d 23010000 		.4byte	0x123
+ 1660 0181 E8020000 		.4byte	.LFB6
+ 1661 0185 50030000 		.4byte	.LFE6
+ 1662 0189 A8000000 		.4byte	.LLST4
+ 1663 018d 08       		.uleb128 0x8
+ 1664 018e D2010000 		.4byte	0x1d2
+ 1665 0192 01       		.byte	0x1
+ 1666 0193 69326350 		.ascii	"i2cPutChar\000"
+ 1666      75744368 
+ 1666      617200
+ 1667 019e 01       		.byte	0x1
+ 1668 019f 0401     		.2byte	0x104
+ 1669 01a1 01       		.byte	0x1
+ 1670 01a2 23010000 		.4byte	0x123
+ 1671 01a6 50030000 		.4byte	.LFB7
+ 1672 01aa D4030000 		.4byte	.LFE7
+ 1673 01ae D2000000 		.4byte	.LLST5
+ 1674 01b2 09       		.uleb128 0x9
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cclFX2kZ.s 			page 42
+
+
+ 1675 01b3 64617461 		.ascii	"data\000"
+ 1675      00
+ 1676 01b8 01       		.byte	0x1
+ 1677 01b9 0301     		.2byte	0x103
+ 1678 01bb 8E000000 		.4byte	0x8e
+ 1679 01bf 02       		.byte	0x2
+ 1680 01c0 91       		.byte	0x91
+ 1681 01c1 68       		.sleb128 -24
+ 1682 01c2 0A       		.uleb128 0xa
+ 1683 01c3 07000000 		.4byte	.LASF1
+ 1684 01c7 01       		.byte	0x1
+ 1685 01c8 0501     		.2byte	0x105
+ 1686 01ca 23010000 		.4byte	0x123
+ 1687 01ce 02       		.byte	0x2
+ 1688 01cf 91       		.byte	0x91
+ 1689 01d0 6F       		.sleb128 -17
+ 1690 01d1 00       		.byte	0x0
+ 1691 01d2 08       		.uleb128 0x8
+ 1692 01d3 28020000 		.4byte	0x228
+ 1693 01d7 01       		.byte	0x1
+ 1694 01d8 69326347 		.ascii	"i2cGetChar\000"
+ 1694      65744368 
+ 1694      617200
+ 1695 01e3 01       		.byte	0x1
+ 1696 01e4 2D01     		.2byte	0x12d
+ 1697 01e6 01       		.byte	0x1
+ 1698 01e7 23010000 		.4byte	0x123
+ 1699 01eb D4030000 		.4byte	.LFB8
+ 1700 01ef CC040000 		.4byte	.LFE8
+ 1701 01f3 FC000000 		.4byte	.LLST6
+ 1702 01f7 09       		.uleb128 0x9
+ 1703 01f8 6D6F6465 		.ascii	"mode\000"
+ 1703      00
+ 1704 01fd 01       		.byte	0x1
+ 1705 01fe 2B01     		.2byte	0x12b
+ 1706 0200 8E000000 		.4byte	0x8e
+ 1707 0204 02       		.byte	0x2
+ 1708 0205 91       		.byte	0x91
+ 1709 0206 68       		.sleb128 -24
+ 1710 0207 09       		.uleb128 0x9
+ 1711 0208 70446174 		.ascii	"pData\000"
+ 1711      6100
+ 1712 020e 01       		.byte	0x1
+ 1713 020f 2C01     		.2byte	0x12c
+ 1714 0211 28020000 		.4byte	0x228
+ 1715 0215 02       		.byte	0x2
+ 1716 0216 91       		.byte	0x91
+ 1717 0217 64       		.sleb128 -28
+ 1718 0218 0A       		.uleb128 0xa
+ 1719 0219 07000000 		.4byte	.LASF1
+ 1720 021d 01       		.byte	0x1
+ 1721 021e 2E01     		.2byte	0x12e
+ 1722 0220 23010000 		.4byte	0x123
+ 1723 0224 02       		.byte	0x2
+ 1724 0225 91       		.byte	0x91
+ 1725 0226 6F       		.sleb128 -17
+ 1726 0227 00       		.byte	0x0
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cclFX2kZ.s 			page 43
+
+
+ 1727 0228 0B       		.uleb128 0xb
+ 1728 0229 04       		.byte	0x4
+ 1729 022a 8E000000 		.4byte	0x8e
+ 1730 022e 08       		.uleb128 0x8
+ 1731 022f 6D020000 		.4byte	0x26d
+ 1732 0233 01       		.byte	0x1
+ 1733 0234 69326357 		.ascii	"i2cWaitAfterTransmit\000"
+ 1733      61697441 
+ 1733      66746572 
+ 1733      5472616E 
+ 1733      736D6974 
+ 1734 0249 01       		.byte	0x1
+ 1735 024a 5C01     		.2byte	0x15c
+ 1736 024c 01       		.byte	0x1
+ 1737 024d 23010000 		.4byte	0x123
+ 1738 0251 CC040000 		.4byte	.LFB9
+ 1739 0255 3C050000 		.4byte	.LFE9
+ 1740 0259 26010000 		.4byte	.LLST7
+ 1741 025d 0A       		.uleb128 0xa
+ 1742 025e 00000000 		.4byte	.LASF0
+ 1743 0262 01       		.byte	0x1
+ 1744 0263 5D01     		.2byte	0x15d
+ 1745 0265 8E000000 		.4byte	0x8e
+ 1746 0269 02       		.byte	0x2
+ 1747 026a 91       		.byte	0x91
+ 1748 026b 6F       		.sleb128 -17
+ 1749 026c 00       		.byte	0x0
+ 1750 026d 08       		.uleb128 0x8
+ 1751 026e B9020000 		.4byte	0x2b9
+ 1752 0272 01       		.byte	0x1
+ 1753 0273 69326350 		.ascii	"i2cPutCharAndWait\000"
+ 1753      75744368 
+ 1753      6172416E 
+ 1753      64576169 
+ 1753      7400
+ 1754 0285 01       		.byte	0x1
+ 1755 0286 8901     		.2byte	0x189
+ 1756 0288 01       		.byte	0x1
+ 1757 0289 23010000 		.4byte	0x123
+ 1758 028d 3C050000 		.4byte	.LFB10
+ 1759 0291 B8050000 		.4byte	.LFE10
+ 1760 0295 50010000 		.4byte	.LLST8
+ 1761 0299 09       		.uleb128 0x9
+ 1762 029a 64617461 		.ascii	"data\000"
+ 1762      00
+ 1763 029f 01       		.byte	0x1
+ 1764 02a0 8801     		.2byte	0x188
+ 1765 02a2 8E000000 		.4byte	0x8e
+ 1766 02a6 02       		.byte	0x2
+ 1767 02a7 91       		.byte	0x91
+ 1768 02a8 68       		.sleb128 -24
+ 1769 02a9 0A       		.uleb128 0xa
+ 1770 02aa 07000000 		.4byte	.LASF1
+ 1771 02ae 01       		.byte	0x1
+ 1772 02af 8A01     		.2byte	0x18a
+ 1773 02b1 23010000 		.4byte	0x123
+ 1774 02b5 02       		.byte	0x2
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cclFX2kZ.s 			page 44
+
+
+ 1775 02b6 91       		.byte	0x91
+ 1776 02b7 6F       		.sleb128 -17
+ 1777 02b8 00       		.byte	0x0
+ 1778 02b9 08       		.uleb128 0x8
+ 1779 02ba 4E030000 		.4byte	0x34e
+ 1780 02be 01       		.byte	0x1
+ 1781 02bf 69326357 		.ascii	"i2cWrite\000"
+ 1781      72697465 
+ 1781      00
+ 1782 02c8 01       		.byte	0x1
+ 1783 02c9 B201     		.2byte	0x1b2
+ 1784 02cb 01       		.byte	0x1
+ 1785 02cc 23010000 		.4byte	0x123
+ 1786 02d0 B8050000 		.4byte	.LFB11
+ 1787 02d4 18070000 		.4byte	.LFE11
+ 1788 02d8 7A010000 		.4byte	.LLST9
+ 1789 02dc 09       		.uleb128 0x9
+ 1790 02dd 61646472 		.ascii	"addr\000"
+ 1790      00
+ 1791 02e2 01       		.byte	0x1
+ 1792 02e3 AD01     		.2byte	0x1ad
+ 1793 02e5 8E000000 		.4byte	0x8e
+ 1794 02e9 02       		.byte	0x2
+ 1795 02ea 91       		.byte	0x91
+ 1796 02eb 68       		.sleb128 -24
+ 1797 02ec 09       		.uleb128 0x9
+ 1798 02ed 65787472 		.ascii	"extraCmd\000"
+ 1798      61436D64 
+ 1798      00
+ 1799 02f6 01       		.byte	0x1
+ 1800 02f7 AE01     		.2byte	0x1ae
+ 1801 02f9 8E000000 		.4byte	0x8e
+ 1802 02fd 02       		.byte	0x2
+ 1803 02fe 91       		.byte	0x91
+ 1804 02ff 64       		.sleb128 -28
+ 1805 0300 09       		.uleb128 0x9
+ 1806 0301 65787472 		.ascii	"extra\000"
+ 1806      6100
+ 1807 0307 01       		.byte	0x1
+ 1808 0308 AF01     		.2byte	0x1af
+ 1809 030a 4E030000 		.4byte	0x34e
+ 1810 030e 02       		.byte	0x2
+ 1811 030f 91       		.byte	0x91
+ 1812 0310 60       		.sleb128 -32
+ 1813 0311 09       		.uleb128 0x9
+ 1814 0312 70446174 		.ascii	"pData\000"
+ 1814      6100
+ 1815 0318 01       		.byte	0x1
+ 1816 0319 B001     		.2byte	0x1b0
+ 1817 031b 28020000 		.4byte	0x228
+ 1818 031f 02       		.byte	0x2
+ 1819 0320 91       		.byte	0x91
+ 1820 0321 5C       		.sleb128 -36
+ 1821 0322 09       		.uleb128 0x9
+ 1822 0323 6C656E00 		.ascii	"len\000"
+ 1823 0327 01       		.byte	0x1
+ 1824 0328 B101     		.2byte	0x1b1
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cclFX2kZ.s 			page 45
+
+
+ 1825 032a 4E030000 		.4byte	0x34e
+ 1826 032e 02       		.byte	0x2
+ 1827 032f 91       		.byte	0x91
+ 1828 0330 58       		.sleb128 -40
+ 1829 0331 0A       		.uleb128 0xa
+ 1830 0332 07000000 		.4byte	.LASF1
+ 1831 0336 01       		.byte	0x1
+ 1832 0337 B301     		.2byte	0x1b3
+ 1833 0339 23010000 		.4byte	0x123
+ 1834 033d 02       		.byte	0x2
+ 1835 033e 91       		.byte	0x91
+ 1836 033f 6E       		.sleb128 -18
+ 1837 0340 0C       		.uleb128 0xc
+ 1838 0341 6900     		.ascii	"i\000"
+ 1839 0343 01       		.byte	0x1
+ 1840 0344 B401     		.2byte	0x1b4
+ 1841 0346 8E000000 		.4byte	0x8e
+ 1842 034a 02       		.byte	0x2
+ 1843 034b 91       		.byte	0x91
+ 1844 034c 6F       		.sleb128 -17
+ 1845 034d 00       		.byte	0x0
+ 1846 034e 04       		.uleb128 0x4
+ 1847 034f 73686F72 		.ascii	"short unsigned int\000"
+ 1847      7420756E 
+ 1847      7369676E 
+ 1847      65642069 
+ 1847      6E7400
+ 1848 0362 02       		.byte	0x2
+ 1849 0363 07       		.byte	0x7
+ 1850 0364 08       		.uleb128 0x8
+ 1851 0365 CC030000 		.4byte	0x3cc
+ 1852 0369 01       		.byte	0x1
+ 1853 036a 69326350 		.ascii	"i2cPoll\000"
+ 1853      6F6C6C00 
+ 1854 0372 01       		.byte	0x1
+ 1855 0373 EE01     		.2byte	0x1ee
+ 1856 0375 01       		.byte	0x1
+ 1857 0376 23010000 		.4byte	0x123
+ 1858 037a 18070000 		.4byte	.LFB12
+ 1859 037e 28080000 		.4byte	.LFE12
+ 1860 0382 A4010000 		.4byte	.LLST10
+ 1861 0386 09       		.uleb128 0x9
+ 1862 0387 61646472 		.ascii	"addr\000"
+ 1862      00
+ 1863 038c 01       		.byte	0x1
+ 1864 038d ED01     		.2byte	0x1ed
+ 1865 038f 8E000000 		.4byte	0x8e
+ 1866 0393 02       		.byte	0x2
+ 1867 0394 91       		.byte	0x91
+ 1868 0395 68       		.sleb128 -24
+ 1869 0396 0A       		.uleb128 0xa
+ 1870 0397 07000000 		.4byte	.LASF1
+ 1871 039b 01       		.byte	0x1
+ 1872 039c EF01     		.2byte	0x1ef
+ 1873 039e 23010000 		.4byte	0x123
+ 1874 03a2 02       		.byte	0x2
+ 1875 03a3 91       		.byte	0x91
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cclFX2kZ.s 			page 46
+
+
+ 1876 03a4 6E       		.sleb128 -18
+ 1877 03a5 0A       		.uleb128 0xa
+ 1878 03a6 00000000 		.4byte	.LASF0
+ 1879 03aa 01       		.byte	0x1
+ 1880 03ab F001     		.2byte	0x1f0
+ 1881 03ad 8E000000 		.4byte	0x8e
+ 1882 03b1 02       		.byte	0x2
+ 1883 03b2 91       		.byte	0x91
+ 1884 03b3 6F       		.sleb128 -17
+ 1885 03b4 0C       		.uleb128 0xc
+ 1886 03b5 64657669 		.ascii	"deviceReady\000"
+ 1886      63655265 
+ 1886      61647900 
+ 1887 03c1 01       		.byte	0x1
+ 1888 03c2 F101     		.2byte	0x1f1
+ 1889 03c4 CC030000 		.4byte	0x3cc
+ 1890 03c8 02       		.byte	0x2
+ 1891 03c9 91       		.byte	0x91
+ 1892 03ca 6D       		.sleb128 -19
+ 1893 03cb 00       		.byte	0x0
+ 1894 03cc 0D       		.uleb128 0xd
+ 1895 03cd 8E000000 		.4byte	0x8e
+ 1896 03d1 0E       		.uleb128 0xe
+ 1897 03d2 01       		.byte	0x1
+ 1898 03d3 69326352 		.ascii	"i2cRead\000"
+ 1898      65616400 
+ 1899 03db 01       		.byte	0x1
+ 1900 03dc 3702     		.2byte	0x237
+ 1901 03de 01       		.byte	0x1
+ 1902 03df 23010000 		.4byte	0x123
+ 1903 03e3 28080000 		.4byte	.LFB13
+ 1904 03e7 B4090000 		.4byte	.LFE13
+ 1905 03eb CE010000 		.4byte	.LLST11
+ 1906 03ef 09       		.uleb128 0x9
+ 1907 03f0 61646472 		.ascii	"addr\000"
+ 1907      00
+ 1908 03f5 01       		.byte	0x1
+ 1909 03f6 3402     		.2byte	0x234
+ 1910 03f8 8E000000 		.4byte	0x8e
+ 1911 03fc 02       		.byte	0x2
+ 1912 03fd 91       		.byte	0x91
+ 1913 03fe 68       		.sleb128 -24
+ 1914 03ff 09       		.uleb128 0x9
+ 1915 0400 70427566 		.ascii	"pBuf\000"
+ 1915      00
+ 1916 0405 01       		.byte	0x1
+ 1917 0406 3502     		.2byte	0x235
+ 1918 0408 28020000 		.4byte	0x228
+ 1919 040c 02       		.byte	0x2
+ 1920 040d 91       		.byte	0x91
+ 1921 040e 64       		.sleb128 -28
+ 1922 040f 09       		.uleb128 0x9
+ 1923 0410 6C656E00 		.ascii	"len\000"
+ 1924 0414 01       		.byte	0x1
+ 1925 0415 3602     		.2byte	0x236
+ 1926 0417 4E030000 		.4byte	0x34e
+ 1927 041b 02       		.byte	0x2
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cclFX2kZ.s 			page 47
+
+
+ 1928 041c 91       		.byte	0x91
+ 1929 041d 60       		.sleb128 -32
+ 1930 041e 0A       		.uleb128 0xa
+ 1931 041f 07000000 		.4byte	.LASF1
+ 1932 0423 01       		.byte	0x1
+ 1933 0424 3802     		.2byte	0x238
+ 1934 0426 23010000 		.4byte	0x123
+ 1935 042a 02       		.byte	0x2
+ 1936 042b 91       		.byte	0x91
+ 1937 042c 6D       		.sleb128 -19
+ 1938 042d 0A       		.uleb128 0xa
+ 1939 042e 00000000 		.4byte	.LASF0
+ 1940 0432 01       		.byte	0x1
+ 1941 0433 3902     		.2byte	0x239
+ 1942 0435 8E000000 		.4byte	0x8e
+ 1943 0439 02       		.byte	0x2
+ 1944 043a 91       		.byte	0x91
+ 1945 043b 6E       		.sleb128 -18
+ 1946 043c 0C       		.uleb128 0xc
+ 1947 043d 6900     		.ascii	"i\000"
+ 1948 043f 01       		.byte	0x1
+ 1949 0440 3A02     		.2byte	0x23a
+ 1950 0442 8E000000 		.4byte	0x8e
+ 1951 0446 02       		.byte	0x2
+ 1952 0447 91       		.byte	0x91
+ 1953 0448 6F       		.sleb128 -17
+ 1954 0449 00       		.byte	0x0
+ 1955 044a 00       		.byte	0x0
+ 1956              		.section	.debug_abbrev
+ 1957 0000 01       		.uleb128 0x1
+ 1958 0001 11       		.uleb128 0x11
+ 1959 0002 01       		.byte	0x1
+ 1960 0003 10       		.uleb128 0x10
+ 1961 0004 06       		.uleb128 0x6
+ 1962 0005 12       		.uleb128 0x12
+ 1963 0006 01       		.uleb128 0x1
+ 1964 0007 11       		.uleb128 0x11
+ 1965 0008 01       		.uleb128 0x1
+ 1966 0009 25       		.uleb128 0x25
+ 1967 000a 08       		.uleb128 0x8
+ 1968 000b 13       		.uleb128 0x13
+ 1969 000c 0B       		.uleb128 0xb
+ 1970 000d 03       		.uleb128 0x3
+ 1971 000e 08       		.uleb128 0x8
+ 1972 000f 1B       		.uleb128 0x1b
+ 1973 0010 08       		.uleb128 0x8
+ 1974 0011 00       		.byte	0x0
+ 1975 0012 00       		.byte	0x0
+ 1976 0013 02       		.uleb128 0x2
+ 1977 0014 2E       		.uleb128 0x2e
+ 1978 0015 01       		.byte	0x1
+ 1979 0016 01       		.uleb128 0x1
+ 1980 0017 13       		.uleb128 0x13
+ 1981 0018 3F       		.uleb128 0x3f
+ 1982 0019 0C       		.uleb128 0xc
+ 1983 001a 03       		.uleb128 0x3
+ 1984 001b 08       		.uleb128 0x8
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cclFX2kZ.s 			page 48
+
+
+ 1985 001c 3A       		.uleb128 0x3a
+ 1986 001d 0B       		.uleb128 0xb
+ 1987 001e 3B       		.uleb128 0x3b
+ 1988 001f 0B       		.uleb128 0xb
+ 1989 0020 27       		.uleb128 0x27
+ 1990 0021 0C       		.uleb128 0xc
+ 1991 0022 49       		.uleb128 0x49
+ 1992 0023 13       		.uleb128 0x13
+ 1993 0024 11       		.uleb128 0x11
+ 1994 0025 01       		.uleb128 0x1
+ 1995 0026 12       		.uleb128 0x12
+ 1996 0027 01       		.uleb128 0x1
+ 1997 0028 40       		.uleb128 0x40
+ 1998 0029 06       		.uleb128 0x6
+ 1999 002a 00       		.byte	0x0
+ 2000 002b 00       		.byte	0x0
+ 2001 002c 03       		.uleb128 0x3
+ 2002 002d 34       		.uleb128 0x34
+ 2003 002e 00       		.byte	0x0
+ 2004 002f 03       		.uleb128 0x3
+ 2005 0030 0E       		.uleb128 0xe
+ 2006 0031 3A       		.uleb128 0x3a
+ 2007 0032 0B       		.uleb128 0xb
+ 2008 0033 3B       		.uleb128 0x3b
+ 2009 0034 0B       		.uleb128 0xb
+ 2010 0035 49       		.uleb128 0x49
+ 2011 0036 13       		.uleb128 0x13
+ 2012 0037 02       		.uleb128 0x2
+ 2013 0038 0A       		.uleb128 0xa
+ 2014 0039 00       		.byte	0x0
+ 2015 003a 00       		.byte	0x0
+ 2016 003b 04       		.uleb128 0x4
+ 2017 003c 24       		.uleb128 0x24
+ 2018 003d 00       		.byte	0x0
+ 2019 003e 03       		.uleb128 0x3
+ 2020 003f 08       		.uleb128 0x8
+ 2021 0040 0B       		.uleb128 0xb
+ 2022 0041 0B       		.uleb128 0xb
+ 2023 0042 3E       		.uleb128 0x3e
+ 2024 0043 0B       		.uleb128 0xb
+ 2025 0044 00       		.byte	0x0
+ 2026 0045 00       		.byte	0x0
+ 2027 0046 05       		.uleb128 0x5
+ 2028 0047 2E       		.uleb128 0x2e
+ 2029 0048 01       		.byte	0x1
+ 2030 0049 01       		.uleb128 0x1
+ 2031 004a 13       		.uleb128 0x13
+ 2032 004b 3F       		.uleb128 0x3f
+ 2033 004c 0C       		.uleb128 0xc
+ 2034 004d 03       		.uleb128 0x3
+ 2035 004e 08       		.uleb128 0x8
+ 2036 004f 3A       		.uleb128 0x3a
+ 2037 0050 0B       		.uleb128 0xb
+ 2038 0051 3B       		.uleb128 0x3b
+ 2039 0052 0B       		.uleb128 0xb
+ 2040 0053 27       		.uleb128 0x27
+ 2041 0054 0C       		.uleb128 0xc
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cclFX2kZ.s 			page 49
+
+
+ 2042 0055 11       		.uleb128 0x11
+ 2043 0056 01       		.uleb128 0x1
+ 2044 0057 12       		.uleb128 0x12
+ 2045 0058 01       		.uleb128 0x1
+ 2046 0059 40       		.uleb128 0x40
+ 2047 005a 06       		.uleb128 0x6
+ 2048 005b 00       		.byte	0x0
+ 2049 005c 00       		.byte	0x0
+ 2050 005d 06       		.uleb128 0x6
+ 2051 005e 05       		.uleb128 0x5
+ 2052 005f 00       		.byte	0x0
+ 2053 0060 03       		.uleb128 0x3
+ 2054 0061 08       		.uleb128 0x8
+ 2055 0062 3A       		.uleb128 0x3a
+ 2056 0063 0B       		.uleb128 0xb
+ 2057 0064 3B       		.uleb128 0x3b
+ 2058 0065 0B       		.uleb128 0xb
+ 2059 0066 49       		.uleb128 0x49
+ 2060 0067 13       		.uleb128 0x13
+ 2061 0068 02       		.uleb128 0x2
+ 2062 0069 0A       		.uleb128 0xa
+ 2063 006a 00       		.byte	0x0
+ 2064 006b 00       		.byte	0x0
+ 2065 006c 07       		.uleb128 0x7
+ 2066 006d 2E       		.uleb128 0x2e
+ 2067 006e 00       		.byte	0x0
+ 2068 006f 3F       		.uleb128 0x3f
+ 2069 0070 0C       		.uleb128 0xc
+ 2070 0071 03       		.uleb128 0x3
+ 2071 0072 08       		.uleb128 0x8
+ 2072 0073 3A       		.uleb128 0x3a
+ 2073 0074 0B       		.uleb128 0xb
+ 2074 0075 3B       		.uleb128 0x3b
+ 2075 0076 0B       		.uleb128 0xb
+ 2076 0077 27       		.uleb128 0x27
+ 2077 0078 0C       		.uleb128 0xc
+ 2078 0079 49       		.uleb128 0x49
+ 2079 007a 13       		.uleb128 0x13
+ 2080 007b 11       		.uleb128 0x11
+ 2081 007c 01       		.uleb128 0x1
+ 2082 007d 12       		.uleb128 0x12
+ 2083 007e 01       		.uleb128 0x1
+ 2084 007f 40       		.uleb128 0x40
+ 2085 0080 06       		.uleb128 0x6
+ 2086 0081 00       		.byte	0x0
+ 2087 0082 00       		.byte	0x0
+ 2088 0083 08       		.uleb128 0x8
+ 2089 0084 2E       		.uleb128 0x2e
+ 2090 0085 01       		.byte	0x1
+ 2091 0086 01       		.uleb128 0x1
+ 2092 0087 13       		.uleb128 0x13
+ 2093 0088 3F       		.uleb128 0x3f
+ 2094 0089 0C       		.uleb128 0xc
+ 2095 008a 03       		.uleb128 0x3
+ 2096 008b 08       		.uleb128 0x8
+ 2097 008c 3A       		.uleb128 0x3a
+ 2098 008d 0B       		.uleb128 0xb
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cclFX2kZ.s 			page 50
+
+
+ 2099 008e 3B       		.uleb128 0x3b
+ 2100 008f 05       		.uleb128 0x5
+ 2101 0090 27       		.uleb128 0x27
+ 2102 0091 0C       		.uleb128 0xc
+ 2103 0092 49       		.uleb128 0x49
+ 2104 0093 13       		.uleb128 0x13
+ 2105 0094 11       		.uleb128 0x11
+ 2106 0095 01       		.uleb128 0x1
+ 2107 0096 12       		.uleb128 0x12
+ 2108 0097 01       		.uleb128 0x1
+ 2109 0098 40       		.uleb128 0x40
+ 2110 0099 06       		.uleb128 0x6
+ 2111 009a 00       		.byte	0x0
+ 2112 009b 00       		.byte	0x0
+ 2113 009c 09       		.uleb128 0x9
+ 2114 009d 05       		.uleb128 0x5
+ 2115 009e 00       		.byte	0x0
+ 2116 009f 03       		.uleb128 0x3
+ 2117 00a0 08       		.uleb128 0x8
+ 2118 00a1 3A       		.uleb128 0x3a
+ 2119 00a2 0B       		.uleb128 0xb
+ 2120 00a3 3B       		.uleb128 0x3b
+ 2121 00a4 05       		.uleb128 0x5
+ 2122 00a5 49       		.uleb128 0x49
+ 2123 00a6 13       		.uleb128 0x13
+ 2124 00a7 02       		.uleb128 0x2
+ 2125 00a8 0A       		.uleb128 0xa
+ 2126 00a9 00       		.byte	0x0
+ 2127 00aa 00       		.byte	0x0
+ 2128 00ab 0A       		.uleb128 0xa
+ 2129 00ac 34       		.uleb128 0x34
+ 2130 00ad 00       		.byte	0x0
+ 2131 00ae 03       		.uleb128 0x3
+ 2132 00af 0E       		.uleb128 0xe
+ 2133 00b0 3A       		.uleb128 0x3a
+ 2134 00b1 0B       		.uleb128 0xb
+ 2135 00b2 3B       		.uleb128 0x3b
+ 2136 00b3 05       		.uleb128 0x5
+ 2137 00b4 49       		.uleb128 0x49
+ 2138 00b5 13       		.uleb128 0x13
+ 2139 00b6 02       		.uleb128 0x2
+ 2140 00b7 0A       		.uleb128 0xa
+ 2141 00b8 00       		.byte	0x0
+ 2142 00b9 00       		.byte	0x0
+ 2143 00ba 0B       		.uleb128 0xb
+ 2144 00bb 0F       		.uleb128 0xf
+ 2145 00bc 00       		.byte	0x0
+ 2146 00bd 0B       		.uleb128 0xb
+ 2147 00be 0B       		.uleb128 0xb
+ 2148 00bf 49       		.uleb128 0x49
+ 2149 00c0 13       		.uleb128 0x13
+ 2150 00c1 00       		.byte	0x0
+ 2151 00c2 00       		.byte	0x0
+ 2152 00c3 0C       		.uleb128 0xc
+ 2153 00c4 34       		.uleb128 0x34
+ 2154 00c5 00       		.byte	0x0
+ 2155 00c6 03       		.uleb128 0x3
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cclFX2kZ.s 			page 51
+
+
+ 2156 00c7 08       		.uleb128 0x8
+ 2157 00c8 3A       		.uleb128 0x3a
+ 2158 00c9 0B       		.uleb128 0xb
+ 2159 00ca 3B       		.uleb128 0x3b
+ 2160 00cb 05       		.uleb128 0x5
+ 2161 00cc 49       		.uleb128 0x49
+ 2162 00cd 13       		.uleb128 0x13
+ 2163 00ce 02       		.uleb128 0x2
+ 2164 00cf 0A       		.uleb128 0xa
+ 2165 00d0 00       		.byte	0x0
+ 2166 00d1 00       		.byte	0x0
+ 2167 00d2 0D       		.uleb128 0xd
+ 2168 00d3 35       		.uleb128 0x35
+ 2169 00d4 00       		.byte	0x0
+ 2170 00d5 49       		.uleb128 0x49
+ 2171 00d6 13       		.uleb128 0x13
+ 2172 00d7 00       		.byte	0x0
+ 2173 00d8 00       		.byte	0x0
+ 2174 00d9 0E       		.uleb128 0xe
+ 2175 00da 2E       		.uleb128 0x2e
+ 2176 00db 01       		.byte	0x1
+ 2177 00dc 3F       		.uleb128 0x3f
+ 2178 00dd 0C       		.uleb128 0xc
+ 2179 00de 03       		.uleb128 0x3
+ 2180 00df 08       		.uleb128 0x8
+ 2181 00e0 3A       		.uleb128 0x3a
+ 2182 00e1 0B       		.uleb128 0xb
+ 2183 00e2 3B       		.uleb128 0x3b
+ 2184 00e3 05       		.uleb128 0x5
+ 2185 00e4 27       		.uleb128 0x27
+ 2186 00e5 0C       		.uleb128 0xc
+ 2187 00e6 49       		.uleb128 0x49
+ 2188 00e7 13       		.uleb128 0x13
+ 2189 00e8 11       		.uleb128 0x11
+ 2190 00e9 01       		.uleb128 0x1
+ 2191 00ea 12       		.uleb128 0x12
+ 2192 00eb 01       		.uleb128 0x1
+ 2193 00ec 40       		.uleb128 0x40
+ 2194 00ed 06       		.uleb128 0x6
+ 2195 00ee 00       		.byte	0x0
+ 2196 00ef 00       		.byte	0x0
+ 2197 00f0 00       		.byte	0x0
+ 2198              		.section	.debug_pubnames,"",%progbits
+ 2199 0000 CB000000 		.4byte	0xcb
+ 2200 0004 0200     		.2byte	0x2
+ 2201 0006 00000000 		.4byte	.Ldebug_info0
+ 2202 000a 4B040000 		.4byte	0x44b
+ 2203 000e 57000000 		.4byte	0x57
+ 2204 0012 69326343 		.ascii	"i2cCheckStatus\000"
+ 2204      6865636B 
+ 2204      53746174 
+ 2204      757300
+ 2205 0021 9F000000 		.4byte	0x9f
+ 2206 0025 69326349 		.ascii	"i2cInit\000"
+ 2206      6E697400 
+ 2207 002d E4000000 		.4byte	0xe4
+ 2208 0031 69326353 		.ascii	"i2cStart\000"
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cclFX2kZ.s 			page 52
+
+
+ 2208      74617274 
+ 2208      00
+ 2209 003a 2B010000 		.4byte	0x12b
+ 2210 003e 69326352 		.ascii	"i2cRepeatStart\000"
+ 2210      65706561 
+ 2210      74537461 
+ 2210      727400
+ 2211 004d 70010000 		.4byte	0x170
+ 2212 0051 69326353 		.ascii	"i2cStop\000"
+ 2212      746F7000 
+ 2213 0059 8D010000 		.4byte	0x18d
+ 2214 005d 69326350 		.ascii	"i2cPutChar\000"
+ 2214      75744368 
+ 2214      617200
+ 2215 0068 D2010000 		.4byte	0x1d2
+ 2216 006c 69326347 		.ascii	"i2cGetChar\000"
+ 2216      65744368 
+ 2216      617200
+ 2217 0077 2E020000 		.4byte	0x22e
+ 2218 007b 69326357 		.ascii	"i2cWaitAfterTransmit\000"
+ 2218      61697441 
+ 2218      66746572 
+ 2218      5472616E 
+ 2218      736D6974 
+ 2219 0090 6D020000 		.4byte	0x26d
+ 2220 0094 69326350 		.ascii	"i2cPutCharAndWait\000"
+ 2220      75744368 
+ 2220      6172416E 
+ 2220      64576169 
+ 2220      7400
+ 2221 00a6 B9020000 		.4byte	0x2b9
+ 2222 00aa 69326357 		.ascii	"i2cWrite\000"
+ 2222      72697465 
+ 2222      00
+ 2223 00b3 64030000 		.4byte	0x364
+ 2224 00b7 69326350 		.ascii	"i2cPoll\000"
+ 2224      6F6C6C00 
+ 2225 00bf D1030000 		.4byte	0x3d1
+ 2226 00c3 69326352 		.ascii	"i2cRead\000"
+ 2226      65616400 
+ 2227 00cb 00000000 		.4byte	0x0
+ 2228              		.section	.debug_aranges,"",%progbits
+ 2229 0000 1C000000 		.4byte	0x1c
+ 2230 0004 0200     		.2byte	0x2
+ 2231 0006 00000000 		.4byte	.Ldebug_info0
+ 2232 000a 04       		.byte	0x4
+ 2233 000b 00       		.byte	0x0
+ 2234 000c 0000     		.2byte	0x0
+ 2235 000e 0000     		.2byte	0x0
+ 2236 0010 00000000 		.4byte	.Ltext0
+ 2237 0014 B4090000 		.4byte	.Letext0-.Ltext0
+ 2238 0018 00000000 		.4byte	0x0
+ 2239 001c 00000000 		.4byte	0x0
+ 2240              		.section	.debug_str,"",%progbits
+ 2241              	.LASF0:
+ 2242 0000 73746174 		.ascii	"status\000"
+ 2242      757300
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cclFX2kZ.s 			page 53
+
+
+ 2243              	.LASF1:
+ 2244 0007 72657443 		.ascii	"retCode\000"
+ 2244      6F646500 
+ 2245              		.ident	"GCC: (GNU) 4.1.1"
+ARM GAS  /cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cclFX2kZ.s 			page 54
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 i2c.c
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cclFX2kZ.s:13     .text:00000000 i2cCheckStatus
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cclFX2kZ.s:20     .text:00000000 $a
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cclFX2kZ.s:54     .text:0000004c i2cInit
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cclFX2kZ.s:144    .text:0000014c i2cStart
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cclFX2kZ.s:228    .text:00000210 i2cRepeatStart
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cclFX2kZ.s:318    .text:000002e8 i2cStop
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cclFX2kZ.s:364    .text:00000350 i2cPutChar
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cclFX2kZ.s:422    .text:000003d4 i2cGetChar
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cclFX2kZ.s:516    .text:000004cc i2cWaitAfterTransmit
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cclFX2kZ.s:571    .text:0000053c i2cPutCharAndWait
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cclFX2kZ.s:628    .text:000005b8 i2cWrite
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cclFX2kZ.s:756    .text:00000718 i2cPoll
+/cygdrive/c/DOCUME~1/deforce/LOKALA~1/Temp/cclFX2kZ.s:870    .text:00000828 i2cRead
+
+UNDEFINED SYMBOLS
+__udivsi3
