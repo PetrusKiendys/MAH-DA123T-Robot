@@ -1,19 +1,17 @@
 // TODO: rewrite this file as a lib that can be used by other processes and interrupts
-// TODO: verify that EINT0 and EINT3 (also VIC) is correctly implemented!
+// TODO: make a clearer separation between init functions and other functions
 
 /******************************************************************************
  *
  * Copyright:
  *    (C) 2005 Embedded Artists AB
+ *    QUESTION: modified EA code belongs to EA?
  *
  * File:
- *    main.c
+ *    motor.c
  *
  * Description:
- *    Sample application that demonstrates how to generate a PWM signal
- *    with a fixed frequency and varying duty cycle.
- *    This feature can for example be used to generate an analogue signal
- *    if the PWM signal is low pass filtered.
+ *    ...
  *
  *****************************************************************************/
 
@@ -53,9 +51,9 @@
 						// mode 6 - Brake, No Current Control		 (not implemented)
 //#define MODE2	1
 
-#define FORWARD		1
-#define BACKWARD	2
-#define BRAKE		3
+#define MODE_FORWARD		1
+#define MODE_BACKWARD	2
+#define MODE_BRAKE		3
 
 #define RUN_SETPWM_IN_LOOP	1	// dictates whether setPwmDutyPercentx(tU32) should be run outside the "TASK conditional statement"
 
@@ -71,7 +69,6 @@ static tU32 duty2;
 static void initPwm(tU32 initialFreqValue);
 static void setPwmDutyPercent1(tU32 dutyValue1);
 static void setPwmDutyPercent2(tU32 dutyValue2);
-static void delayMs(tU16 delayInMs);
 void setMode1(short mode);
 void setMode2(short mode);
 void init_io(void);
@@ -84,9 +81,9 @@ void change_mode(short mode);
 //----------- end of DEV functions -----------//
 void delay_millis(long ms);
 
-/*****************************************************************************
- * Implementation of local functions
- ****************************************************************************/
+
+
+
 
 /*****************************************************************************
  *
@@ -142,36 +139,7 @@ static void setPwmDutyPercent2(tU32 dutyValue2)
 
   // TODO: verify that this function is correctly implemented!
 }
-/*****************************************************************************
- *
- * Description:
- *    Delay execution by a specified number of milliseconds by using
- *    timer #1. A polled implementation.
- *
- * Params:
- *    [in] delayInMs - the number of milliseconds to delay.
- *
- ****************************************************************************/
-static void delayMs(tU16 delayInMs)
-{
-  /*
-   * setup timer #1 for delay
-   */
-  TIMER1_TCR = 0x02;          //stop and reset timer
-  TIMER1_PR  = 0x00;          //set prescaler to zero
-  TIMER1_MR0 = delayInMs * ((CRYSTAL_FREQUENCY * PLL_FACTOR)/ (1000 * VPBDIV_FACTOR));
-  TIMER1_IR  = 0xff;          //reset all interrrupt flags
-  TIMER1_MCR = 0x04;          //stop timer on match
-  TIMER1_TCR = 0x01;          //start timer
-  
-  //wait until delay time has elapsed
-  while (TIMER1_TCR & 0x01)
-    ;
-}
 
-/*****************************************************************************
- * Implementation of public functions
- ****************************************************************************/
 
 /*****************************************************************************
  *
@@ -364,8 +332,8 @@ void init() {
 	init_vic();
 
 	//set modes for UT1 and UT2 outputs
-	setMode1(FORWARD);
-	setMode2(FORWARD);
+	setMode1(MODE_FORWARD);
+	setMode2(MODE_FORWARD);
 
 	// initialize EINT (external interrupts)
 	init_EINT0();
@@ -453,8 +421,8 @@ void dev_run(tU32 duty1, tU32 duty2) {
 			short section[3] = { 1, 0, 0 };
 
 			if (section[0] == 1) {
-				setMode1(FORWARD);
-				setMode2(FORWARD);
+				setMode1(MODE_FORWARD);
+				setMode2(MODE_FORWARD);
 				duty1 = duty_vals;
 				duty2 = duty_vals;
 				setPwmDutyPercent1(duty1);
@@ -464,16 +432,16 @@ void dev_run(tU32 duty1, tU32 duty2) {
 			}
 
 			if (section[1] == 1) {
-				setMode1(BRAKE);
-				setMode2(BRAKE);
+				setMode1(MODE_BRAKE);
+				setMode2(MODE_BRAKE);
 				setPwmDutyPercent1(duty1);
 				setPwmDutyPercent2(duty2);
 				delay_millis(delay);
 			}
 
 			if (section[2] == 1) {
-				setMode1(BACKWARD);
-				setMode2(BACKWARD);
+				setMode1(MODE_BACKWARD);
+				setMode2(MODE_BACKWARD);
 				duty1 = duty_vals;
 				duty2 = duty_vals;
 				setPwmDutyPercent1(duty1);
@@ -496,8 +464,8 @@ void dev_run(tU32 duty1, tU32 duty2) {
 		case 8: {
 
 
-			setMode1(FORWARD);
-			setMode2(FORWARD);
+			setMode1(MODE_FORWARD);
+			setMode2(MODE_FORWARD);
 
 			delay_millis(700);
 
@@ -505,8 +473,8 @@ void dev_run(tU32 duty1, tU32 duty2) {
 			duty2 = 7000;
 
 
-			setMode1(BACKWARD);
-			setMode2(BACKWARD);
+			setMode1(MODE_BACKWARD);
+			setMode2(MODE_BACKWARD);
 
 			delay_millis(700);
 
@@ -530,11 +498,10 @@ void dev_run(tU32 duty1, tU32 duty2) {
  * Temporary developer functions
  ****************************************************************************/
 void pwm_motor_init() {
-	setMode1(FORWARD);
-	setMode2(FORWARD);
+	setMode1(MODE_FORWARD);
+	setMode2(MODE_FORWARD);
 
-	delayMs(10);
-	//delay_millis(10);
+	delay_millis(10);
 }
 
 void pwm_motor_run(tU32 duty1, tU32 duty2) {
@@ -542,16 +509,15 @@ void pwm_motor_run(tU32 duty1, tU32 duty2) {
 	setPwmDutyPercent2(duty2);
 
 	while(1) {
-		change_mode(FORWARD);
-		change_mode(BRAKE);
-		change_mode(BACKWARD);
-		change_mode(BRAKE);
+		change_mode(MODE_FORWARD);
+		change_mode(MODE_BRAKE);
+		change_mode(MODE_BACKWARD);
+		change_mode(MODE_BRAKE);
 	}
 }
 
 void change_mode(short mode) {
 	setMode1(mode);
 	setMode2(mode);
-	delayMs(10);
-	//delay_millis(10);
+	delay_millis(10);
 }
