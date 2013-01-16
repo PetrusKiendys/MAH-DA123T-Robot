@@ -6,10 +6,7 @@
  */
 
 /*****************************************************************************
- *
- *    Exempel 1
- *
- *
+ * Process 1
  ****************************************************************************/
 #include "pre_emptive_os/api/osapi.h"
 #include "general.h"
@@ -20,43 +17,44 @@
 #include "startup/config.h"
 #include "startup/framework.h"
 
+#include "utils/utils.c"
 #include "LCD/LCD.h"  //  Funktionsprototyper för LCD-rutinerna
+#include "motor/motor.c"
 
 extern long const delayshort;
 extern long const delaylong;
 
 extern tCntSem mutexLCD;
 
+/*****************************************************************************
+ * Function prototypes
+ ****************************************************************************/
+void LCD_clearDisplay(void);
 
+/****************************************************************************/
 
 void
 procEx1(void* arg)
 {
   tU8 error;
 
-  for(;;)
-  {
-// Exempelkod för att visa hur flera processer kan dela på LCD
+	for (;;) {	// QUESTION: why use for-loop?
 
-   osSemTake(&mutexLCD, 0, &error);
+		osSemTake(&mutexLCD, 0, &error);
 
+		//LCD_clearDisplay();
+		runPwm();
+
+		osSemGive(&mutexLCD, &error);
+
+		osSleep(100);		// this process is not so sleepy, it's a very active process!
+	}
+
+}
+
+void LCD_clearDisplay(void) {
 	delay(delayshort);
 	send_instruction(1);	//cleara displayen
 	delay(delaylong);
-	send_instruction(2);  //cursorn till första positionen
-	delay(delaylong);
-    send_character('E');
-    delay(delayshort);
-    send_character('x');
-    delay(delayshort);
-
-    send_character('1');
-
-    osSleep(300);		// för att infon säkert skall hinna synas
-
-    osSemGive(&mutexLCD, &error);
-
-
-    osSleep(1000);
-  }
+	send_instruction(2);  	//cursorn till första positionen
 }

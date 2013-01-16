@@ -9,7 +9,6 @@ ifeq (true, $(LIBRARY_MK))
 TARGET     = $(NAME).a
 endif
 
-
 ifeq ($(origin TARGET), undefined)
 .PHONY: error_message
 error_message:

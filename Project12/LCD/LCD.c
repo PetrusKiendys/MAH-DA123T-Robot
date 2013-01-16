@@ -15,14 +15,6 @@
 
 #include "../startup/lpc2xxx.h"
 
-/* Med CCLK=60 MHz ger denna rutin en delay på pulses*66,666 ns + anropstiden */
-
-void delay(long pulses)
-{
-	asm("wait:   SUBS R0, R0, #1");
-	asm("BNE wait");
-}
-
 
 #define	data_pins	0x00FF0000		//P1.16-P1.23
 #define	RS	0x01000000		//P1.24
@@ -89,6 +81,29 @@ void init_LCD(void)
 	delay(49250);		//12* 60/48 * 3283 (3,283 ms)
 	send_instruction(0x06);		//entry mode set
 	delay(1200);
+}
+
+
+// *********************************
+// CUSTOM CODE
+// *********************************
+
+// Med CCLK=60 MHz ger denna rutin en delay på pulses*66,666 ns + anropstiden
+void delay(long pulses) {               	// pulses is stored in R0 when this function is called
+        asm("wait:   SUBS R0, R0, #1");     // the label "wait" is declared, decrements the contents of R0 by 1
+        asm("BNE wait");                    // branches to the label "wait" unless the contents of R0 equals 0
+}
+
+void delay_mikros(long us) {            	// delays by the provided parameter (in mikroseconds)
+    delay(us*15);
+}
+
+void delay_millis(long ms) {            	// delays by the provided parameter (in milliseconds)
+    delay(ms*15000);
+}
+
+void delay_secs(long secs) {              	// delays by the provided parameter (in seconds)
+    delay(secs*15000000);
 }
 
 
