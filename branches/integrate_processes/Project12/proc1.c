@@ -19,12 +19,10 @@
 #include "startup/consol.h"
 #include "startup/config.h"
 #include "startup/framework.h"
-#include "motor/motor.c"
 #include "startup/printf_P.h"
 
 #include "LCD/LCD.h"  //  Funktionsprototyper för LCD-rutinerna
-
-#include "interrupt/interrupt.c"
+#include "motor/motor.c"
 
 /******************************************************************************
  * Defines
@@ -194,25 +192,68 @@ procEx1(void* arg)
 				} else if(getState() == 1 && flag == 0) {
 						//printf("mode1Counter = %d\n", mode1Counter);
 
-						if( mode1Counter < 60 ) { // vänster
-							setMode1(2);
+						if( mode1Counter <= 6 ) {
+
+							/*setMode1(2);
 							setMode2(2);
 							setPwmDutyPercent1(0);			// höger hjul. snabb
-							setPwmDutyPercent2(100);		// vänster hjul. snabbaste
+							setPwmDutyPercent2(235);		// vänster hjul. snabbaste*/
+
+							if( diff < 0 ) { // Om differensen mellan är-börvärde är negativt (TURN LEFT)
+														diff = diff * (-1);	// gör differens positivt
+														//printf("NEG diff = %d\n", diff);			// skriv ut storleken på differensen
+														setMode1(2);	// Höger hjul kör framåt
+														setMode2(2);	// Vänster hjul kör framåt
+														setPwmDutyPercent1(1000);					// höger hjul. Skicka hög hastighet
+														setPwmDutyPercent2((1500+(diff*450)));		// vänster hjul. skicka lägre hastighet 350
+
+													} else if ( diff > 0 ) { // Om differensen mellan är-börvärde är positiv (TURN RIGHT)
+														//printf("POS diff = %d\n", diff);		// skriv ut storleken på differensen
+														setMode1(2);	// Höger hjul kör framåt
+														setMode2(2);	// Vänster hjul kör framåt
+														setPwmDutyPercent1((1500+(diff*500)));	// höger hjul. skicka lägre hastighet
+														setPwmDutyPercent2(1000);				// vänster hjul. Skicka hög hastighet
+
+													} else { // Om differensen mellan är-börvärde är 0 (TURN LITTLE RIGHT)
+														// Borde köra rakt, men vi kör hellre lite åt höger så vi hellre kommer mot vitt än svart
+														//printf("ZERO diff = %d\n", diff); // skriv ut storleken på differensen (0)
+														setMode1(2);	// Höger hjul kör framåt
+														setMode2(2);	// Vänster hjul kör framåt
+														setPwmDutyPercent1(800);				// höger hjul. kör lite långsammare än vänster
+														setPwmDutyPercent2(600);				// vänster hjul. kör lite snabbar än höger
+													}
+
 							mode1Counter++;
-						} else if( mode1Counter >= 60 && mode1Counter < 130) { // höger
+						}else if( mode1Counter > 6 && mode1Counter < 50 ) { // vänster
 							setMode1(2);
 							setMode2(2);
-							setPwmDutyPercent1(100);			// höger hjul. snabbaste
-							setPwmDutyPercent2(0);			// vänster hjul. snabb
+							setPwmDutyPercent1(65);			// höger hjul. snabb
+							setPwmDutyPercent2(135);		// vänster hjul. snabbaste
 							mode1Counter++;
-						} else if( diff < 0 ){
+						} else if( mode1Counter >= 50 && mode1Counter < 60 ) {
+							setMode1(2);
+							setMode2(2);
+							setPwmDutyPercent1(5000);			// höger hjul. snabbaste
+							setPwmDutyPercent2(0);			// vänster hjul. snabb
+		/*				} else if( mode1Counter >= 45 && mode1Counter < 45) { // höger
+							setMode1(2);
+							setMode2(2);
+							setPwmDutyPercent1(5000);			// höger hjul. snabbaste
+							setPwmDutyPercent2(0);			// vänster hjul. snabb
+							mode1Counter++;*/
+//						} else if( diff < 0 ){
+//							setMode1(2);	// Höger hjul kör framåt
+//							setMode2(2);	// Vänster hjul kör framåt
+//							setPwmDutyPercent1(1000);		// höger hjul. Skicka hög hastighet
+//							setPwmDutyPercent2(3000);		// vänster hjul. skicka lägre hastighet 350
+//							//setPwmDutyPercent1(10000);		// höger hjul.
+//							//setPwmDutyPercent2(10000);		// vänster hjul.
+//						}
+						} else if( diff < 0 ){	// kör rakt tills linjen återfinns
 							setMode1(2);	// Höger hjul kör framåt
 							setMode2(2);	// Vänster hjul kör framåt
-							setPwmDutyPercent1(1000);		// höger hjul. Skicka hög hastighet
-							setPwmDutyPercent2(3000);		// vänster hjul. skicka lägre hastighet 350
-							//setPwmDutyPercent1(10000);		// höger hjul.
-							//setPwmDutyPercent2(10000);		// vänster hjul.
+							setPwmDutyPercent1(0);		// höger hjul. Skicka hög hastighet
+							setPwmDutyPercent2(0);		// vänster hjul. skicka lägre hastighet 350
 						} else {
 							flag = 1;
 
