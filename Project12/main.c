@@ -35,7 +35,7 @@
 #include "startup/consol.h"
 #include "startup/config.h"
 #include "startup/framework.h"
-#include "utils/utils.c"
+#include "utils/utils.h"
 
 #include "LCD/LCD.h"  //  Funktionsprototyper för LCD-rutinerna
 

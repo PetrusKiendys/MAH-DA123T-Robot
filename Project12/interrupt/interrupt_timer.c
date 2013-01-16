@@ -1,17 +1,11 @@
 /*
- * interrupt.c
+ *  interrupt_timer.c
  *
  *  Created on: 2011
  *      Author: Tommy
  */
 
-/******************************************************************************
- * Includes
- *****************************************************************************/
-#include "../general.h"
-#include "../startup/lpc2xxx.h"
-#include "../startup/framework.h"
-#include "../startup/config.h"
+#include "interrupts.h"
 
 
 

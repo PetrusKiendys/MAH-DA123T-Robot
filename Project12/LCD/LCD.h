@@ -8,6 +8,8 @@
  *
  ***********************************************************************************/
 
+#include "../startup/lpc2xxx.h"
+
 void send_instruction(long instruction);
 void send_character(long character);
 void wait_BF(void);
