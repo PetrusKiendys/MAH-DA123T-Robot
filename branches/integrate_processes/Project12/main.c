@@ -22,6 +22,7 @@
  *
  *****************************************************************************/
 
+// QUESTION: how many ms is a tick (RTOS)? 2.5ms
 
 #include "pre_emptive_os/api/osapi.h"
 #include "general.h"
@@ -31,6 +32,8 @@
 #include "startup/consol.h"
 #include "startup/config.h"
 #include "startup/framework.h"
+#include "lightSensor/initLightSensor.c"
+#include "motor/initMotor.c"
 
 #include "LCD/LCD.h"  //  Funktionsprototyper för LCD-rutinerna
 
@@ -48,6 +51,9 @@
 #define INIT_STACK_SIZE  1024
 #define PROC_ST_US_STACK_SIZE  1024
 
+#define P06 0x00000040	// Output Ljussensor
+#define P029 0x20000000 // Input Ljussensor
+#define P028 0x10000000 // Output Switch
 
 static tU8 procEx1Stack[PROC_Ex1_STACK_SIZE];
 static tU8 procEx2Stack[PROC_Ex2_STACK_SIZE];
@@ -63,29 +69,56 @@ static tU8 pidEx3;
 static tU8 pidStUs;
 
 
-
+/*****************************************************************************
+ * Function prototypes
+ ****************************************************************************/
 void procEx1(void* arg);
 void procEx2(void* arg);
 void procEx3(void* arg);
 
+//int runPwm(void);
+
 static void initProc(void* arg);
 static void procStackUsage(void* arg);
+//static tU16 getAnalogueInput(tU8 channel);
+
+//static void initPwm(tU32 initialFreqValue);
 
 
 //Exempel på avbrott (ljudsampling)
 void Timer1ISRirq (void);  // skall inte ha något attribut när RTOS används
+void Timer0ISRirq (void);
 
+//motor.c
+void setPwmDutyPercent1(volatile unsigned long dutyValue1);
+void setPwmDutyPercent2(volatile unsigned long dutyValue2);
+void setMode1(int mode);
+void setMode2(int mode);
+void setPwmDuty1(tU32 dutyValue1);
+void setPwmDuty2(tU32 dutyValue2);
+
+//initMotor.c
+void runPwm();
+void initPwm(tU32 initialFreqValue);
+void initPins();
+void init_io();
+/****************************************************************************/
 
 
 
 /****************************************************************************
  *
- * Globala konstenter och variabler
+ * Globala konstanter och variabler
  *
  ****************************************************************************/
 
 long const delayshort = 1200;
 long const delaylong = 49250;
+
+// TODO: temporary global variables, make local later if possible..
+//tU32 duty;
+//set frequency to 1000 Hz (1 kHz)
+//tU32 const freq = ((CRYSTAL_FREQUENCY * PLL_FACTOR)/ (VPBDIV_FACTOR * 1000));
 
 
 
@@ -100,6 +133,42 @@ tCntSem mutexLCD;
 
 
 
+/*****************************************************************************
+ *
+ * Description:
+ *    Initialize the PWM unit to generate a variable duty cycle signal on
+ *    PWM2. Connect signal PWM2 to pin P0.7.
+ *    The function sets initial frequency. Initial duty cucle is set to 0%.
+ *
+ * Params:
+ *    [in] initialFreqValue - the initial frequency value. Value calculated as:
+ *
+ *                     (crystal frequency * PLL multiplication factor)
+ *                     -----------------------------------------------
+ *                           (VPBDIV factor * desired frequency)
+ *
+ ****************************************************************************/
+//static void
+//initPwm(tU32 initialFreqValue)
+//{
+//  /*
+//   * initialize PWM
+//   */
+//  PWM_PR  = 0x00000000;             //set prescale to 0
+//  PWM_MCR = 0x0002;                 //counter resets on MR0 match (period time)
+//  PWM_MR0 = initialFreqValue;       //MR0 = period cycle time
+//  PWM_MR2 = 0;                      //MR2 = duty cycle control, initial = 0%
+//  PWM_LER = 0x05;                   //latch new values for MR0 and MR2
+//  PWM_PCR = 0x0400;                 //enable PWM2 in single edge control mode
+//  PWM_TCR = 0x09;                   //enable PWM and Counter
+//
+//  /*
+//   * connect signal PWM2 to pin P0.7
+//   */
+//  PINSEL0 &= ~0x0000c000;  //clear bits related to P0.7
+//  PINSEL0 |=  0x00008000;  //connect signal PWM2 to P0.7 (second alternative function)
+//}
+
 
 /*****************************************************************************
  *
@@ -112,11 +181,38 @@ main(void)
   tU8 error;
   tU8 pid;
 
+  //initialice i2c communication
+   i2cInit(10000);
+
+  runPwm();
+  initLightPins();
+
+  //FÖR LJUSSENSORN:
+  //IODIR |= P06; // Sätter P0.6 till output
+  //ODIR &= ~P029; // Sätter P029 till input
+   //IOSET = P06; //Sätter p06 hög
+
+  //För LJUSSENSOR+Digital Switch
+    //PINSEL1 |= 0x05080000;	 //set AIN1 = P0.28, set AIN2 = P0.29,set Aout (DAC) = P0.25
+
+    // New PINSEL1. Set AIN2 = P0.29, set Aout (DAC) = P0.25. DON'T Set AIN1 = P0.28!
+    PINSEL1 |= 0x04080000; //set AIN2 = P0.29,set Aout (DAC) = P0.25
+    // NOTE: Switchen är kopplad till P0.28. P0.28 använder Bit 24 och 25 i PINSEL1.
+    // Dessa bitar ska vara 0 för digital switch. Detta är de från början!
+
+
+
   osInit();
 
   init_LCD();
   delay(delaylong);
   send_instruction(0xC);  //släck cursorn
+
+  // init PWM variables
+  //initPwmVars();
+
+  //initialize PWM unit
+  //initPwm(freq);
 
  // Här kan diverse initeringar läggas
  // Alternativt gör detta i initieringprocessen
@@ -130,6 +226,11 @@ main(void)
   osStart();
   return 0;
 }
+
+//void initPwmVars(void) {
+//
+//	  // REMARK: make other inits here (or remove this method)
+//}
 
 
 
@@ -197,7 +298,7 @@ initProc(void* arg)
   */
 
   //set AIN1 = P0.28
-  PINSEL1 |= 0x01080000;
+ // PINSEL1 |= 0x01080000;
 
  //initialize ADC (fel i beräkningen av divisionsfaktorn i EA-kod, rättat här)
    ADCR = (1 << 0)                             |  //SEL = 1, dummy channel #1
@@ -219,9 +320,13 @@ initProc(void* arg)
   TIMER1_TCR = 0x02;          //stop and reset timer
   TIMER1_PR  = 0x00;          //set prescaler to zero
   TIMER1_MCR = 0x03;		  //ställ up matchregister 0 för avbrott och reset av timer 0
-  TIMER1_MR0 = 7500;		  //Detta värde avgör sampletiden, här 0.125 ms  (8000 Hz)
+  //TIMER1_MR0 = 7500;		  //Detta värde avgör sampletiden, här 0.125 ms  (8000 Hz) ClF 60 000 000
+//   TIMER1_MR0 = 15000;
+//  TIMER1_MR0 = 150000;
+  TIMER1_MR0 = 60000000;
   TIMER1_IR  = 0xff;          //reset all interrrupt flags
   TIMER1_TCR = 0x01;          //start timer
+
 
 
   //Initiera avbrott vid match på MR0
@@ -237,6 +342,7 @@ initProc(void* arg)
   VICIntEnable|=0x000000020;		//Enabla Timer1 som irqavbrott
 
 //*************slut ljudavbrottsinitering****************
+
 
 
 

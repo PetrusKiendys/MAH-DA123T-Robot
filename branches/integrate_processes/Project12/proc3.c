@@ -20,9 +20,12 @@
 #include "startup/consol.h"
 #include "startup/config.h"
 #include "startup/framework.h"
+#include "state/state.c"
 
 #include "LCD/LCD.h"  //  Funktionsprototyper för LCD-rutinerna
 
+
+#define P028   0x10000000			// Output Switch
 
 extern long const delayshort;
 extern long const delaylong;
@@ -34,37 +37,53 @@ void
 procEx3(void* arg)
 {
   tU8 error;
+  int i;
+  static int enterFlag = 0;
 
   for(;;)
   {
 // Exempelkod för att visa hur flera processer kan dela på LCD
     osSemTake(&mutexLCD, 0, &error);
 
-    delay(delayshort);
-	send_instruction(1);	//cleara displayn
-	delay(delaylong);
-    send_instruction(2);  //cursorn till första positionen
-    delay(delaylong);
-    send_character('E');
-    delay(delayshort);
-    send_character('x');
-    delay(delayshort);
-    send_character('e');
-    delay(delayshort);
-    send_character('m');
-    delay(delayshort);
-    send_character('p');
-    delay(delayshort);
-    send_character('e');
-    delay(delayshort);
-    send_character('l');
-    delay(delayshort);
-    send_character('3');
 
-    osSleep(300);		// för att infon säkert skall hinna synas
+    static int switchCounter = 0; // sets to 0 first time
+ //   delay(delayshort);
+ //   send_instruction(1);	//cleara displayn
+
+
+
+    // Tryck på switch och text skrivs ut
+    	if(IOPIN & P028){
+    		enterFlag = 0;
+
+    	} else if ( enterFlag == 0 ){
+    	   	//IOCLR = led;	//led on
+    		enterFlag = 1;
+    		switchCounter++;
+    		if( switchCounter >= 2) {
+    			switchCounter = 0;
+    		}
+
+    	   //	printf("a\na\na\na\na\na\na\na\na\na\na\na\na\na\n");
+    	   	//printf("counterKLICKAD = %d\n", switchCounter);
+    		printf("switchCounter = %d.\n", switchCounter);
+
+    		switchState( switchCounter ); // sets new state
+
+    		delay(delayshort);
+    		send_instruction(1);	//cleara displayn
+    		for( i=0; i<switchCounter; i++ ) {
+				delay(delaylong);
+				send_character('I');
+    		}
+
+
+    	   	osSleep(600);
+    	}
+
 
     osSemGive(&mutexLCD, &error);
 
-    osSleep(3000);
+    osSleep(100);
   }
 }
