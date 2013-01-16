@@ -4,12 +4,8 @@
  *  Created on: 14 dec 2012
  *      Author: Petrus K.
  */
-#include "../startup/lpc2xxx.h"
+#include "utils.h"
 
-//void delay(long pulses);
-//void delay_mikros(long us);
-//void delay_millis(long ms);
-//void delay_secs(long secs);
 
 // ********************************************
 // Delay function written in assembly code

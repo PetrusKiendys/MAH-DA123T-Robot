@@ -17,9 +17,10 @@
 #include "startup/config.h"
 #include "startup/framework.h"
 
-#include "utils/utils.c"
+#include "utils/utils.h"
 #include "LCD/LCD.h"  //  Funktionsprototyper för LCD-rutinerna
-#include "motor/motor.c"
+#include "motor/motor.h"
+#include "motor/motor_test.h"
 
 extern long const delayshort;
 extern long const delaylong;
@@ -42,8 +43,8 @@ procEx1(void* arg)
 
 		osSemTake(&mutexLCD, 0, &error);
 
-		//LCD_clearDisplay();
-		runPwm();
+		// REMARK: doesn't work at the moment... issues including runPwm()
+		// runPwm();
 
 		osSemGive(&mutexLCD, &error);
 
