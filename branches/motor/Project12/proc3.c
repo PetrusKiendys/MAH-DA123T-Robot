@@ -18,11 +18,13 @@
 #include "startup/framework.h"
 
 #include "utils/utils.h"
-#include "LCD/LCD.h"  //  Funktionsprototyper för LCD-rutinerna
+#include "LCD/LCD.h"
 
 extern tCntSem mutexLCD;
 
-
+/*****************************************************
+ * This process is not tasked with any routines
+ *****************************************************/
 void
 procEx3(void* arg)
 {
@@ -31,11 +33,8 @@ procEx3(void* arg)
   for(;;)
   {
     osSemTake(&mutexLCD, 0, &error);
-
-
-
     osSemGive(&mutexLCD, &error);
 
-    osSleep(5000);		// this process is very sleepy and sleeps for a long time
+    osSleep(5000);
   }
 }

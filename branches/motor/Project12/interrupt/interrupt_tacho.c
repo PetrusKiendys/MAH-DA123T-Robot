@@ -6,8 +6,7 @@
 
 #include "interrupts.h"
 
-static tU32 tacho1_counter;
-static tU32 tacho2_counter;
+
 
 
 /******************************************************************************

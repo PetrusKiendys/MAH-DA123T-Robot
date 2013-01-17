@@ -50,11 +50,15 @@ EFLAGS  = -mthumb-interwork
 CODE    = THUMB
 
 # List C source files here.
-CSRCS   = main.c proc1.c proc2.c proc3.c
+# REMARK: modified this line to include other source files
+CSRCS   = interrupt/interrupt_tacho.c interrupt/interrupt_timer.c LCD/LCD.c motor/motor.c motor/motor_test.c utils/utils.c main.c proc1.c proc2.c proc3.c
+# REMARK: this line supposedly includes all C source files into compiling object files
+#CSRCS := $(wildcard *.c)
 
 # List assembler source files here
 ASRCS   = 
 
+# QUESTION: no need to add /motor/ and /utils/ subdirectories here?
 # List subdirectories to recursively invoke make in 
 SUBDIRS = startup \
           LCD \

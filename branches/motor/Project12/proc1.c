@@ -18,19 +18,17 @@
 #include "startup/framework.h"
 
 #include "utils/utils.h"
-#include "LCD/LCD.h"  //  Funktionsprototyper för LCD-rutinerna
-#include "motor/motor.h"
+#include "LCD/LCD.h"
 #include "motor/motor_test.h"
 
-extern long const delayshort;
-extern long const delaylong;
+
 
 extern tCntSem mutexLCD;
 
 /*****************************************************************************
  * Function prototypes
  ****************************************************************************/
-void LCD_clearDisplay(void);
+
 
 /****************************************************************************/
 
@@ -43,19 +41,13 @@ procEx1(void* arg)
 
 		osSemTake(&mutexLCD, 0, &error);
 
-		// REMARK: doesn't work at the moment... issues including runPwm()
-		// runPwm();
+		motorTest_test();
 
 		osSemGive(&mutexLCD, &error);
 
-		osSleep(100);		// this process is not so sleepy, it's a very active process!
+		osSleep(100);
 	}
 
 }
 
-void LCD_clearDisplay(void) {
-	delay(delayshort);
-	send_instruction(1);	//cleara displayen
-	delay(delaylong);
-	send_instruction(2);  	//cursorn till första positionen
-}
+
