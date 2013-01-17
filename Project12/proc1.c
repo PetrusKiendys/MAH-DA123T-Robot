@@ -1,12 +1,14 @@
-/*
- * proc1.c
+/*************************************************************
+ *  Filename: proc1.c
+ *  Created on: 2011-10-31
+ *  Author: Tommy
  *
- *  Created on: 31 okt 2011
- *      Author: Tommy
- */
+ *  Modified by: Petrus K. & Ardiana O. (2012-12-10)
+ *  Description: Manages process 1.
+ *************************************************************/
 
 /*****************************************************************************
- * Process 1
+ * Includes
  ****************************************************************************/
 #include "pre_emptive_os/api/osapi.h"
 #include "general.h"
@@ -21,17 +23,12 @@
 #include "LCD/LCD.h"
 #include "motor/motor_test.h"
 
-
-
 extern tCntSem mutexLCD;
 
+
 /*****************************************************************************
- * Function prototypes
+ * Functions
  ****************************************************************************/
-
-
-/****************************************************************************/
-
 void
 procEx1(void* arg)
 {
@@ -40,14 +37,10 @@ procEx1(void* arg)
 	for (;;) {	// QUESTION: why use for-loop?
 
 		osSemTake(&mutexLCD, 0, &error);
-
 		motorTest_test();
-
 		osSemGive(&mutexLCD, &error);
 
 		osSleep(100);
 	}
 
 }
-
-

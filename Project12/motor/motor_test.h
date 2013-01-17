@@ -1,8 +1,15 @@
+/*************************************************************
+ *  Filename: motor_test.h
+ *  Created on: 2013-01-03
+ *  Author: Petrus K. & Ardiana O.
+ *  Description: Header file for motor_test.c.
+ *************************************************************/
 
 /******************************************************************************
  * Includes
  *****************************************************************************/
 #include "motor.h"
+
 
 /******************************************************************************
  * Defines
@@ -13,13 +20,11 @@
 #define RUN_SETPWM_IN_LOOP	1		// dictates whether setPwmDutyPercentx(tU32) should be run outside the "TASK conditional statement"
 
 
-
-
 /******************************************************************************
  * Prototypes
  *****************************************************************************/
 void motorTest_test();
-void dev_run(tU32 duty1, tU32 duty2);
-void pwm_motor_init();
-void pwm_motor_run(tU32 duty1, tU32 duty2);
-void change_mode(short mode);
+void motorTest_enterLoop(tU32 duty1, tU32 duty2);
+void motorTest_pwmMotorInit();
+void motorTest_pwmMotorRun(tU32 duty1, tU32 duty2);
+void motorTest_changeMode(short mode);
