@@ -13,12 +13,7 @@
 #include "LCD.h"
 
 
-#define	data_pins	0x00FF0000		//P1.16-P1.23
-#define	RS	0x01000000		//P1.24
-#define	RW	0x00400000		//P0.22
-#define	E	0x02000000		//P1.25
-#define	backlight	0x40000000		//P0.30
-#define	BF	0x00800000
+
 
 void send_instruction(long instruction)
 {
@@ -43,9 +38,10 @@ void send_character(long character)
 	IOCLR1 = E;			//end write pulse
 }
 
+// DEPRECATED: this function should never be called
 void wait_BF(void)
 {
-//	IODIR1 |= BF;  alternativ lsg på kapacitansproblemet nedan
+//	IODIR1 |= BF;  alternativ lösning på studsning
 //	IOSET1 = BF;
 
 	IOSET0 = RW;		//read from display
@@ -80,6 +76,13 @@ void init_LCD(void)
 	delay(1200);
 }
 
+void LCD_clearDisplay(void) {
+	delay(delayshort);
+	send_instruction(1);	//clears the display
+	delay(delaylong);
+	send_instruction(2);  	//the cursor is moved to the first position
+}
+
 
 // *********************************
 // CUSTOM CODE
@@ -102,5 +105,7 @@ void delay_millis(long ms) {            	// delays by the provided parameter (in
 void delay_secs(long secs) {              	// delays by the provided parameter (in seconds)
     delay(secs*15000000);
 }
+
+
 
 

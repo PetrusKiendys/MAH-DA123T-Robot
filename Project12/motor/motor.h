@@ -8,7 +8,7 @@
 #include "../utils/lpc214x.h"
 
 /******************************************************************************
- * Defines and typedefs
+ * Defines
  *****************************************************************************/
 #define CRYSTAL_FREQUENCY FOSC
 #define PLL_FACTOR        PLL_MUL

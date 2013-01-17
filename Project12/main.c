@@ -35,9 +35,9 @@
 #include "startup/consol.h"
 #include "startup/config.h"
 #include "startup/framework.h"
-#include "utils/utils.h"
-
 #include "LCD/LCD.h"  //  Funktionsprototyper för LCD-rutinerna
+
+#include "utils/utils.h"
 
 /******************************************************************************
  * Defines and typedefs
@@ -72,8 +72,8 @@ static tU8 pidEx3;
 
 static tU8 pidStUs;
 
-long const delayshort = 1200;
-long const delaylong = 49250;
+long const delayshort =	1200;
+long const delaylong  =	49250;
 
 tCntSem mutexLCD;	//	Semaforer för att skydda gemensamma resurser,
 					//	används här som binära semaforer dvs antar bara värden 0 och 1 (mutex)
@@ -109,17 +109,7 @@ main(void)
   delay(delaylong);
   send_instruction(0xC);  //släck cursorn
 
-  // init PWM variables
-  //initPwmVars();
-
-  //initialize PWM unit
-  //initPwm(freq);
-
- // Här kan diverse initeringar läggas
- // Alternativt gör detta i initieringprocessen
- // Lägg märke till att avbrott inte bör enablas för än när alla processer startats
-
-//  osInit();
+  // TODO: do inits here, init and enable interrupts last
 
   osCreateProcess(initProc, initStack, INIT_STACK_SIZE, &pid, 1, NULL, &error);
   osStartProcess(pid, &error);
@@ -127,11 +117,6 @@ main(void)
   osStart();
   return 0;
 }
-
-//void initPwmVars(void) {
-//
-//	  // REMARK: make other inits here (or remove this method)
-//}
 
 
 
