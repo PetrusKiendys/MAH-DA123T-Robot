@@ -15,7 +15,7 @@ static tU32 tacho2_counter;
  *****************************************************************************/
 void Tacho1_ISR (void) {
 	// perform this when Tacho1 is triggered
-	printf("\n\nTacho1 ISR: %d", tacho1_counter);
+	//printf("\n\nTacho1 ISR: %d", tacho1_counter);
 	tacho1_counter++;
 
 	// don't forget to reset the interrupt flag!
@@ -30,7 +30,7 @@ void Tacho1_ISR (void) {
 
 void Tacho2_ISR (void) {
 	// perform this when Tacho2 is triggered
-	printf("\nTacho2 ISR: %d", tacho2_counter);
+	//printf("\nTacho2 ISR: %d", tacho2_counter);
 	tacho2_counter++;
 
 	// don't forget to reset the interrupt flag!

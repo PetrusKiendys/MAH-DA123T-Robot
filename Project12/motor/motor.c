@@ -29,7 +29,7 @@ void init() {
 
 	// initialize PWM
 	freq = ((CRYSTAL_FREQUENCY * PLL_FACTOR) / (VPBDIV_FACTOR * 1000));	//set frequency to 1000 Hz (1 kHz)
-	initPwm(freq);
+	initPwm(freq);														//60000 clock pulses per pulse
 
 	// initialize pins (on port P0)
 	initPins();
