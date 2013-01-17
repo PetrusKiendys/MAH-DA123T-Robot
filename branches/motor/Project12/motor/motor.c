@@ -1,56 +1,56 @@
+/*************************************************************
+ *  Filename: motor.c
+ *  Author: Embedded Artists AB
+ *  Created on: 2005-xx-xx
+ *  	Copyright:
+ *    	(C) 2005 Embedded Artists AB
+ *    	QUESTION: modified EA code belongs to EA?
+ *
+ *  Modified by: Petrus K. & Ardiana O. (2012-12-03)
+ *	Description: Manages and interfaces to motor functionality.
+ *************************************************************/
 // TODO: rewrite this file as a lib that can be used by other processes and interrupts
-// TODO: make a clearer separation between init functions and other functions
 
-/******************************************************************************
- *
- * Copyright:
- *    (C) 2005 Embedded Artists AB
- *    QUESTION: modified EA code belongs to EA?
- *
- * File:
- *    motor.c
- *
- * Description:
- *    ...
- *
+/*****************************************************************************
+ * Includes
  *****************************************************************************/
-
 #include "motor.h"
 #include "../interrupt/interrupts.h"
+
 
 /*****************************************************************************
  * Functions (initialization)
  *****************************************************************************/
-void init() {
+void motor_init() {
 	// declare global and local variables
 	tU32 freq;
 
 	// initialize I/O
-	init_io();
+	motor_initIO();
 
 	// initialize PWM
 	freq = ((CRYSTAL_FREQUENCY * PLL_FACTOR) / (VPBDIV_FACTOR * 1000));	//set frequency to 1000 Hz (1 kHz)
-	initPwm(freq);														//60000 clock pulses per pulse
+	motor_initPwm(freq);														//60000 clock pulses per pulse
 
 	// initialize pins (on port P0)
-	initPins();
+	motor_initPins();
 
 	// initialize VIC
-	init_vic();
+	motor_initVIC();
 
 	//set modes for UT1 and UT2 outputs
-	setMode1(MODE_FORWARD);
-	setMode2(MODE_FORWARD);
+	motor_setMode1(MODE_FORWARD);
+	motor_setMode2(MODE_FORWARD);
 
 	// initialize EINT (external interrupts)
-	init_EINT0();
-	init_EINT3();
+	motor_initEINT0();
+	motor_initEINT3();
 
 	// initializes the default PWM duty
 	duty1 = 0;
 	duty2 = 0;
-	setPwmDutyPercent1(duty1);
-	setPwmDutyPercent2(duty2);
+	motor_setPwmDutyPercent1(duty1);
+	motor_setPwmDutyPercent2(duty2);
 }
 
 /*****************************************************************************
@@ -68,7 +68,7 @@ void init() {
  *                           (VPBDIV factor * desired frequency)
  *
  ****************************************************************************/
-void initPwm(tU32 initialFreqValue)
+void motor_initPwm(tU32 initialFreqValue)
 {
   PWM_PR  = 0x00000000;             //set prescale to 0
   PWM_MCR = 0x0002;                 //counter resets on MR0 match (period time)
@@ -79,10 +79,11 @@ void initPwm(tU32 initialFreqValue)
   PWM_PCR = 0x2400;                 //enable PWM2 and in single edge control mode
   PWM_TCR = 0x09;                   //enable PWM and Counter
 
-  // TODO: verify that this function is correctly implemented!
+  // TODO: verify that this function is correctly implemented for our application!
 }
 
-void initPins() {
+// initializes pin functionality
+void motor_initPins() {
 
 	// connect PWM2 to pin P0.7 - Motor 1 ENABLE (PWM2)
 	PINSEL0 &= ~0x0000c000;
@@ -112,7 +113,8 @@ void initPins() {
 
 }
 
-void init_EINT0()
+// initializes external interrupt 0
+void motor_initEINT0()
 {
    PINSEL1 &= ~(1<<0);
    PINSEL1 &= ~(1<<1);
@@ -124,7 +126,8 @@ void init_EINT0()
    EXTINT = 0x00000001;			// (re)activates EINT0
 }
 
-void init_EINT3()
+// initializes external interrupt 3
+void motor_initEINT3()
 {
    PINSEL1 |= (1<<8);
    PINSEL1 |= (1<<9);			// P0.20 is connected to EINT3
@@ -135,7 +138,8 @@ void init_EINT3()
    EXTINT = 0x00000008;			// (re)activates EINT3
 }
 
-void init_vic() {
+// initializes the VIC
+void motor_initVIC() {
 	// REMARK: Timer1 (used by lightsensor) is already assigned to VICVectCntl7 (priority slot 7)
 
 	VICIntSelect &= ~(0x00024000);		// sets EINT0 and EINT3 as IRQ routines
@@ -143,8 +147,8 @@ void init_vic() {
 	VICVectCntl6 = 0x20 | 17;			// assigns EINT3 to priority slot 6 of VIC
 	VICVectCntl5 = 0x20 | 14;			// assigns EINT0 to priority slot 5 of VIC
 
-	VICVectAddr6 = (tU32)Tacho2_ISR;	// binds the address of Tacho2_ISR to the VIC
-	VICVectAddr5 = (tU32)Tacho1_ISR;	// binds the address of Tacho1_ISR to the VIC
+	VICVectAddr6 = (tU32)interruptTacho_Tacho2ISR;	// binds the address of Tacho2_ISR to the VIC
+	VICVectAddr5 = (tU32)interruptTacho_Tacho1ISR;	// binds the address of Tacho1_ISR to the VIC
 	// REMARK:	Writing to this register does not set the value for future reads from it.
 	// 			Rather, this register should be written near the end of an ISR, to update the priority hardware.
 
@@ -153,7 +157,8 @@ void init_vic() {
 	// TODO: initialize this IRQ/ISR in main.c
 }
 
-void init_io() {
+// initializes GPIO
+void motor_initIO() {
 	// REMARK: Note that the direction control register IODIR is effective only when the GPIO function is selected for a pin.
 
 	// OUTPUT INITIALIZATION
@@ -202,90 +207,61 @@ void init_io() {
  *                     of 0.01% (i.e., 10% = 1000).
  *
  ****************************************************************************/
-void setPwmDutyPercent1(tU32 dutyValue1)
+void motor_setPwmDutyPercent1(tU32 dutyValue1)
 {
   PWM_MR2 = (PWM_MR0 * dutyValue1) / 10000; //update duty cycle
   PWM_LER = 0x04;                           //latch new values for MR2
 
-  // TODO: verify that this function is correctly implemented!
+  // TODO: verify that this function is correctly implemented for our application!
 }
 
-void setPwmDutyPercent2(tU32 dutyValue2)
+void motor_setPwmDutyPercent2(tU32 dutyValue2)
 {
   PWM_MR5 = (PWM_MR0 * dutyValue2) / 10000;  //update duty cycle
   PWM_LER = 0x20;         //latch new values for MR5
 
-  // TODO: verify that this function is correctly implemented!
+  // TODO: verify that this function is correctly implemented for our application!
 }
 
-void setMode1(short mode) {
-	// COMMENT: PHASE was earlier set to P0.15, this is incorrect!
+// Sets motor 1 in forward rotation, reverse rotation or brake
+void motor_setMode1(short mode) {
 
-	if (MODE_FORWARD == 1) {	// MODE = Forward, Fast Current-Decay Mode
-		//IODIR |= P07;	// ENABLE (P0.7)
-		IOCLR = P07;	// set to L
-
-		//IODIR |= P12;	// PHASE (P0.12)
-		IOSET = P12;	// set to H
-
-		//IODIR |= P25;	// BRAKE (P0.25)
-		IOSET = P25;	// set to H
+	if (mode == MODE_FORWARD)		{	// Forward, Fast Current-Decay Mode
+		IOCLR = P07;	// ENABLE (P0.7) - set to L
+		IOSET = P12;	// PHASE (P0.12) - set to H
+		IOSET = P25;	// BRAKE (P0.25) - set to H
 	}
-	else if (MODE_REVERSE == 2){ // Reverse, Fast Current-Decay Mode
-		//IODIR |= P07; // ENABLE (P0.7)
-		IOCLR = P07; // set to L
-
-		//IODIR |= P12; // PHASE (P0.12)
-		IOCLR = P12; // set to L
-
-		//IODIR |= P25; // BRAKE (P0.25)
-		IOSET = P25; // set to H
+	else if (mode == MODE_REVERSE)	{	// Reverse, Fast Current-Decay Mode
+		IOCLR = P07; // ENABLE (P0.7) - set to L
+		IOCLR = P12; // PHASE (P0.12) - set to L
+		IOSET = P25; // BRAKE (P0.25) - set to H
 	}
-	else if (MODE_BRAKE == 3){ // Brake, Fast Current-Decay Mode
-		//IODIR |= P07; // ENABLE (P0.7)
-		IOCLR = P07; // set to L
-
-		//IODIR |= P12; // PHASE (P0.12)
-		IOCLR = P12; // set to L
-
-		//IODIR |= P25; // BRAKE (P0.25)
-		IOCLR = P25; // set to L
+	else if (mode == MODE_BRAKE)	{	// Brake, Fast Current-Decay Mode
+		IOCLR = P07; // ENABLE (P0.7) - set to L
+		IOCLR = P12; // PHASE (P0.12) - set to L
+		IOCLR = P25; // BRAKE (P0.25) - set to L
 	}
 
 }
 
-void setMode2(short mode) {
+// Sets motor 2 in forward rotation, reverse rotation or brake
+void motor_setMode2(short mode) {
 
-	if (MODE_FORWARD == 1) {	// MODE = Forward, Fast Current-Decay Mode
-		//IODIR |= P21;	// ENABLE (P0.21)
-		IOCLR = P21;	// set to L
-
-		//IODIR |= P23;	// PHASE (P0.23)
-		IOSET = P23;	// set to H
-
-		//IODIR |= P31;	// BRAKE (P0.31)
-		IOSET = P31;	// set to H
+	if (mode == MODE_FORWARD){		// Forward, Fast Current-Decay Mode
+		IOCLR = P21;	// ENABLE (P0.21) - set to L
+		IOSET = P23;	// PHASE (P0.23) - set to H
+		IOSET = P31;	// BRAKE (P0.31) - set to H
 	}
-	else if (MODE_REVERSE == 2){ // Reverse, Fast Current-Decay Mode
-		//IODIR |= P21; // ENABLE (P0.21)
-		IOCLR = P21; // set to L
-
-		//IODIR |= P23; // PHASE (P0.23)
-		IOCLR = P23; // set to L
-
-		//IODIR |= P31; // BRAKE (P0.31)
-		IOSET = P31; // set to H
+	else if (mode == MODE_REVERSE){	// Reverse, Fast Current-Decay Mode
+		IOCLR = P21; // ENABLE (P0.21) - set to L
+		IOCLR = P23; // PHASE (P0.23) - set to L
+		IOSET = P31; // BRAKE (P0.31) - set to H
 	}
 
-	else if (MODE_BRAKE == 3){ // Brake, Fast Current-Decay Mode
-		//IODIR |= P21; // ENABLE (P0.21)
-		IOCLR = P21; // set to L
-
-		//IODIR |= P23; // PHASE (P0.23)
-		IOCLR = P23; // set to L
-
-		//IODIR |= P31; // BRAKE (P0.31)
-		IOCLR = P31; // set to L
+	else if (mode == MODE_BRAKE){ // Brake, Fast Current-Decay Mode
+		IOCLR = P21; // ENABLE (P0.21) - set to L
+		IOCLR = P23; // PHASE (P0.23) - set to L
+		IOCLR = P31; // BRAKE (P0.31) - set to L
 	}
 
 }

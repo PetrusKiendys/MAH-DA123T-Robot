@@ -1,3 +1,4 @@
+// DEPRECATED: this file doesn't work, can be removed from the project
 
 #include "../startup/lpc2xxx.h"
 

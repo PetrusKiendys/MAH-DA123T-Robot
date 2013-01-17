@@ -1,3 +1,9 @@
+/*************************************************************
+ *  Filename: motor.h
+ *  Created on: 2013-01-08
+ *  Author: Petrus K. & Ardiana O.
+ *  Description: Header file for motor.c.
+ *************************************************************/
 
 /******************************************************************************
  * Includes
@@ -36,18 +42,18 @@ static tU32 duty2;
 /*****************************************************************************
  * Function prototypes
  ****************************************************************************/
-void init();
-void initPwm(tU32 initialFreqValue);
-void initPins();
-void init_EINT0();
-void init_EINT3();
-void init_vic();
-void init_io();
+void motor_init();
+void motor_initPwm(tU32 initialFreqValue);
+void motor_initPins();
+void motor_initEINT0();
+void motor_initEINT3();
+void motor_initVIC();
+void motor_initIO();
 
-void setMode1(short mode);
-void setMode2(short mode);
-void setPwmDutyPercent1(tU32 dutyValue1);
-void setPwmDutyPercent2(tU32 dutyValue2);	// QUESTION: should these functions be set as static? (only accessible from within this translation unit)
-											// EDIT: they have been set to implicitly extern (they are accessible from other translation units)
+void motor_setMode1(short mode);
+void motor_setMode2(short mode);
+void motor_setPwmDutyPercent1(tU32 dutyValue1);
+void motor_setPwmDutyPercent2(tU32 dutyValue2);	// QUESTION: should these functions be set as static? (only accessible from within this translation unit)
+												// EDIT: they have been set to implicitly extern (they are accessible from other translation units)
 
 

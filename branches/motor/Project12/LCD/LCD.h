@@ -1,17 +1,20 @@
-/**********************************************************************************
+/*************************************************************
+ *  Filename: LCD.h
+ *  Created on: ?
+ *  Author: ?
+ *  Description:	Funktionsprototyper för LCD-rutinerna
+ *  				Beskrivning finns i LCD.c
+ *  				Denna fil skall inkluderas i huvudfilen
  *
- *
- *
- *	Funktionsprototyper för LCD-rutinerna
- *  Beskrivning finns i LCD.c
- *  Denna fil skall inkluderas i huvudfilen
- *
- ***********************************************************************************/
+ *  Modified by: Petrus K. & Ardiana O. (2013-01-10)
+ *  Description: Header file for LCD.c.
+ *************************************************************/
 
 /*****************************************************************************
  * Includes
  ****************************************************************************/
 #include "../startup/lpc2xxx.h"
+
 
 /*****************************************************************************
  * Defines
@@ -23,25 +26,27 @@
 #define	backlight	0x40000000		//P0.30
 #define	BF			0x00800000
 
+
 /*****************************************************************************
  * Global variables
  ****************************************************************************/
-//long const delayshort =	1200;
-//long const delaylong  =	49250;
 long const delayshort;
 long const delaylong;
 // REMARK: removed extern modifier!
 
+
 /*****************************************************************************
  * Function prototypes
  ****************************************************************************/
-void send_instruction(long instruction);
-void send_character(long character);
-void wait_BF(void);
-void init_LCD(void);
+void LCD_sendInstruction(long instruction);
+void LCD_sendCharacter(long character);
+void LCD_waitBF(void);
+void LCD_initLCD(void);
 
 void LCD_clearDisplay(void);
 
+// REMARK: the functions below should be moved to another source file
+// EDIT:   tried moving to utils/utils.c and compiling but didn't work...
 void delay(long pulses);
 void delay_mikros(long us);
 void delay_millis(long ms);

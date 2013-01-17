@@ -1,11 +1,12 @@
+// DEPRECATED: this file doesn't work, can be removed from the project
+
 /*
  * utils.c
  *
  *  Created on: 14 dec 2012
- *      Author: Petrus K.
+ *      Author: Petrus K. & Ardiana O.
  */
 #include "utils.h"
-
 
 // ********************************************
 // Delay function written in assembly code

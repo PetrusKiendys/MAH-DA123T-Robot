@@ -1,25 +1,25 @@
 /*************************************************************
  *  Filename: interrupt_tacho.c
  *  Created on: 2013-01-14
- *  Author: Petrus K
+ *  Author: Petrus K. & Ardiana O.
+ *	Description: Manages the tachometer ISR.
  *************************************************************/
 
+/******************************************************************************
+ * Includes
+ *****************************************************************************/
 #include "interrupts.h"
-
-
 
 
 /******************************************************************************
  * ISR
  *****************************************************************************/
-void Tacho1_ISR (void) {
-	// perform this when Tacho1 is triggered
-	//printf("\n\nTacho1 ISR: %d", tacho1_counter);
-	tacho1_counter++;
+void interruptTacho_Tacho1ISR (void) {
+	printf("\n\nTacho1 ISR: %d", tacho1_counter);	// prints the tacho1 counter value everytime the interrupt is trigger
+													// note that this causes an overhead and is not preferable in performance critical applications (when not testing code)
+	tacho1_counter++;								// increments the tacho1 counter
 
-	// don't forget to reset the interrupt flag!
 	EXTINT |= 0x00000009;			// (re)activates EINT0 and EINT3
-
 	VICVectAddr = 0x00;				//dummy write to VIC to signal end of interrupt
 									// QUESTION: have to use this statement?
 									// EDIT: apparently so, see p. 58 4.12 Vector Address register of manualLPC2148.pdf for more info
@@ -27,14 +27,12 @@ void Tacho1_ISR (void) {
 									// 		 "Rather, this register should be written near the end of an ISR, to update the priority hardware."
 }
 
-void Tacho2_ISR (void) {
-	// perform this when Tacho2 is triggered
-	//printf("\nTacho2 ISR: %d", tacho2_counter);
-	tacho2_counter++;
+void interruptTacho_Tacho2ISR (void) {
+	printf("\nTacho2 ISR: %d", tacho2_counter);		// prints the tacho2 counter value everytime the interrupt is trigger
+													// note that this causes an overhead and is not preferable in performance critical applications (when not testing code)
+	tacho2_counter++;								// increments the tacho2 counter
 
-	// don't forget to reset the interrupt flag!
 	EXTINT |= 0x00000009;			// (re)activates EINT0 and EINT3
-
 	VICVectAddr = 0x00;				//dummy write to VIC to signal end of interrupt
 									// QUESTION: have to use this statement?
 									// EDIT: apparently so, see p. 58 4.12 Vector Address register of manualLPC2148.pdf for more info

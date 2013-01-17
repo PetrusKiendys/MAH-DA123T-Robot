@@ -1,21 +1,25 @@
-/**********************************************************************************************
+/*************************************************************
+ *  Filename: LCD.c
+ *  Created on: 2011-10-31
+ *  Author: Tommy
+ * 	Description:	Jonas LCD-rutiner med vissa justeringar
+ *  				Makefilen i mappen LCD generar lib_LDC.a i ARM-format, behövs pga asm instruktionerna i delay
  *
- *	LCD.c
- *	111031 TA
- *
- * 	Jonas LCD-rutiner med vissa justeringar
- *
- *
- *  Makefilen i mappen LCD generar lib_LDC.a i ARM-format, behövs pga asm instruktionerna i delay
- *
- ************************************************************************************************/
+ *  Modified by: Petrus K. & Ardiana O. (2012-12-05)
+ *  Description: Manages LCD functionality.
+ *  REMARK: Some functions in this file don't exhibit any relations to the LCD, they should be moved to another source file.
+ *************************************************************/
 
+/******************************************************************************
+ * Includes
+ *****************************************************************************/
 #include "LCD.h"
 
 
-
-
-void send_instruction(long instruction)
+/******************************************************************************
+ * Functions
+ *****************************************************************************/
+void LCD_sendInstruction(long instruction)
 {
 	delay(100);
 	IOCLR1 = RS;		//send instruction
@@ -29,7 +33,7 @@ void send_instruction(long instruction)
 	IOCLR1 = E;			//end write pulse
 }
 
-void send_character(long character)
+void LCD_sendCharacter(long character)
 {
 	IOSET1 = RS;		//send character
 	IOSET1 = E;			//start a write pulse
@@ -39,9 +43,9 @@ void send_character(long character)
 }
 
 // DEPRECATED: this function should never be called
-void wait_BF(void)
+void LCD_waitBF(void)
 {
-//	IODIR1 |= BF;  alternativ lösning på studsning
+//	IODIR1 |= BF;  alternativ lösning för att undvika studsningar
 //	IOSET1 = BF;
 
 	IOSET0 = RW;		//read from display
@@ -57,36 +61,37 @@ void wait_BF(void)
 }
 
 
-void init_LCD(void)
+void LCD_initLCD(void)
 {
 	IODIR0 |= RW|backlight;
 	IODIR1 |= data_pins|E|RS;
 	IOCLR1 = E;
 	IOCLR0 = RW;		//write to the display
 	IOSET0 = backlight;		//turn on the backlight
-	send_instruction(0x38);		//function set
+	LCD_sendInstruction(0x38);		//function set
 	delay(1200);			//12*60/48 * 80 (80µs)
-	send_instruction(0x38);
+	LCD_sendInstruction(0x38);
 	delay(1200);
-	send_instruction(0x0F);		//display on/off
+	LCD_sendInstruction(0x0F);		//display on/off
 	delay(1200);
-	send_instruction(0x01);		//display clear
+	LCD_sendInstruction(0x01);		//display clear
 	delay(49250);		//12* 60/48 * 3283 (3,283 ms)
-	send_instruction(0x06);		//entry mode set
+	LCD_sendInstruction(0x06);		//entry mode set
 	delay(1200);
 }
 
 void LCD_clearDisplay(void) {
 	delay(delayshort);
-	send_instruction(1);	//clears the display
+	LCD_sendInstruction(1);	//clears the display
 	delay(delaylong);
-	send_instruction(2);  	//the cursor is moved to the first position
+	LCD_sendInstruction(2);  	//the cursor is moved to the first position
 }
 
 
-// *********************************
-// CUSTOM CODE
-// *********************************
+/******************************************************************************
+ * Functions (custom)
+ *****************************************************************************/
+// TODO: Move these functions to another source file.
 
 // Med CCLK=60 MHz ger denna rutin en delay på pulses*66,666 ns + anropstiden
 void delay(long pulses) {               	// pulses is stored in R0 when this function is called
@@ -105,7 +110,3 @@ void delay_millis(long ms) {            	// delays by the provided parameter (in
 void delay_secs(long secs) {              	// delays by the provided parameter (in seconds)
     delay(secs*15000000);
 }
-
-
-
-

@@ -1,12 +1,14 @@
-/*
- * proc2.c
+/*************************************************************
+ *  Filename: proc2.c
+ *  Created on: 2011-10-31
+ *  Author: Tommy
  *
- *  Created on: 31 okt 2011
- *      Author: Tommy
- */
+ *  Modified by: Petrus K. & Ardiana O. (2012-12-10)
+ *  Description: Manages process 2.
+ *************************************************************/
 
 /*****************************************************************************
- * Process 2
+ * Includes
  ****************************************************************************/
 #include "pre_emptive_os/api/osapi.h"
 #include "general.h"
@@ -22,9 +24,10 @@
 
 extern tCntSem mutexLCD;
 
-/*****************************************************
- * This process is not tasked with any routines
- *****************************************************/
+/*****************************************************************************
+ * Functions
+ ****************************************************************************/
+// This process is not tasked with any routines
 void
 procEx2(void* arg)
 {
@@ -38,4 +41,3 @@ procEx2(void* arg)
     osSleep(5000);
   }
 }
-

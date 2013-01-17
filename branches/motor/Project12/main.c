@@ -1,28 +1,30 @@
-/******************************************************************************
+/*************************************************************
+ *  Filename: main.c
+ *  Author: Tommy
+ *  Created on: 2012-11-08
+ *  Description:	Bas för Project12
  *
- * Bas för Project12
+ *  				RTOS kompilerat för max 10 processer, 5 prioritetsnivåer
+ *  				link_32k_512k_rom.ld ändrad så att ramadressen börjar på 0x40000200.
+ *  				Newlib används inte.
  *
- * RTOS kompilerat för max 10 processer, 5 prioritetsnivåer
- * link_32k_512k_rom.ld ändrad så att ramadressen börjar på 0x40000200.
- * Newlib används inte.
+ *  				Alla ändringar när det gäller processortyp mm är gjorda.
+ *  				Även förberett för on chip debugging.
  *
- * Alla ändringar när det gäller processortyp mm är gjorda.
- * Även förberett för on chip debugging.
+ *  				Projektet visar hur man kan ha processerna i olika filer, vilket är bra
+ *  				när man är många som jobbar med samma projekt.
+ *  				Namnen på källkodsfilerna måste anges i den yttre makefilen.
  *
- * Projektet visar hur man kan ha processerna i olika filer, vilket är bra
- * när man är många som jobbar med samma projekt.
- * Namnen på källkodsfilerna måste anges i den yttre makefilen.
+ *  				Pga av problem med BF_wait för vissa kort används i stället delay() i exemplen.
  *
- * Pga av problem med BF_wait för vissa kort används i stället delay() i exemplen.
+ *  				I projektet visas även hur man hanterar avbrott. Exemplet samplar en analog signal
+ *  				8000 gånger/sekund och lägger sen ut värdena på DA-omvandlaren.
  *
- * I projektet visas även hur man hanterar avbrott. Exemplet samplar en analog signal
- * 8000 gånger/sekund och lägger sen ut värdena på DA-omvandlaren.
- *
- * Tommy 121108
- *
- *****************************************************************************/
-
-// QUESTION: how many ms is a tick (RTOS)?
+ *  Modified by: Petrus K. & Ardiana O. (2012-12-03)
+ *	Description:	Main file for the application from which everything else is invoked.
+ *					Serves as the base for the application.
+ *************************************************************/
+// TODO: integrate main.h and other help files from /branches/time_sampling_test into this project
 
 /******************************************************************************
  * Includes
@@ -35,12 +37,13 @@
 #include "startup/consol.h"
 #include "startup/config.h"
 #include "startup/framework.h"
-#include "LCD/LCD.h"  //  Funktionsprototyper för LCD-rutinerna
+#include "LCD/LCD.h"
 
 #include "utils/utils.h"
 
+
 /******************************************************************************
- * Defines and typedefs
+ * Defines
  *****************************************************************************/
 // Dessa definitioner används av en del av EA's rutiner
 #define CRYSTAL_FREQUENCY FOSC
@@ -88,14 +91,12 @@ static void initProc(void* arg);
 static void procStackUsage(void* arg);
 
 //Exempel på avbrott (ljudsampling)
-void Timer1ISRirq (void);  // skall inte ha något attribut när RTOS används
+void interruptTimer_Timer1ISR (void);  // skall inte ha något attribut när RTOS används
 /****************************************************************************/
 
 
 /*****************************************************************************
- *
- * Main
- *
+ * Main function
  ****************************************************************************/
 int
 main(void)
@@ -105,11 +106,11 @@ main(void)
 
   osInit();
 
-  init_LCD();
+  LCD_initLCD();
   delay(delaylong);
-  send_instruction(0xC);  //släck cursorn
+  LCD_sendInstruction(0xC);  //släck cursorn
 
-  // TODO: do inits here, init and enable interrupts last
+  // TODO: do inits here, make sure you enable interrupts last
 
   osCreateProcess(initProc, initStack, INIT_STACK_SIZE, &pid, 1, NULL, &error);
   osStartProcess(pid, &error);
@@ -119,8 +120,9 @@ main(void)
 }
 
 
-
-
+/*****************************************************************************
+ * Functions
+ ****************************************************************************/
 
 /*****************************************************************************
  *
@@ -220,7 +222,7 @@ initProc(void* arg)
   //			and "VIC_channel" is the VIC channel for the specified flag/function (as specified by Table 5-57 in manualLPC2148.pdf)
   VICIntSelect	&=	~0x000000020;		// Timer1 sätts till IRQ
   VICVectCntl7  =  	 0x00000025;		// tilldela interuptchannel 5 (Timer1) till slot 7
-  VICVectAddr7	=  	(tU32)Timer1ISRirq;	// adressen till avbrottsrutinen på slot 7
+  VICVectAddr7	=  	(tU32)interruptTimer_Timer1ISR;	// adressen till avbrottsrutinen på slot 7
   VICIntEnable	|=	 0x000000020;		// enabla Timer1 som avbrott
 
 //*************slut ljudavbrottsinitering****************

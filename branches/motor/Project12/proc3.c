@@ -1,12 +1,14 @@
-/*
- * proc3.c
+/*************************************************************
+ *  Filename: proc3.c
+ *  Created on: 2011-10-31
+ *  Author: Tommy
  *
- *  Created on: 31 okt 2011
- *      Author: Tommy
- */
+ *  Modified by: Petrus K. & Ardiana O. (2012-12-10)
+ *  Description: Manages process 3.
+ *************************************************************/
 
 /*****************************************************************************
- * Process 3
+ * Includes
  ****************************************************************************/
 #include "pre_emptive_os/api/osapi.h"
 #include "general.h"
@@ -22,9 +24,10 @@
 
 extern tCntSem mutexLCD;
 
-/*****************************************************
- * This process is not tasked with any routines
- *****************************************************/
+/*****************************************************************************
+ * Functions
+ ****************************************************************************/
+// This process is not tasked with any routines
 void
 procEx3(void* arg)
 {
