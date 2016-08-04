@@ -1,4 +1,4 @@
-# dt3-robotlego-2012ht-white
+# MAH-DA123T-Robot
 DT3 - RobotLEGO Project (Malmö Högskola) - http://edu.mah.se/sv/Course/DA123T
 
 Labels: Projects, Robotics, Academic, University, C, Arm, DSP
